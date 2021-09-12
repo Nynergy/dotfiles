@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# A script to start polybar with a command line specified name (configuration)
+# Maintainer: Ben Buchanan (https://github.com/Nynergy)
+
 BAR="$1"
 
 # Kill all instances of polybar
@@ -10,8 +13,8 @@ while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
 if type "xrandr"; then
 	for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-		MONITOR=$m polybar --reload $BAR &
+		MONITOR=$m polybar --reload "$BAR" &
 	done
 else
-	polybar --reload $BAR &
+	polybar --reload "$BAR" &
 fi

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # A bash script to handle adding new posts to Lexica Chromatica
+# Maintainer: Ben Buchanan (https://github.com/Nynergy)
+
 # 1. Use `scribe` to create the new post file w/headers
 # 2. Capture the filename of new file
 # 3. Read file to see what type of post it is
@@ -11,17 +13,16 @@
 WEBSITE_ROOT="$HOME/Programming/Webdev/Lexica Chromatica"
 POSTS_DIR="$WEBSITE_ROOT/_posts"
 
-cd "$WEBSITE_ROOT"
+cd "$WEBSITE_ROOT" || exit
 
-scribe
-if [ $? -ne 0 ]
+if scribe
 then
     echo "New post aborted"
     exit
 fi
 
 FILENAME="$(ls -t | head -n 1)"
-CATEGORY="$(grep category $FILENAME | awk '{print $2}')"
+CATEGORY="$(grep category "$FILENAME" | awk '{print $2}')"
 
 mv "$FILENAME" "$POSTS_DIR/$CATEGORY/"
 FILEPATH="$POSTS_DIR/$CATEGORY/$FILENAME"

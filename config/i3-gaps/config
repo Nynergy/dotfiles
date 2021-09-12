@@ -1,5 +1,4 @@
 # i3 config file (v4)
-# Maintainer: Ben Buchanan @ Apparition
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
 # MOD & FONTS
@@ -12,6 +11,7 @@ font $font
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
+
 # BASIC COMMANDS & MOVEMENTS
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
@@ -46,6 +46,7 @@ bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
+
 # SPLITS & LAYOUTS
 # split in horizontal orientation
 bindsym $mod+h split h
@@ -63,6 +64,7 @@ bindsym $mod+f fullscreen toggle
 
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
+
 # FOCUS
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
@@ -72,11 +74,13 @@ bindsym $mod+space focus mode_toggle
 
 # focus the child container
 #bindsym $mod+d focus child
+#
 # MULTIMEDIA KEYS
 # volume
 bindsym $mod+F3 exec --no-startup-id pactl set-sink-volume 0 +5%
 bindsym $mod+F2 exec --no-startup-id pactl set-sink-volume 0 -5%
 bindsym $mod+F1 exec --no-startup-id pactl set-sink-mute 0 toggle
+
 # WORKSPACES
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
@@ -114,14 +118,14 @@ bindsym $mod+Shift+7 move container to workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
+
 # GAPS CONFIG
 #gaps inner 12
 #gaps outer 0
+
 # WINDOW CONFIG
 for_window [class=".*"] border pixel 1
 for_window [class="Sxiv"] floating enable
-for_window [class="mpv"] floating enable
-for_window [class="roguelike"] floating enable
 for_window [title="_floater"] floating enable
 for_window [title="_scratchpad"] floating enable move scratchpad
 
@@ -130,6 +134,7 @@ hide_edge_borders smart
 # scratchpad command
 bindsym $mod+p scratchpad show
 bindsym $mod+Shift+p move scratchpad
+
 # COLORS
 # color config with Xresources
 set_from_resource $black color0 #f0f0f0
@@ -150,6 +155,7 @@ client.urgent		    $black	$black	$red	$blue		$blue
 client.placeholder	    $black	$black	$red	$black		$black
 
 client.background	    $black
+
 # DMENU
 # start dmenu (a program launcher)
 bindsym $mod+d exec ~/Repos/dmenu/dmenu_run -c -l 15 -bw 2 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "xos4 Terminus-10" -p "Run:"
@@ -165,12 +171,13 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+e exec prompt.sh "Are you sure you want to exit i3?" "i3-msg exit"
 # NOTE: The user should use the dmenu-util.sh script to exit i3
+
 # TERMINAL APPS & UTILITIES
-bindsym $mod+s exec dmenu-util.sh
-bindsym $mod+b exec open-bookmark.sh
+bindsym $mod+s exec puppetmaster
 bindsym $mod+x exec urxvt -e lf
 bindsym $mod+c exec urxvt -e cascade
 bindsym $mod+m exec urxvt -e horizon
+
 # RESIZE MODE
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -198,9 +205,8 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
+
 # BAR CONFIG
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
 bar {
 	i3bar_command echo
     status_command echo
@@ -222,9 +228,10 @@ bar {
 		binding_mode		$black	$black		$blue
 	}
 }
+
 # EXECUTE WHEN I3 STARTS
 exec feh --bg-fill ~/Pictures/Wallpaper/wallpaper.jpg
 exec compton
 exec dunst
-exec_always --no-startup-id /usr/bin/start-polybar.sh apparition-no-gaps
+exec_always --no-startup-id /usr/bin/marquee apparition-no-gaps
 exec --no-startup-id urxvt -name "_scratchpad"

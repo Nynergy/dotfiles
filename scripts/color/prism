@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# A master script for recoloring my applications
+# Maintainer: Ben Buchanan (https://github.com/Nynergy)
+
+xrdb load .Xresources
+
+pkill dunst
+
+gen-dunst.sh && dunstify "RECOLORED DUNST"
+gen-polybar.sh && dunstify "RECOLORED POLYBAR"
+gen-startpage.sh && dunstify "RECOLORED STARTPAGE"
+gen-zathura.sh && dunstify "RECOLORED ZATHURA"
+
+i3-msg restart

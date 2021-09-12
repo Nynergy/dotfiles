@@ -81,16 +81,18 @@ add "/usr/bin/gen-dunst.sh" "$SCRIPTS_PATH/color/"
 add "/usr/bin/gen-polybar.sh" "$SCRIPTS_PATH/color/"
 add "/usr/bin/gen-startpage.sh" "$SCRIPTS_PATH/color/"
 add "/usr/bin/gen-zathura.sh" "$SCRIPTS_PATH/color/"
-add "/usr/bin/master-recolor.sh" "$SCRIPTS_PATH/color/"
+add "/usr/bin/prism" "$SCRIPTS_PATH/color/"
 # Copy dmenu scripts
-add "/usr/bin/dmenu-util.sh" "$SCRIPTS_PATH/dmenu/"
+add "/usr/bin/chameleon" "$SCRIPTS_PATH/dmenu/"
+add "/usr/bin/palette" "$SCRIPTS_PATH/dmenu/"
+add "/usr/bin/puppetmaster" "$SCRIPTS_PATH/dmenu/"
 # Copy misc scripts
 add "/usr/bin/mirror" "$SCRIPTS_PATH/misc/"
 add "$USER_HOME/.local/bin/tapestry" "$SCRIPTS_PATH/misc/"
 # Copy polybar scripts
 add "/usr/bin/diskbar.sh" "$SCRIPTS_PATH/polybar/"
 add "$USER_HOME/.local/bin/sirenbar.py" "$SCRIPTS_PATH/polybar/"
-add "/usr/bin/start-polybar.sh" "$SCRIPTS_PATH/polybar/"
+add "/usr/bin/marquee" "$SCRIPTS_PATH/polybar/"
 
 # COLORSCHEMES
 
