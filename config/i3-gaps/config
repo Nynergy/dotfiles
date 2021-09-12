@@ -74,7 +74,7 @@ bindsym $mod+space focus mode_toggle
 
 # focus the child container
 #bindsym $mod+d focus child
-#
+
 # MULTIMEDIA KEYS
 # volume
 bindsym $mod+F3 exec --no-startup-id pactl set-sink-volume 0 +5%
