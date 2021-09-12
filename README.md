@@ -4,6 +4,8 @@ Configuration files for various programs on my Linux machines
 
 ------------------------------------------------------------------------------
 
+![Lovely Sunset](masthead.jpg)
+
 ## What can I find in this here repository?
 
 #### Config files for the following programs:
