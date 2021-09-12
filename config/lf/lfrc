@@ -1,0 +1,25 @@
+# Set options
+set ratios '1:1'
+set dircounts
+set drawbox
+set info size
+set wrapscroll
+
+# Custom keybindings
+map <bs> set hidden! # <C-h> to toggle hidden files/directories
+
+# Custom 'open' command
+cmd open ${{
+	filename=$(basename -- "$f")
+	extension="${filename##*.}"
+	case $extension in
+		txt|c|cpp|h|hs|html|css|scss|js|sh|pl|py|java|md|json|tex) vim "$fx";;
+		jpg|jpeg|JPG|png|PNG|gif|tif) sxiv "$f" &;;
+		mp4|mov|MOV|mkv|webm) mpv "$f" &;;
+		pdf) zathura "$f" &;;
+        todo) cascade "$f";;
+		*) case $filename in
+			Makefile|makefile) vim "$fx";;
+		esac
+	esac
+}}

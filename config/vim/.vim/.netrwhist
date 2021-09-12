@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =6
+let g:netrw_dirhist_6='/home/benjamin/Programming/C++/cascade/src'
+let g:netrw_dirhist_5='/home/benjamin/Programming/C++/cascade'
+let g:netrw_dirhist_4='/home/benjamin/Programming/C++'
+let g:netrw_dirhist_3='/home/benjamin/Programming'
+let g:netrw_dirhist_2='/home/benjamin'
+let g:netrw_dirhist_1='/home/benjamin/.config/gtk-3.0'
+let g:netrw_dirhist_0='/home/benjamin/Programming/Haskell/igon/src'
+let g:netrw_dirhist_9='/home/benjamin/Programming/Haskell/igon'
+let g:netrw_dirhist_8='/home/benjamin/Programming/C++/Lecterm/src'
+let g:netrw_dirhist_7='/home/benjamin/Programming/C++/Lecterm'

@@ -1,0 +1,175 @@
+#!/bin/bash
+
+# A script that will 'save' files to a dotfiles repo and push changes to GitHub
+# Maintainer: Ben Buchanan (https://github.com/Nynergy)
+
+USER="benjamin"
+USER_HOME="/home/$USER"
+DOTFILE_REPO="$USER_HOME/.dotfiles"
+CONFIG_PATH="$DOTFILE_REPO/config"
+SCRIPTS_PATH="$DOTFILE_REPO/scripts"
+
+# Log error message and exit
+die () {
+    echo "*** ERROR: $1 ***"
+    exit
+}
+
+# Create destination directory if it doesn't exist, then copy over
+add () {
+    # Make sure the file exits
+    if test -f "$1" || test -d "$1"
+    then
+        mkdir -p "$2"
+        if cp -r "$1" "$2"
+        then
+            echo "Copied '$1' to repo at '$2'"
+        else
+            echo "*** ERROR: Failed to copy '$1' to repo at '$2' ***"
+        fi
+    else
+        die "File or directory '$1' does not exist."
+    fi
+}
+
+# Check for root privileges
+if [ "$EUID" -ne 0 ]
+then
+    die "This script must be run as root. Please use 'sudo'."
+fi
+
+# First, clear out all the old files to avoid garbage piling up
+rm -rf "${CONFIG_PATH:?}/"
+rm -rf "${SCRIPTS_PATH:?}/"
+rm -rf "$DOTFILE_REPO/colorschemes/"
+rm -rf "$DOTFILE_REPO/startpage/"
+
+# CONFIGURATION FILES
+
+# Copy bash files
+add "$USER_HOME/.bashrc" "$CONFIG_PATH/bash/"
+# Copy cascade files
+add "$USER_HOME/.cascade/cascade.conf" "$CONFIG_PATH/cascade/"
+# Copy compton files
+add "$USER_HOME/.config/compton.conf" "$CONFIG_PATH/compton/"
+# Copy dunst files
+add "$USER_HOME/.config/dunst/dunstrc" "$CONFIG_PATH/dunst/"
+# Copy htop files
+add "$USER_HOME/.config/htop/htoprc" "$CONFIG_PATH/htop/"
+# Copy i3-gaps files
+add "$USER_HOME/.config/i3/config" "$CONFIG_PATH/i3-gaps/"
+# Copy lf files
+add "$USER_HOME/.config/lf/lfrc" "$CONFIG_PATH/lf/"
+# Copy polybar files
+add "$USER_HOME/.config/polybar/config" "$CONFIG_PATH/polybar/"
+# Copy tmux files
+add "$USER_HOME/.tmux.conf" "$CONFIG_PATH/tmux/"
+# Copy urxvt files
+add "$USER_HOME/.Xresources" "$CONFIG_PATH/urxvt/"
+# Copy vim files
+add "$USER_HOME/.vimrc" "$CONFIG_PATH/vim/"
+add "$USER_HOME/.vim" "$CONFIG_PATH/vim/"
+# Copy xorg files
+add "$USER_HOME/.xinitrc" "$CONFIG_PATH/xorg/"
+# Copy zathura files
+add "$USER_HOME/.config/zathura/zathurarc" "$CONFIG_PATH/zathura/"
+
+# SCRIPTS
+
+# Copy color scripts
+add "/usr/bin/gen-dunst.sh" "$SCRIPTS_PATH/color/"
+add "/usr/bin/gen-polybar.sh" "$SCRIPTS_PATH/color/"
+add "/usr/bin/gen-startpage.sh" "$SCRIPTS_PATH/color/"
+add "/usr/bin/gen-zathura.sh" "$SCRIPTS_PATH/color/"
+add "/usr/bin/master-recolor.sh" "$SCRIPTS_PATH/color/"
+# Copy dmenu scripts
+add "/usr/bin/dmenu-util.sh" "$SCRIPTS_PATH/dmenu/"
+# Copy misc scripts
+add "/usr/bin/mirror" "$SCRIPTS_PATH/misc/"
+add "$USER_HOME/.local/bin/tapestry" "$SCRIPTS_PATH/misc/"
+# Copy polybar scripts
+add "/usr/bin/diskbar.sh" "$SCRIPTS_PATH/polybar/"
+add "$USER_HOME/.local/bin/sirenbar.py" "$SCRIPTS_PATH/polybar/"
+add "/usr/bin/start-polybar.sh" "$SCRIPTS_PATH/polybar/"
+
+# COLORSCHEMES
+
+# Copy colorscheme directory
+add "$USER_HOME/.config/colorschemes" "$DOTFILE_REPO/"
+
+# STARTPAGE
+
+# Copy custom startpage files
+add "$USER_HOME/Programming/Webdev/Startpage/startpage.css" "$DOTFILE_REPO/startpage/"
+add "$USER_HOME/Programming/Webdev/Startpage/startpage.html" "$DOTFILE_REPO/startpage/"
+add "$USER_HOME/Programming/Webdev/Startpage/startpage.js" "$DOTFILE_REPO/startpage/"
+add "$USER_HOME/Programming/Webdev/Startpage/startpage.scss" "$DOTFILE_REPO/startpage/"
+
+# GIT CHECKS
+
+# Check if there are any changes that need to be pushed
+cd "$DOTFILE_REPO" || die "Could not change directory into '$DOTFILE_REPO'"
+UNTRACKED="$(git ls-files -o --exclude-standard | wc -l)"
+MODIFIED="$(git ls-files -m | wc -l)"
+DELETED="$(git ls-files -d | wc -l)"
+
+# If there are untracked files, list them to the user
+if [ "$UNTRACKED" -ne "0" ]
+then
+    echo -e "\nThe following new files were detected:"
+    git ls-files -o
+    read -r -p "Add untracked files to the index? [y/N] " choice
+    case $choice in
+        [Yy]* ) git ls-files -o --exclude-standard | xargs -I{} git add {};
+	        echo "Added $UNTRACKED new file(s) to the index.";;
+	[Nn]* ) ;;
+	* ) ;;
+    esac
+fi
+
+# If there are modified files, ask to show them with 'git diff'
+if [ "$MODIFIED" -ne "0" ]
+then
+    echo -e "\nChanges detected in the dotfile repo for the following files:"
+    git ls-files -m
+    read -r -p "Would you like to see the changes? [y/N] " choice
+    case $choice in
+        [Yy]* ) git diff;;
+	[Nn]* ) ;;
+	* ) ;;
+    esac
+
+    # If there are deleted files, list them to the user
+    if [ "$DELETED" -ne "0" ]
+    then
+        echo -e "\nThe following deleted files were detected:"
+        git ls-files -d
+    fi
+
+    read -r -p "Add changes to the index? [y/N] " choice
+    case $choice in
+        [Yy]* ) git add -u;
+	        echo "Added $((MODIFIED + DELETED)) changed file(s) to the index.";;
+	[Nn]* ) ;;
+	* ) ;;
+    esac
+fi
+
+# Present user with a choice to push changes if any exist
+UNCOMMITTED="$(git ls-files -s | wc -l)"
+COMMIT_MESSAGE="Commit from $(hostname) on $(date)"
+if [ "$UNCOMMITTED" -ne "0" ]
+then
+    echo -e "\nThe following files are staged for commit:"
+    git ls-files -s | awk '{print $4}'
+    read -r -p "Commit files and push to GitHub? [y/N] " choice
+    case $choice in
+        [Yy]* ) git commit -m "$COMMIT_MESSAGE";
+	        sudo -u "$USER" git push && echo -e "\nCommit successfully pushed. Exiting...";;
+	[Nn]* ) echo "Aborting commit. Exiting..."; exit;;
+	* ) echo "Aborting commit. Exiting..."; exit;;
+    esac
+else
+    echo "Nothing to commit. Exiting..."
+    exit
+fi

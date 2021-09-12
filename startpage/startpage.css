@@ -1,0 +1,97 @@
+/* COLORS */
+/* GLOBAL ELEMENTS */
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #00001c;
+  background-size: cover;
+  color: #d5ffe7;
+  font-family: "Montserrat", sans-serif;
+  font-size: 22px;
+}
+
+/* CLASSES */
+.greeting-container {
+  margin-top: 10vh;
+  text-align: center;
+}
+
+.search-container {
+  width: 60vw;
+  margin: auto;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  background-color: #00004f;
+  transition: box-shadow 0.5s;
+}
+.search-container:focus {
+  outline: none;
+}
+
+.group-container {
+  width: 20vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.group-header {
+  text-align: center;
+  padding-bottom: 0.5rem;
+}
+
+.header-General {
+  border-bottom: solid #fd2a69 2px;
+}
+
+.header-School {
+  border-bottom: solid #3bf87a 2px;
+}
+
+.header-Work {
+  border-bottom: solid #356ae9 2px;
+}
+
+.header-Entertainment {
+  border-bottom: solid #ff9f6d 2px;
+}
+
+.badge {
+  cursor: pointer;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background-color: #00004f;
+  box-shadow: 0.5rem 0.5rem 0.3rem #000;
+  transition: all 0.2s ease-in;
+}
+.badge .badge-icon {
+  width: 40px;
+  border-right: solid #d5ffe7 1px;
+}
+.badge .badge-link {
+  text-decoration: none;
+  color: #d5ffe7;
+  padding-left: 1rem;
+}
+.badge:hover {
+  transform: translateX(10px);
+  background-color: #000036;
+}
+
+/* IDS */
+#link-container {
+  width: 85%;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+#searchbar {
+  height: 32px;
+  border: none;
+  width: 95%;
+  margin-left: 10px;
+  font-size: 16px;
+  outline: none;
+  background: none;
+  color: #d5ffe7;
+}

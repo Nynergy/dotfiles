@@ -1,0 +1,21 @@
+set default-fg \#00001c
+set default-bg \#00001c
+set statusbar-fg \#00001c
+set statusbar-bg \#3bf87a
+set inputbar-fg \#3bf87a
+set inputbar-bg \#00001c
+set completion-fg \#d5ffe7
+set completion-bg \#00001c
+set completion-group-fg \#00001c
+set completion-group-bg \#fd2a69
+set completion-highlight-fg \#00001c
+set completion-highlight-bg \#d5ffe7
+
+set recolor true
+
+set recolor-darkcolor \#d5ffe7
+set recolor-lightcolor \#00001c
+
+set font "Terminus 10"
+
+set scroll-step 300

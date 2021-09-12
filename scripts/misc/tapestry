@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# A bash script to handle adding new posts to Lexica Chromatica
+# 1. Use `scribe` to create the new post file w/headers
+# 2. Capture the filename of new file
+# 3. Read file to see what type of post it is
+# 4. Move new post file to the appropriate folder
+# 5. Run autotagger to collect any new post tags
+# 6. Open new post in vim
+
+WEBSITE_ROOT="$HOME/Programming/Webdev/Lexica Chromatica"
+POSTS_DIR="$WEBSITE_ROOT/_posts"
+
+cd "$WEBSITE_ROOT"
+
+scribe
+if [ $? -ne 0 ]
+then
+    echo "New post aborted"
+    exit
+fi
+
+FILENAME="$(ls -t | head -n 1)"
+CATEGORY="$(grep category $FILENAME | awk '{print $2}')"
+
+mv "$FILENAME" "$POSTS_DIR/$CATEGORY/"
+FILEPATH="$POSTS_DIR/$CATEGORY/$FILENAME"
+
+autotagger
+
+vim "$FILEPATH"
