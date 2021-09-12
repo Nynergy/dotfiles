@@ -38,9 +38,9 @@ marquee | Bash script that starts the polybar given via command line argument
 mirror | Bash script that will copy files to this very repo and push changes
 palette | Bash script that reads Xresources and saves it as a colorscheme with dmenu
 prism | Bash script that calls all my gen-\*.sh scripts described above
-puppetmaster | Master utility script for multiple system features
+puppetmaster | Master utility script for multiple system features using dmenu
 sirenbar.py | Python script that displays song info from LMS in a polybar module
-tapestry | Helper script for making posts to [Lexica Chromatica](https://lexicachromatica.xyz)
+tapestry | Helper script for making posts to [Lexica Chromatica](https://lexicachromatica.xyz) using [scribe](https://github.com/Nynergy/scribe)
 
 #### A directory of colorschemes for use with my color scripts 'chameleon' and 'palette'
 
