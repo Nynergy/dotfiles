@@ -3,7 +3,7 @@
 import lmsquery
 
 PLAYBAR_LENGTH = 20
-PLAYBAR_COLOR = "#ba4cbe"
+PLAYBAR_COLOR = "#6666ea"
 NORMAL_COLOR = ""
 
 def get_track_info():
