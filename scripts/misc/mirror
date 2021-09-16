@@ -20,12 +20,25 @@ add () {
     # Make sure the file exits
     if test -f "$1" || test -d "$1"
     then
-        mkdir -p "$2"
-        if cp -r "$1" "$2"
-        then
-            echo "Copied '$1' to repo at '$2'"
-        else
-            echo "*** ERROR: Failed to copy '$1' to repo at '$2' ***"
+        # Test if the file is newer than the one that already exists in the repo
+	LOCAL_FILE="$1"
+	REPO_FILE="$2/$(echo "$1" | awk -F/ '{print $NF}')"
+	if test -f "$REPO_FILE" || test -d "$REPO_FILE"
+	then
+	    REPO_FILE_EXISTS="True"
+	else
+	    REPO_FILE_EXISTS="False"
+	fi
+
+	if [ "$REPO_FILE_EXISTS" = "False" ] || [ "$LOCAL_FILE" -nt "$REPO_FILE" ]
+	then
+            mkdir -p "$2"
+            if cp -r "$1" "$2"
+            then
+                echo "Copied '$1' to repo at '$2'"
+            else
+                echo "*** ERROR: Failed to copy '$1' to repo at '$2' ***"
+            fi
         fi
     else
         die "File or directory '$1' does not exist."
@@ -38,11 +51,14 @@ then
     die "This script must be run as root. Please use 'sudo'."
 fi
 
-# First, clear out all the old files to avoid garbage piling up
-rm -rf "${CONFIG_PATH:?}/"
-rm -rf "${SCRIPTS_PATH:?}/"
-rm -rf "$DOTFILE_REPO/colorschemes/"
-rm -rf "$DOTFILE_REPO/startpage/"
+# If told to, clear out all the old files to avoid garbage piling up
+if [ "$1" = "--collect-garbage" ]
+then
+    rm -rf "${CONFIG_PATH:?}/"
+    rm -rf "${SCRIPTS_PATH:?}/"
+    rm -rf "$DOTFILE_REPO/colorschemes/"
+    rm -rf "$DOTFILE_REPO/startpage/"
+fi
 
 # CONFIGURATION FILES
 
@@ -86,6 +102,7 @@ add "/usr/bin/prism" "$SCRIPTS_PATH/color/"
 add "/usr/bin/chameleon" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/palette" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/puppetmaster" "$SCRIPTS_PATH/dmenu/"
+add "$USER_HOME/.local/bin/tether" "$SCRIPTS_PATH/dmenu/"
 # Copy misc scripts
 add "/usr/bin/mirror" "$SCRIPTS_PATH/misc/"
 add "$USER_HOME/.local/bin/tapestry" "$SCRIPTS_PATH/misc/"
@@ -163,7 +180,7 @@ COMMIT_MESSAGE="Commit from $(hostname) on $(date)"
 if [ "$UNCOMMITTED" -ne "0" ]
 then
     echo -e "\nThe following files are staged for commit:"
-    git ls-files -s | awk '{print $4}'
+    git status -s --porcelain | awk '/^[ADM] / {print $2}'
     read -r -p "Commit files and push to GitHub? [y/N] " choice
     case $choice in
         [Yy]* ) git commit -m "$COMMIT_MESSAGE";

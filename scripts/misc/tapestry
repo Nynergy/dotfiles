@@ -15,7 +15,7 @@ POSTS_DIR="$WEBSITE_ROOT/_posts"
 
 cd "$WEBSITE_ROOT" || exit
 
-if scribe
+if ! scribe
 then
     echo "New post aborted"
     exit

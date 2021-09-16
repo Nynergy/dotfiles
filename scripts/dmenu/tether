@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# A script for mounting/unmounting devices using dmenu
+# Maintainer: Ben Buchanan (https://github.com/Nynergy)
+
+# Required Arguments: None
+# Optional Arguments: --view
+#                     Open the mounted device using a file manager
+
+FILE_MANAGER=lf
+
+FONT="xos4Terminus-10"
+BACKGROUND="$(grep color0 ~/.Xresources | awk '{print $2}')"
+FOREGROUND="$(grep color4 ~/.Xresources | awk '{print $2}')"
+
+DMENU_SETTINGS="-nb $BACKGROUND -nf $FOREGROUND -sb $FOREGROUND -sf $BACKGROUND -fn $FONT"
+
+get_devices_by_label() {
+    DEVICES="$(ls -1 /dev/disk/by-label/)"
+    if [ -z "$DEVICES" ]
+    then
+        dunstify "Error when reading devices" "No labeled devices could be found. Exiting..."
+        exit
+    fi
+}
+
+get_choice() {
+    CHOICE="$(echo -e "\n$DEVICES" | dmenu -c -l 20 -bw 2 $DMENU_SETTINGS -i -p 'Choose a Device:')"
+    if [ -z "$CHOICE" ]
+    then
+        dunstify "No device chosen" "Exiting..."
+        exit
+    fi
+}
+
+get_devices_by_label
+get_choice
+
+# Attempt to mount the device; if it's already mounted, unmount it
+if ! mount LABEL="$CHOICE"
+then
+    if ! umount LABEL="$CHOICE"
+    then
+        dunstify "ERROR" "Something went wrong when mounting/unmounting device '$CHOICE'"
+    else
+        dunstify "Device $CHOICE unmounted"
+    fi
+else
+    dunstify "Device $CHOICE mounted"
+    # If the --view flag is passed, open the device
+    if [ $1 = "--view" ]
+    then
+        MOUNT_DIR="$(awk -v choice="$CHOICE" 'match($0, choice) {print $2}' < /etc/fstab)"
+        $FILE_MANAGER "$MOUNT_DIR"
+    fi
+fi
