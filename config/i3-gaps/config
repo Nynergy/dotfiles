@@ -74,7 +74,7 @@ bindsym $mod+space focus mode_toggle
 
 # focus the child container
 #bindsym $mod+d focus child
-
+#
 # MULTIMEDIA KEYS
 # volume
 bindsym $mod+F3 exec --no-startup-id pactl set-sink-volume 0 +5%
@@ -124,7 +124,7 @@ bindsym $mod+Shift+0 move container to workspace $ws10
 #gaps outer 0
 
 # WINDOW CONFIG
-for_window [class=".*"] border pixel 1
+for_window [class=".*"] border pixel 0
 for_window [class="Sxiv"] floating enable
 for_window [title="_floater"] floating enable
 for_window [title="_scratchpad"] floating enable move scratchpad

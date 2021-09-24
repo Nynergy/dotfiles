@@ -79,14 +79,14 @@ endfunction
 
 set statusline=
 set statusline+=%#StatusLine#
-set statusline+=%{StatuslineGit()}
+set statusline+=%.30{StatuslineGit()}
 set statusline+=%#Conceal#
 set statusline+=\ %t
 set statusline+=\ %m%r%h
 set statusline+=\ %=
 set statusline+=\ %#SpellRare#
-set statusline+=\ FT:\ %Y
+set statusline+=\ %Y
 set statusline+=\ %#SpellCap#
-set statusline+=\ LN:\ %l/%L
+set statusline+=\ %(%4l,%-3c%)
 set statusline+=\ %#SpellBad#
-set statusline+=\ CO:\ %c\ 
+set statusline+=\ %3P\ 

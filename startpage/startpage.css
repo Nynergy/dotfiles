@@ -3,9 +3,9 @@
 body {
   padding: 0;
   margin: 0;
-  background-color: #0c0d23;
+  background-color: #0f0413;
   background-size: cover;
-  color: #e4e6ff;
+  color: #ffd0a5;
   font-family: "Montserrat", sans-serif;
   font-size: 22px;
 }
@@ -21,7 +21,7 @@ body {
   margin: auto;
   margin-bottom: 1rem;
   border-radius: 0.5rem;
-  background-color: #191b49;
+  background-color: #300d3d;
   transition: box-shadow 0.5s;
 }
 .search-container:focus {
@@ -40,41 +40,41 @@ body {
 }
 
 .header-General {
-  border-bottom: solid #ff3765 2px;
+  border-bottom: solid #c2023c 2px;
 }
 
 .header-School {
-  border-bottom: solid #fb9a85 2px;
+  border-bottom: solid #f17e22 2px;
 }
 
 .header-Work {
-  border-bottom: solid #6888ff 2px;
+  border-bottom: solid #8b035d 2px;
 }
 
 .header-Entertainment {
-  border-bottom: solid #fed9a6 2px;
+  border-bottom: solid #d81e5b 2px;
 }
 
 .badge {
   cursor: pointer;
   padding: 1rem;
   margin: 0.5rem 0;
-  background-color: #191b49;
+  background-color: #300d3d;
   box-shadow: 0.5rem 0.5rem 0.3rem #000;
   transition: all 0.2s ease-in;
 }
 .badge .badge-icon {
   width: 40px;
-  border-right: solid #e4e6ff 1px;
+  border-right: solid #ffd0a5 1px;
 }
 .badge .badge-link {
   text-decoration: none;
-  color: #e4e6ff;
+  color: #ffd0a5;
   padding-left: 1rem;
 }
 .badge:hover {
   transform: translateX(10px);
-  background-color: #131436;
+  background-color: #200828;
 }
 
 /* IDS */
@@ -93,5 +93,5 @@ body {
   font-size: 16px;
   outline: none;
   background: none;
-  color: #e4e6ff;
+  color: #ffd0a5;
 }

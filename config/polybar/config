@@ -3,9 +3,9 @@
 
 ; COLORS
 [colors]
-black = #c00c0d23
-active = #c0ff3765
-invisible = #000c0d23
+black = #c00f0413
+active = #c0c2023c
+invisible = #000f0413
 red = ${xrdb:color1:#000}
 green = ${xrdb:color2:#000}
 yellow = ${xrdb:color3:#000}
