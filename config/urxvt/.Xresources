@@ -1,40 +1,40 @@
 !!Colors
 ! special
-*.foreground:	#ffd0a5
-*.background:	#0f0413
-*.cursorColor:	#ffd0a5
+*.foreground:	#e8fff1
+*.background:	#000808
+*.cursorColor:	#e8fff1
 
 ! black
-*.color0:	#0f0413
-*.color8:	#8992aa
+*.color0:	#000808
+*.color8:	#798d9d
 
 ! red
-*.color1:	#c2023c
-*.color9:	#c2023c
+*.color1:	#ec1b62
+*.color9:	#ec1b62
 
 ! green
-*.color2:	#f17e22
-*.color10:	#f17e22
+*.color2:	#00e0a8
+*.color10:	#00e0a8
 
 ! yellow
-*.color3:	#d81e5b
-*.color11:	#d81e5b
+*.color3:	#fed286
+*.color11:	#fed286
 
 ! blue
-*.color4:	#8b035d
-*.color12:	#8b035d
+*.color4:	#2186c1
+*.color12:	#2186c1
 
 ! magenta
-*.color5:	#a10044
-*.color13:	#a10044
+*.color5:	#b231a4
+*.color13:	#b231a4
 
 ! cyan
-*.color6:	#756ae4
-*.color14:	#756ae4
+*.color6:	#83f9fd
+*.color14:	#83f9fd
 
 ! white
-*.color7:	#ffd0a5
-*.color15:	#ffd0a5
+*.color7:	#e8fff1
+*.color15:	#e8fff1
 !! URxvt Appearance
 
 URxvt*font: xft:xos4 Terminus:size=10
@@ -46,10 +46,13 @@ URxvt*font: xft:xos4 Terminus:size=10
 
 ! True Transparency
 URxvt*depth: 32
-URxvt*background: [75]#0f0413
+URxvt*background: [75]#000808
 
 URxvt.highlightColor: white
 URxvt.highlightTextColor: black
+
+! Dynamic Colors
+URxvt*dynamicColors: on
 
 URxvt.letterSpace: 0
 URxvt.lineSpace: 0
