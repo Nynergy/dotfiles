@@ -103,6 +103,7 @@ add "/usr/bin/chameleon" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/palette" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/puppetmaster" "$SCRIPTS_PATH/dmenu/"
 add "$USER_HOME/.local/bin/tether" "$SCRIPTS_PATH/dmenu/"
+add "/usr/bin/viewfinder" "$SCRIPTS_PATH/dmenu/"
 # Copy misc scripts
 add "/usr/bin/mirror" "$SCRIPTS_PATH/misc/"
 add "$USER_HOME/.local/bin/tapestry" "$SCRIPTS_PATH/misc/"

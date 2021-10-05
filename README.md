@@ -42,6 +42,7 @@ puppetmaster | Master utility script for multiple system features using dmenu
 sirenbar.py | Python script that displays song info from LMS in a polybar module
 tapestry | Helper script for making posts to [Lexica Chromatica](https://lexicachromatica.xyz) using [scribe](https://github.com/Nynergy/scribe)
 tether | Bash script for mounting/unmounting devices with dmenu
+viewfinder | Bash script for setting screen resolutions and changing configs to suit
 
 #### A directory of colorschemes for use with my color scripts 'chameleon' and 'palette'
 

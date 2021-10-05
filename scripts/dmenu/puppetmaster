@@ -21,7 +21,7 @@ Confirm() {
 	CONFIRM="$(echo -e 'No\nYes' | dmenu -c -l 2 -bw 2 -nb "$BACKGROUND" -nf "$CONFIRM_FOREGROUND" -sb "$CONFIRM_FOREGROUND" -sf "$BACKGROUND" -fn "$FONT" -i -p 'Are you sure?')";
 }
 
-CHOICES="Main Workspace\nTake Screenshot\nMount/Unmount Device\n--------------------\nChange Wallpaper\nChange and Set Wallpaper\nRegenerate Colors\nSet Colorscheme\nSave Colorscheme\n--------------------\nToggle Compositor\nToggle Notifications\nToggle Gaps\nToggle Status Bar\nToggle Light/Dark Mode\n--------------------\nLock Screen\nExit i3"
+CHOICES="Main Workspace\nTake Screenshot\nMount/Unmount Device\nChange Resolution\n--------------------\nChange Wallpaper\nChange and Set Wallpaper\nRegenerate Colors\nSet Colorscheme\nSave Colorscheme\n--------------------\nToggle Compositor\nToggle Notifications\nToggle Gaps\nToggle Status Bar\nToggle Light/Dark Mode\n--------------------\nLock Screen\nExit i3"
 
 # NOTE: The $DMENU_SETTINGS variable cannot be double-quoted, or dmenu doesn't recognize the settings
 CHOICE="$(echo -e "$CHOICES" | dmenu -c -l 20 -bw 2 $DMENU_SETTINGS -i -p 'System:')"
@@ -33,6 +33,8 @@ case $CHOICE in
 		$SCREENSHOT && notify-send "Screenshot Taken" ;;
 	"Mount/Unmount Device")
 		tether ;;
+	"Change Resolution")
+		viewfinder ;;
 	# NOTE: If user marks more than one wallpaper, only the first one will be chosen
 	"Change Wallpaper") 
 		WALLPAPER="$(sxiv -b -t -f -Z -o ~/Pictures/Aesthetic | head -n 1)";
