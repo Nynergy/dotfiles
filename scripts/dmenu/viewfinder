@@ -34,7 +34,8 @@ case "$CHOICE" in
     "3840x2160")
         XRANDR_MODE="1920x1080_60.00"
         POLYBAR_HEIGHT=70 ;
-        POLYBAR_FONT_SIZE=32 ;
+        POLYBAR_FONT_SIZE_1=32 ;
+        POLYBAR_FONT_SIZE_2=24 ;
         POLYBAR_FONT_DROP=5 ;
 	DUNST_SIZE=500
         URXVT_INTERNAL_BORDER=32 ;
@@ -42,7 +43,8 @@ case "$CHOICE" in
     "1920x1080")
         XRANDR_MODE="1920x1080"
         POLYBAR_HEIGHT=35 ;
-        POLYBAR_FONT_SIZE=14 ;
+        POLYBAR_FONT_SIZE_1=14 ;
+        POLYBAR_FONT_SIZE_2=12 ;
         POLYBAR_FONT_DROP=2 ;
 	DUNST_SIZE=300
         URXVT_INTERNAL_BORDER=16 ;
@@ -58,7 +60,10 @@ xrandr --output $OUTPUT_DEVICE_2 --mode "$XRANDR_MODE" --rate $RATE
 
 # Modify polybar config to fit the new resolution
 sed -i "s/^height = [0-9]*/height = $POLYBAR_HEIGHT/g" "$POLYBAR_CONFIG"
-sed -i "s/Terminus:size=[0-9]*;[0-9]*/Terminus:size=$POLYBAR_FONT_SIZE;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
+sed -i "s/Terminus:size=[0-9]*;[0-9]*/Terminus:size=$POLYBAR_FONT_SIZE_1;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
+sed -i "s/Ukai CN:size=[0-9]*;[0-9]*/Ukai CN:size=$POLYBAR_FONT_SIZE_2;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
+sed -i "s/Batang:size=[0-9]*;[0-9]*/Batang:size=$POLYBAR_FONT_SIZE_2;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
+sed -i "s/Siji:size=[0-9]*;[0-9]*/Siji:size=$POLYBAR_FONT_SIZE_2;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
 
 # Modify dunst config to fit the new resolution
 sed -i "s/geometry = \"[0-9]*/geometry = \"$DUNST_SIZE/g" "$DUNST_CONFIG"
