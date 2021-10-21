@@ -33,6 +33,7 @@ export PATH="~/Repos/dart-sass:$PATH"
 export PATH="~/.local/bin:$PATH"
 export PATH="/usr/local/bin/Discord:$PATH"
 export PATH="~/.cabal/bin:$PATH"
+export PATH="~/.cargo/bin:$PATH"
 
 # Aliases
 alias emerge-update="sudo emerge --ask --verbose --update --deep --changed-use @world"

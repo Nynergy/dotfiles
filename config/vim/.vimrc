@@ -29,6 +29,8 @@ set nocompatible
 " CUSTOM COMMANDS
 nnoremap c* *Ncgn
 command! MakeTags !ctags -R .
+map ` <C-A>
+map g` g<C-A>
 
 " CUSTOM BINDINGS
 map <F4> :setlocal spell!<CR>
