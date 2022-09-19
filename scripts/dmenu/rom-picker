@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# A script to traverse directories until a ROM file is selected
+
+FONT="xos4Terminus-10"
+BACKGROUND="$(grep color0 ~/.Xresources | awk '{print $2}')"
+FOREGROUND="$(grep color1: ~/.Xresources | awk '{print $2}')"
+
+DMENU_SETTINGS="-nb $BACKGROUND -nf $FOREGROUND -sb $FOREGROUND -sf $BACKGROUND -fn $FONT"
+
+GAMES_DIR="/home/benjamin/Games/SNES"
+
+CHOICE="$GAMES_DIR"
+while [[ -d "$CHOICE" ]]; do
+    cd "$CHOICE"
+    CHOICE="$CHOICE/`ls | dmenu -l 20 -c $DMENU_SETTINGS -i -p 'Pick a ROM File to Open:'`"
+
+    if [ -z "$CHOICE" ]
+    then
+    	dunstify "No ROM Chosen" "Exiting..."
+    	exit
+    fi
+done
+
+snes9x "$CHOICE"

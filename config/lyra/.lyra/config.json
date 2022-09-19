@@ -1,0 +1,19 @@
+{
+    "lms_ip": "192.168.0.188",
+    "lms_port": "9000",
+    "colors": {
+        "Banner": 2,
+        "PlayerName": 1,
+        "PlayingIndicator": 2,
+        "PausedIndicator": 3,
+        "StoppedIndicator": 1,
+        "RepeatIndicator": 5,
+        "ShuffleIndicator": 6,
+        "TrackIndex": 5,
+        "TrackTitle": 3,
+        "TrackArtist": 4,
+        "TrackAlbum": 1,
+        "TrackDuration": 6,
+        "PlaybarGauge": 2
+    }
+}

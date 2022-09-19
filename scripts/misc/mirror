@@ -66,8 +66,6 @@ fi
 add "$USER_HOME/.bashrc" "$CONFIG_PATH/bash/"
 # Copy cascade files
 add "$USER_HOME/.cascade/cascade.conf" "$CONFIG_PATH/cascade/"
-# Copy compton files
-add "$USER_HOME/.config/compton.conf" "$CONFIG_PATH/compton/"
 # Copy dunst files
 add "$USER_HOME/.config/dunst/dunstrc" "$CONFIG_PATH/dunst/"
 # Copy htop files
@@ -76,6 +74,8 @@ add "$USER_HOME/.config/htop/htoprc" "$CONFIG_PATH/htop/"
 add "$USER_HOME/.config/i3/config" "$CONFIG_PATH/i3-gaps/"
 # Copy lf files
 add "$USER_HOME/.config/lf/lfrc" "$CONFIG_PATH/lf/"
+# Copy lyra files
+add "$USER_HOME/.lyra" "$CONFIG_PATH/lyra/"
 # Copy polybar files
 add "$USER_HOME/.config/polybar/config" "$CONFIG_PATH/polybar/"
 # Copy tmux files
@@ -95,35 +95,40 @@ add "$USER_HOME/.config/zathura/zathurarc" "$CONFIG_PATH/zathura/"
 # Copy color scripts
 add "/usr/bin/gen-dunst.sh" "$SCRIPTS_PATH/color/"
 add "/usr/bin/gen-polybar.sh" "$SCRIPTS_PATH/color/"
-add "/usr/bin/gen-startpage.sh" "$SCRIPTS_PATH/color/"
 add "/usr/bin/gen-zathura.sh" "$SCRIPTS_PATH/color/"
 add "/usr/bin/prism" "$SCRIPTS_PATH/color/"
 # Copy dmenu scripts
 add "/usr/bin/chameleon" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/palette" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/puppetmaster" "$SCRIPTS_PATH/dmenu/"
-add "$USER_HOME/.local/bin/tether" "$SCRIPTS_PATH/dmenu/"
+add "/usr/bin/tether" "$SCRIPTS_PATH/dmenu/"
 add "/usr/bin/viewfinder" "$SCRIPTS_PATH/dmenu/"
+add "/usr/bin/rom-picker" "$SCRIPTS_PATH/dmenu/"
 # Copy misc scripts
 add "/usr/bin/mirror" "$SCRIPTS_PATH/misc/"
-add "$USER_HOME/.local/bin/tapestry" "$SCRIPTS_PATH/misc/"
+add "$USER_HOME/.local/bin/sketch" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/discord-audioshare.sh" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/doublescreen.sh" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/feelsTPRman.sh" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/homeVPN" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/juniper" "$SCRIPTS_PATH/misc/"
+add "$USER_HOME/Programming/Python/i3splat.py" "$SCRIPTS_PATH/misc/"
+add "$USER_HOME/Programming/Python/stream.py" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/soundspool" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/vault" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/torch" "$SCRIPTS_PATH/misc/"
+add "/usr/bin/stream_wiki.sh" "$SCRIPTS_PATH/misc/"
 # Copy polybar scripts
 add "/usr/bin/diskbar.sh" "$SCRIPTS_PATH/polybar/"
 add "$USER_HOME/.local/bin/sirenbar.py" "$SCRIPTS_PATH/polybar/"
+add "$USER_HOME/.local/bin/polybar-vpn.sh" "$SCRIPTS_PATH/polybar/"
 add "/usr/bin/marquee" "$SCRIPTS_PATH/polybar/"
+add "/usr/bin/polysqueeze.sh" "$SCRIPTS_PATH/polybar/"
 
 # COLORSCHEMES
 
 # Copy colorscheme directory
 add "$USER_HOME/.config/colorschemes" "$DOTFILE_REPO/"
-
-# STARTPAGE
-
-# Copy custom startpage files
-add "$USER_HOME/Programming/Webdev/Startpage/startpage.css" "$DOTFILE_REPO/startpage/"
-add "$USER_HOME/Programming/Webdev/Startpage/startpage.html" "$DOTFILE_REPO/startpage/"
-add "$USER_HOME/Programming/Webdev/Startpage/startpage.js" "$DOTFILE_REPO/startpage/"
-add "$USER_HOME/Programming/Webdev/Startpage/startpage.scss" "$DOTFILE_REPO/startpage/"
 
 # GIT CHECKS
 

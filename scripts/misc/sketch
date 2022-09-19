@@ -1,0 +1,65 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]
+then
+    printf "Usage: $0 /path/to/image.jpg\n"
+    exit
+fi
+
+IMAGE_FILE="$1"
+BASENAME="${IMAGE_FILE%.*}"
+
+# Random Interval Function
+INTERVAL_FUNCTIONS=(random edges threshold waves none)
+NUM_INT_FUNCS=${#INTERVAL_FUNCTIONS[@]}
+INT_FUNC_IDX=$(($RANDOM % $NUM_INT_FUNCS))
+INTERVAL_FUNCTION=${INTERVAL_FUNCTIONS[$INT_FUNC_IDX]}
+
+# Random Randomness
+RANDOMNESS=$(($RANDOM % 100))
+
+# Random Angle
+ANGLE=$(($RANDOM % 360))
+
+# Random Sorting Function
+SORTING_FUNCTIONS=(lightness hue saturation intensity minimum)
+NUM_SORT_FUNCS=${#SORTING_FUNCTIONS[@]}
+SORT_FUNC_IDX=$(($RANDOM % $NUM_SORT_FUNCS))
+SORTING_FUNCTION=${SORTING_FUNCTIONS[$SORT_FUNC_IDX]}
+
+# Determine other parameters based on interval function
+case $INTERVAL_FUNCTION in
+    random|waves)
+        CLENGTH=$((50 + $RANDOM % 500)) ;
+        printf "Params: INTERVAL_FUNC=$INTERVAL_FUNCTION, RANDOMNESS=$RANDOMNESS, ANGLE=$ANGLE, SORTING_FUNC=$SORTING_FUNCTION, CLENGTH=$CLENGTH\n" ;
+        printf "Sketching '$BASENAME'..." ;
+        python3 -m pixelsort "$IMAGE_FILE" -i $INTERVAL_FUNCTION -r $RANDOMNESS -a $ANGLE -s $SORTING_FUNCTION -c $CLENGTH -o "$BASENAME Sketch.png" ;
+        printf "Done\n" ;;
+    edges)
+        THRESHOLD=`awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }'`
+        printf "Params: INTERVAL_FUNC=$INTERVAL_FUNCTION, RANDOMNESS=$RANDOMNESS, ANGLE=$ANGLE, SORTING_FUNC=$SORTING_FUNCTION, THRESHOLD=$THRESHOLD\n" ;
+        printf "Sketching '$BASENAME'..." ;
+        python3 -m pixelsort "$IMAGE_FILE" -i $INTERVAL_FUNCTION -r $RANDOMNESS -a $ANGLE -s $SORTING_FUNCTION -t $THRESHOLD -o "$BASENAME Sketch.png" ;
+        printf "Done\n" ;;
+    threshold)
+        LOWER=`awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }'`
+        UPPER=`awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }'`
+        if (( $(echo "$UPPER < $LOWER" | bc -l) ))
+        then
+            TEMP=$UPPER
+            UPPER=$LOWER
+            LOWER=$TEMP
+        fi
+        printf "Params: INTERVAL_FUNC=$INTERVAL_FUNCTION, RANDOMNESS=$RANDOMNESS, ANGLE=$ANGLE, SORTING_FUNC=$SORTING_FUNCTION, LOWER_THRESHOLD=$LOWER, UPPER_THRESHOLD=$UPPER\n" ;
+        printf "Sketching '$BASENAME'..." ;
+        python3 -m pixelsort "$IMAGE_FILE" -i $INTERVAL_FUNCTION -r $RANDOMNESS -a $ANGLE -s $SORTING_FUNCTION -t $LOWER -u $UPPER -o "$BASENAME Sketch.png" ;
+        printf "Done\n" ;;
+    none)
+        printf "Params: INTERVAL_FUNC=$INTERVAL_FUNCTION, RANDOMNESS=$RANDOMNESS, ANGLE=$ANGLE, SORTING_FUNC=$SORTING_FUNCTION\n" ;
+        printf "Sketching '$BASENAME'..." ;
+        python3 -m pixelsort "$IMAGE_FILE" -i $INTERVAL_FUNCTION -r $RANDOMNESS -a $ANGLE -s $SORTING_FUNCTION -o "$BASENAME Sketch.png" ;
+        printf "Done\n" ;;
+    *)
+        printf "$INTERVAL_FUNCTION is not a valid interval function. Exiting...\n" ;
+        exit ;;
+esac

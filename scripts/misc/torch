@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# A script to handle backlight controls that give you any guff
+# Basically, we just cop out and use xrandr instead
+
+OUTPUT_DEVICES=$(xrandr -q | awk '/ connected/ {print $1}')
+BRIGHTNESS_FILE=/home/benjamin/.torch-brightness
+
+if [ $# -ne 2 ]
+then
+    echo "Usage: torch --[inc|dec] <percent>"
+    exit
+fi
+
+OPERATION=$1
+PERCENT=$2
+
+CURRENT_BRIGHTNESS=$(cat "$BRIGHTNESS_FILE" | awk '{printf "%d\n", $1*100}')
+case $OPERATION in
+    --inc) NEW_BRIGHTNESS=$(($CURRENT_BRIGHTNESS + $PERCENT))
+        ;;
+    --dec) NEW_BRIGHTNESS=$(($CURRENT_BRIGHTNESS - $PERCENT))
+        ;;
+    --refresh) NEW_BRIGHTNESS=$CURRENT_BRIGHTNESS
+esac
+if [ $NEW_BRIGHTNESS -gt 100 ]
+then
+    echo "Cannot increase brightness further"
+    exit
+fi
+if [ $NEW_BRIGHTNESS -lt 5 ]
+then
+    echo "Cannot decrese brightness further"
+    exit
+fi
+
+XRANDR_FLOAT=$(echo $NEW_BRIGHTNESS | awk '{printf "%.1f\n", $1/100}')
+for x in $OUTPUT_DEVICES
+do
+    xrandr --output $x --brightness $XRANDR_FLOAT
+done
+
+echo $XRANDR_FLOAT > "$BRIGHTNESS_FILE"

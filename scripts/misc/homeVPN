@@ -1,0 +1,5 @@
+#!/bin/bash
+
+CONFIG=/home/benjamin/.config/openvpn/homeVPN.ovpn
+
+pkill openvpn || openvpn "$CONFIG"
