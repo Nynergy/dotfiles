@@ -28,7 +28,7 @@ getSchemes() {
 }
 
 getFilename() {
-    FILENAME="$(echo -e "\n$SCHEMES" | dmenu -c -l 20 -bw 2 $DMENU_SETTINGS -i -p 'Scheme Name:')"
+    FILENAME="$(echo -e "\n$SCHEMES" | dmenu -c -l 20 $DMENU_SETTINGS -i -p 'Scheme Name:')"
     if [ -z "$FILENAME" ]; then
         dunstify "ERROR WHEN SAVING SCHEME" "User did not provide a scheme name!"
         exit

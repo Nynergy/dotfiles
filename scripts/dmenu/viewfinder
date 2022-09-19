@@ -3,14 +3,14 @@
 # A script for changing screen resolution and resizing configs using dmenu
 # Maintainer: Ben Buchanan (https://github.com/Nynergy)
 
-OUTPUT_DEVICE_1=VGA-1
-OUTPUT_DEVICE_2=VGA-2
+OUTPUT_DEVICES=$(xrandr -q | awk '/ connected/ {print $1}')
 RATE=60
 
 POLYBAR_CONFIG=/home/benjamin/.config/polybar/config
 DUNST_CONFIG=/home/benjamin/.config/dunst/dunstrc
 XRESOURCES=/home/benjamin/.Xresources
 CURRENT_WALLPAPER=/home/benjamin/Pictures/Wallpaper/wallpaper.jpg
+I3_CONFIG=/home/benjamin/.config/i3/config
 
 FONT="xos4Terminus-10"
 BACKGROUND="$(grep color0 ~/.Xresources | awk '{print $2}')"
@@ -21,7 +21,7 @@ DMENU_SETTINGS="-nb $BACKGROUND -nf $FOREGROUND -sb $FOREGROUND -sf $BACKGROUND 
 RESOLUTIONS="3840x2160\n1920x1080"
 
 get_choice() {
-    CHOICE="$(echo -e "$RESOLUTIONS" | dmenu -l 20 -bw 2 $DMENU_SETTINGS -i -p 'Choose a Resolution:')"
+    CHOICE="$(echo -e "$RESOLUTIONS" | dmenu -l 20 $DMENU_SETTINGS -i -p 'Choose a Resolution:')"
     if [ -z "$CHOICE" ]
     then
         dunstify "No resolution chosen" "Exiting..."
@@ -34,36 +34,48 @@ case "$CHOICE" in
     "3840x2160")
         XRANDR_MODE="1920x1080_60.00"
         POLYBAR_HEIGHT=70 ;
+	POLYBAR_BORDER_SIZE=32 ;
         POLYBAR_FONT_SIZE_1=32 ;
         POLYBAR_FONT_SIZE_2=24 ;
         POLYBAR_FONT_DROP=5 ;
-	DUNST_SIZE=500
+	POLYBAR_TRAY_SIZE=32 ;
+	DUNST_SIZE=500 ;
+	URXVT_FONT_SIZE=12 ;
         URXVT_INTERNAL_BORDER=32 ;
-        XORG_DPI=240 ;;
+        XORG_DPI=200 ;
+	I3_GAP_SIZE=32 ;;
     "1920x1080")
         XRANDR_MODE="1920x1080"
         POLYBAR_HEIGHT=35 ;
+	POLYBAR_BORDER_SIZE=12 ;
         POLYBAR_FONT_SIZE_1=14 ;
         POLYBAR_FONT_SIZE_2=12 ;
         POLYBAR_FONT_DROP=2 ;
-	DUNST_SIZE=300
+	POLYBAR_TRAY_SIZE=16 ;
+	DUNST_SIZE=300 ;
+	URXVT_FONT_SIZE=10 ;
         URXVT_INTERNAL_BORDER=16 ;
-        XORG_DPI=100 ;;
+        XORG_DPI=100 ;
+	I3_GAP_SIZE=12 ;;
     *)
         dunstify "'$CHOICE' is not a valid resolution." "Exiting..." ;
         exit ;;
 esac
 
 # Set new resolution mode
-xrandr --output $OUTPUT_DEVICE_1 --mode "$XRANDR_MODE" --rate $RATE
-xrandr --output $OUTPUT_DEVICE_2 --mode "$XRANDR_MODE" --rate $RATE
+for x in $OUTPUT_DEVICES
+do
+    xrandr --output "$x" --mode "$XRANDR_MODE" --rate "$RATE"
+done
 
 # Modify polybar config to fit the new resolution
 sed -i "s/^height = [0-9]*/height = $POLYBAR_HEIGHT/g" "$POLYBAR_CONFIG"
+sed -i "s/^border-size = [0-9]*$/border-size = $POLYBAR_BORDER_SIZE/g" "$POLYBAR_CONFIG"
 sed -i "s/Terminus:size=[0-9]*;[0-9]*/Terminus:size=$POLYBAR_FONT_SIZE_1;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
 sed -i "s/Ukai CN:size=[0-9]*;[0-9]*/Ukai CN:size=$POLYBAR_FONT_SIZE_2;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
 sed -i "s/Batang:size=[0-9]*;[0-9]*/Batang:size=$POLYBAR_FONT_SIZE_2;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
 sed -i "s/Siji:size=[0-9]*;[0-9]*/Siji:size=$POLYBAR_FONT_SIZE_2;$POLYBAR_FONT_DROP/g" "$POLYBAR_CONFIG"
+sed -i "s/tray-maxsize = [0-9]*/tray-maxsize = $POLYBAR_TRAY_SIZE/g" "$POLYBAR_CONFIG"
 
 # Modify dunst config to fit the new resolution
 sed -i "s/geometry = \"[0-9]*/geometry = \"$DUNST_SIZE/g" "$DUNST_CONFIG"
@@ -71,10 +83,13 @@ pkill dunst
 
 # Modify and load .Xresources to fit the new resolution
 sed -i "s/internalBorder: [0-9]*/internalBorder: $URXVT_INTERNAL_BORDER/g" "$XRESOURCES"
+sed -i "s/size=[0-9]*/size=$URXVT_FONT_SIZE/g" "$XRESOURCES"
 sed -i "s/Xft\.dpi: [0-9]*/Xft\.dpi: $XORG_DPI/g" "$XRESOURCES"
 xrdb load "$XRESOURCES"
 
 # Reload the current wallpaper so it isn't tiled or cut off
 feh --bg-fill $CURRENT_WALLPAPER
+
+# Modify i3 config to use new gap amount
 
 dunstify "Success" "Resolution set to '$CHOICE'"

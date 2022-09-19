@@ -15,7 +15,7 @@ if [[ $- != *i* ]] ; then
 fi
 
 # Put your fun stuff here.
-PS1="\[\e[0;1;32m\]\u\[\e[0;33m\]@\[\e[0;1;32m\]\h\[\e[m\] \[\e[0m\]:\[\e[0m\]:\[\e[m\] \[\e[0;1;31m\]\W\[\e[m\] \[\e[0m\]>\[\e[0m\]>\[\e[m\] \[\e0"
+PS1="[\[\e[31m\]\u\[\e[m\]@\[\e[35m\]\h\[\e[m\]] \[\e[34m\]\W\[\e[m\] \[\e[0m\]>\[\e[0m\]>\[\e[m\] \[\e0"
 
 EDITOR="vim"
 
@@ -29,11 +29,7 @@ git() {
 }
 
 # PATH Additions
-export PATH="~/Repos/dart-sass:$PATH"
 export PATH="~/.local/bin:$PATH"
-export PATH="/usr/local/bin/Discord:$PATH"
-export PATH="~/.cabal/bin:$PATH"
-export PATH="~/.cargo/bin:$PATH"
 
 # Aliases
 alias emerge-update="sudo emerge --ask --verbose --update --deep --changed-use @world"

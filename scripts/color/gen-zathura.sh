@@ -10,16 +10,26 @@ getColors() {
 	DARK_COLOR="$(grep '\[[0-9][0-9]\]' ~/.Xresources | awk '{print $2}' | sed 's/\[[0-9][0-9]\]//')"
 	LIGHT_COLOR="$(grep color7 ~/.Xresources | awk '{print $2}')"
 	STATUS_COLOR="$(grep color2 ~/.Xresources | awk '{print $2}')"
+	INDEX_COLOR="$(grep color3 ~/.Xresources | awk '{print $2}')"
 	COMPLETION_COLOR="$(grep color1 ~/.Xresources | awk '{print $2}' | head -n 1)"
 }
 
 setColors() {
 	echo "set default-fg \\$DARK_COLOR" > .config/zathura/zathurarc
 	echo "set default-bg \\$DARK_COLOR" >> .config/zathura/zathurarc
+
+	echo >> .config/zathura/zathurarc
+
 	echo "set statusbar-fg \\$DARK_COLOR" >> .config/zathura/zathurarc
 	echo "set statusbar-bg \\$STATUS_COLOR" >> .config/zathura/zathurarc
+
+	echo >> .config/zathura/zathurarc
+
 	echo "set inputbar-fg \\$STATUS_COLOR" >> .config/zathura/zathurarc
 	echo "set inputbar-bg \\$DARK_COLOR" >> .config/zathura/zathurarc
+
+	echo >> .config/zathura/zathurarc
+
 	echo "set completion-fg \\$LIGHT_COLOR" >> .config/zathura/zathurarc
 	echo "set completion-bg \\$DARK_COLOR" >> .config/zathura/zathurarc
 	echo "set completion-group-fg \\$DARK_COLOR" >> .config/zathura/zathurarc
@@ -29,7 +39,10 @@ setColors() {
 
 	echo >> .config/zathura/zathurarc
 
-	echo "set recolor true" >> .config/zathura/zathurarc
+	echo "set index-fg \\$LIGHT_COLOR" >> .config/zathura/zathurarc
+	echo "set index-bg \\$DARK_COLOR" >> .config/zathura/zathurarc
+	echo "set index-active-fg \\$DARK_COLOR" >> .config/zathura/zathurarc
+	echo "set index-active-bg \\$INDEX_COLOR" >> .config/zathura/zathurarc
 
 	echo >> .config/zathura/zathurarc
 

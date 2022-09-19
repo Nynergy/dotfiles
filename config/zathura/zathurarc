@@ -1,20 +1,26 @@
-set default-fg \#000626
-set default-bg \#000626
-set statusbar-fg \#000626
-set statusbar-bg \#01e0b9
-set inputbar-fg \#01e0b9
-set inputbar-bg \#000626
-set completion-fg \#ffdad6
-set completion-bg \#000626
-set completion-group-fg \#000626
-set completion-group-bg \#fa2267
-set completion-highlight-fg \#000626
-set completion-highlight-bg \#ffdad6
+set default-fg \#170f18
+set default-bg \#170f18
 
-set recolor true
+set statusbar-fg \#170f18
+set statusbar-bg \#00ffcf
 
-set recolor-darkcolor \#ffdad6
-set recolor-lightcolor \#000626
+set inputbar-fg \#00ffcf
+set inputbar-bg \#170f18
+
+set completion-fg \#fbc1a4
+set completion-bg \#170f18
+set completion-group-fg \#170f18
+set completion-group-bg \#e22942
+set completion-highlight-fg \#170f18
+set completion-highlight-bg \#fbc1a4
+
+set index-fg \#fbc1a4
+set index-bg \#170f18
+set index-active-fg \#170f18
+set index-active-bg \#ff7446
+
+set recolor-darkcolor \#fbc1a4
+set recolor-lightcolor \#170f18
 
 set font "Terminus 10"
 

@@ -7,9 +7,8 @@ xrdb load .Xresources
 
 pkill dunst
 
-gen-dunst.sh && dunstify "RECOLORED DUNST"
-gen-polybar.sh && dunstify "RECOLORED POLYBAR"
-gen-startpage.sh && dunstify "RECOLORED STARTPAGE"
-gen-zathura.sh && dunstify "RECOLORED ZATHURA"
+gen-dunst.sh
+gen-polybar.sh
+gen-zathura.sh
 
 i3-msg restart

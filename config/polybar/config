@@ -3,9 +3,9 @@
 
 ; COLORS
 [colors]
-black = #c0000626
-active = #c0fa2267
-invisible = #00000626
+black = #c0170f18
+active = #c0e22942
+invisible = #00170f18
 red = ${xrdb:color1:#000}
 green = ${xrdb:color2:#000}
 yellow = ${xrdb:color3:#000}
@@ -43,7 +43,7 @@ line-size = 0
 line-color = ${colors.red}
 
 ; Size and color for borders
-border-size = 32
+border-size = 12
 border-bottom-size = 0
 border-color = ${colors.invisible}
 
@@ -61,7 +61,7 @@ font-1 = AR PL Ukai CN:size=12;2
 font-2 = Baekmuk Batang:size=12;2
 font-3 = Wuncon Siji:size=12;2
 ; MODULES
-modules-left = network i3
+modules-left = network vpn squeezelite i3
 ;modules-center = mpd
 modules-center = date siren
 modules-right = disk pulseaudio battery
@@ -69,9 +69,9 @@ modules-right = disk pulseaudio battery
 ; Center block justification
 fixed-center = false
 ; SYSTEM TRAY
-tray-position = right
+tray-position = left
 tray-detached = false
-tray-maxsize = 32
+tray-maxsize = 16
 tray-background = ${root.background}
 
 [bar/apparition-no-gaps]
@@ -102,7 +102,7 @@ line-size = 0
 line-color = ${colors.red}
 
 ; Size and color for borders
-border-size = 0
+border-size = 0;
 border-color = #00000000
 
 ; Opacity for fade-in/out
@@ -119,7 +119,7 @@ font-1 = AR PL Ukai CN:size=12;2
 font-2 = Baekmuk Batang:size=12;2
 font-3 = Wuncon Siji:size=12;2
 ; MODULES
-modules-left = network i3
+modules-left = network vpn squeezelite i3
 ;modules-center = mpd
 modules-center = date siren
 modules-right = disk pulseaudio battery
@@ -127,9 +127,9 @@ modules-right = disk pulseaudio battery
 ; Center block justification
 fixed-center = false
 ; SYSTEM TRAY
-tray-position = right
+tray-position = left
 tray-detached = false
-tray-maxsize = 32
+tray-maxsize = 16
 tray-background = ${root.background}
 
 ; MODULES
@@ -153,7 +153,7 @@ label-mode-background = ${colors.black}
 ; focused = Active workspace on focused monitor
 label-focused = %name%
 label-focused-foreground = ${colors.black}
-label-focused-background = ${colors.active}
+label-focused-background = ${colors.red}
 label-focused-underline = ${colors.cyan}
 label-focused-padding = 1
 
@@ -170,6 +170,7 @@ label-visible-padding = 1
 
 ; urgent = Workspace with urgency hint set
 label-urgent = %name%
+label-urgent-foreground = ${colors.black}
 label-urgent-background = ${colors.yellow}
 label-urgent-padding = 1
 
@@ -251,15 +252,15 @@ label-full = BAT
 ; NETWORK MODULE
 [module/network]
 type = internal/network
-interface = enp0s3
+interface = wlp59s0
 interval = 3.0
 
 format-connected = <label-connected>
-format-connected-underline = ${colors.green}
-label-connected = Wired Connection
+format-connected-foreground = ${colors.green}
+label-connected = %essid%
 
 format-disconnected = <label-disconnected>
-format-disconnected-underline = ${colors.red}
+format-disconnected-foreground = ${colors.red}
 label-disconnected = Disconnected
 ; PULSEAUDIO MODULE
 [module/pulseaudio]
@@ -291,3 +292,17 @@ interval = 1
 format = <label>
 exec = /home/benjamin/.local/bin/sirenbar.py
 tail = true
+
+; VPN MODULE
+[module/vpn]
+type = custom/script
+interval = 5
+format = <label>
+exec = /home/benjamin/.local/bin/polybar-vpn.sh
+
+; SQUEEZELITE MODULE
+[module/squeezelite]
+type = custom/script
+interval = 5
+format = SQUEEZELITE: <label>
+exec = /usr/bin/polysqueeze.sh

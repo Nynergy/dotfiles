@@ -3,17 +3,17 @@
 import lmsquery
 
 PLAYBAR_LENGTH = 20
-PLAYBAR_COLOR = "#980037"
+PLAYBAR_COLOR = "#fa8c28"
 NORMAL_COLOR = ""
 
 def get_track_info():
     lms = lmsquery.LMSQuery('192.168.0.188', '9000') # use ip and port of lms server
     players = lms.get_players()
     siren = list(filter(lambda x: x['name'] == "SIREN", players))
-    chromatica = list(filter(lambda x: x['name'] == "NewChromatica", players))
-    # NewChromatica gets precedence, otherwise use SIREN
-    if len(chromatica) > 0:
-        player = chromatica[0]
+    localhost = list(filter(lambda x: x['name'] == "Firmament", players))
+    # Localhost gets precedence, otherwise use SIREN
+    if len(localhost) > 0:
+        player = localhost[0]
     elif len(siren) > 0:
         player = siren[0]
     else:

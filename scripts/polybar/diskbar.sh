@@ -1,51 +1,28 @@
 #!/bin/bash
 
-normal="$(grep color7 ~/.Xresources | awk '{print $2}')"
-filled="$(grep color4 ~/.Xresources | awk '{print $2}')"
+DISK_NAME=nvme0n1p8
 
-fullspace="$(df -h | awk /sda2/ | awk '{print $2}' | sed 's/G//g')"
-freespace="$(df -h | awk /sda2/ | awk '{print $4}' | sed 's/G//g')"
+NORMAL=`grep color7 /home/benjamin/.Xresources | awk '{print $2}'`
+FILLED=`grep color4 /home/benjamin/.Xresources | awk '{print $2}'`
 
-percentage="$((($freespace * 100) / $fullspace))"
+PERCENTAGE=`df -h | awk -v disk="$DISK_NAME" '$0 ~ disk {print $5}' | sed 's/%//g'`
 
-if [ "$percentage" -gt 100 ]
+BLOCKS=$(($PERCENTAGE / 10)) # This truncates the resulting float to an integer
+if [ $BLOCKS -eq 10 ]
 then
-	percentage=100
+    BLOCKS=9
 fi
 
-if [ "$percentage" -lt 0 ]
-then
-	percentage=0
-fi
+BAR="%{F$FILLED}"
 
-blocks="$((($percentage / 10) - 1))";
+for (( i = 0; i < $BLOCKS; i++ )); {
+    BAR="$BAR-"
+}
 
-bar="%{F$filled}"
+BAR="$BAR%{F$NORMAL}|"
 
-for ((i=0; i<$blocks; i++))
-do
-	bar="$bar-"
-done
+for (( j = 0; j < 9 - $BLOCKS; j++ )); {
+    BAR="$BAR-"
+}
 
-bar="$bar%{F$normal}"
-
-if [ $percentage -ne 0 ]
-then
-	bar="$bar|"
-fi
-
-space="$((9 - $blocks))";
-if [ $space -eq 10 ]
-then
-	if [ $percentage -ne 0 ]
-	then
-		space=9
-	fi
-fi
-
-for ((j=0; j<$space; j++))
-do
-	bar="$bar-"
-done
-
-echo "$bar"
+echo "$BAR"

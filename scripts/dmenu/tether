@@ -8,10 +8,11 @@
 #                     Open the mounted device using a file manager
 
 FILE_MANAGER=lf
+XRESOURCES=/home/benjamin/.Xresources
 
 FONT="xos4Terminus-10"
-BACKGROUND="$(grep color0 ~/.Xresources | awk '{print $2}')"
-FOREGROUND="$(grep color4 ~/.Xresources | awk '{print $2}')"
+BACKGROUND="$(grep color0 $XRESOURCES | awk '{print $2}')"
+FOREGROUND="$(grep color4 $XRESOURCES | awk '{print $2}')"
 
 DMENU_SETTINGS="-nb $BACKGROUND -nf $FOREGROUND -sb $FOREGROUND -sf $BACKGROUND -fn $FONT"
 
@@ -25,7 +26,7 @@ get_devices_by_label() {
 }
 
 get_choice() {
-    CHOICE="$(echo -e "\n$DEVICES" | dmenu -c -l 20 -bw 2 $DMENU_SETTINGS -i -p 'Choose a Device:')"
+    CHOICE="$(echo -e "\n$DEVICES" | dmenu -c -l 20 $DMENU_SETTINGS -i -p 'Choose a Device:')"
     if [ -z "$CHOICE" ]
     then
         dunstify "No device chosen" "Exiting..."
@@ -48,7 +49,7 @@ then
 else
     dunstify "Device $CHOICE mounted"
     # If the --view flag is passed, open the device
-    if [ $1 = "--view" ]
+    if [ $1 == "--view" ]
     then
         MOUNT_DIR="$(awk -v choice="$CHOICE" 'match($0, choice) {print $2}' < /etc/fstab)"
         $FILE_MANAGER "$MOUNT_DIR"

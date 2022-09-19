@@ -6,7 +6,7 @@ set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-set $font xft:xos4 Terminus 10
+set $font pango:Terminus 10px
 font $font
 
 # Use Mouse+$mod to drag floating windows to their wanted position
@@ -34,6 +34,10 @@ bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
+
+# or even a nice Tab-based binding
+bindsym $mod+Tab focus right
+bindsym $mod+Shift+Tab focus left
 
 # move focused window
 #bindsym $mod+Shift+j move left
@@ -74,12 +78,24 @@ bindsym $mod+space focus mode_toggle
 
 # focus the child container
 #bindsym $mod+d focus child
-#
+
 # MULTIMEDIA KEYS
-# volume
-bindsym $mod+F3 exec --no-startup-id pactl set-sink-volume 0 +5%
-bindsym $mod+F2 exec --no-startup-id pactl set-sink-volume 0 -5%
-bindsym $mod+F1 exec --no-startup-id pactl set-sink-mute 0 toggle
+# Pulse Audio controls
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+
+bindsym $mod+F11 exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
+bindsym $mod+F10 exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
+bindsym $mod+F9 exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+
+# Sreen brightness controls
+# We use our own custom brightness controller because intel gives us guff
+bindsym XF86MonBrightnessUp exec torch --inc 10 # increase screen brightness
+bindsym XF86MonBrightnessDown exec torch --dec 10 # decrease screen brightness
+
+bindsym $mod+F3 exec torch --inc 10
+bindsym $mod+F2 exec torch --dec 10
 
 # WORKSPACES
 # Define names for default workspaces for which we configure key bindings later on.
@@ -120,16 +136,34 @@ bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
 # GAPS CONFIG
-#gaps inner 12
-#gaps outer 0
+#4K gaps inner 32
+#HD gaps inner 12
+gaps inner 12
+gaps outer 0
 
 # WINDOW CONFIG
 for_window [class=".*"] border pixel 0
 for_window [class="Sxiv"] floating enable
+for_window [class="QjackCtl"] floating enable
+for_window [class="zoom"] floating enable
+for_window [title="midna"] floating enable
+for_window [title="solikhoma"] floating enable
+for_window [title="sekhoma"] floating enable
+for_window [title="^kadai$"] floating enable
+for_window [title="sfml-test"] floating enable
+for_window [title="Snes9x"] floating enable
 for_window [title="_floater"] floating enable
 for_window [title="_scratchpad"] floating enable move scratchpad
+#for_window [title="video0 - mpv"] floating enable
+
+# Lunar Magic and Sub Windows
+for_window [title="Lunar Magic"] floating enable
+for_window [title="Overworld Editor"] floating enable
+for_window [title="Background Layer 2 Editor"] floating enable
 
 hide_edge_borders smart
+
+floating_minimum_size 30 x 30
 
 # scratchpad command
 bindsym $mod+p scratchpad show
@@ -148,17 +182,18 @@ set_from_resource $white color7 #f0f0f0
 set_from_resource $gray color8 #f0f0f0
 
 # class			        border	bg	    text	indicator	child_border
-client.focused		    $black	$black	$red	$gray		$gray
-client.focused_inactive	$black	$black	$red	$black		$black
-client.unfocused	    $black	$black	$red	$black		$black
-client.urgent		    $black	$black	$red	$blue		$blue
-client.placeholder	    $black	$black	$red	$black		$black
+client.focused		    $yellow	$black	$red	$gray		$gray
+client.focused_inactive	$yellow	$black	$red	$black		$black
+client.unfocused	    $gray	$black	$gray	$black		$black
+
+client.urgent		    $red	$black	$gray	$blue		$blue
+client.placeholder	    $gray	$black	$gray	$black		$black
 
 client.background	    $black
 
 # DMENU
 # start dmenu (a program launcher)
-bindsym $mod+d exec ~/Repos/dmenu/dmenu_run -c -l 15 -bw 2 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "xos4 Terminus-10" -p "Run:"
+bindsym $mod+d exec ~/Repos/dmenu/dmenu_run -c -l 15 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "xos4 Terminus-10" -p "Run:"
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
@@ -177,6 +212,13 @@ bindsym $mod+s exec puppetmaster
 bindsym $mod+x exec urxvt -e lf
 bindsym $mod+c exec urxvt -e cascade
 bindsym $mod+m exec urxvt -e horizon
+bindsym $mod+k exec urxvt -g "180x60" -e kadai
+bindsym $mod+y exec urxvt -e lyra
+
+# MISCELLANEOUS BINDINGS
+bindsym $mod+l exec vault
+#bindsym $mod+e exec escher
+bindsym $mod+e exec rom-picker
 
 # RESIZE MODE
 # resize window (you can also use the mouse for that)
@@ -231,7 +273,9 @@ bar {
 
 # EXECUTE WHEN I3 STARTS
 exec feh --bg-fill ~/Pictures/Wallpaper/wallpaper.jpg
-exec compton
+exec hsetroot -solid "#000000"
+exec --no-startup-id xcompmgr
 exec dunst
-exec_always --no-startup-id /usr/bin/marquee apparition-no-gaps
+exec_always --no-startup-id /usr/bin/marquee apparition
 exec --no-startup-id urxvt -name "_scratchpad"
+exec torch --refresh 0

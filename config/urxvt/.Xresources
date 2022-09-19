@@ -1,40 +1,40 @@
 !!Colors
 ! special
-*.foreground:	#ffdad6
-*.background:	#000626
-*.cursorColor:	#ffdad6
+*.foreground:	#fbc1a4
+*.background:	#170f18
+*.cursorColor:	#fbc1a4
 
 ! black
-*.color0:	#000626
-*.color8:	#73909c
+*.color0:	#170f18
+*.color8:	#c1b7b7
 
 ! red
-*.color1:	#fa2267
-*.color9:	#fa2267
+*.color1:	#e22942
+*.color9:	#e22942
 
 ! green
-*.color2:	#01e0b9
-*.color10:	#01e0b9
+*.color2:	#00ffcf
+*.color10:	#00ffcf
 
 ! yellow
-*.color3:	#efa628
-*.color11:	#efa628
+*.color3:	#ff7446
+*.color11:	#ff7446
 
 ! blue
-*.color4:	#00b9d8
-*.color12:	#00b9d8
+*.color4:	#00dfe1
+*.color12:	#00dfe1
 
 ! magenta
-*.color5:	#980037
-*.color13:	#980037
+*.color5:	#fa8c28
+*.color13:	#fa8c28
 
 ! cyan
-*.color6:	#7aded9
-*.color14:	#7aded9
+*.color6:	#acf4e5
+*.color14:	#acf4e5
 
 ! white
-*.color7:	#ffdad6
-*.color15:	#ffdad6
+*.color7:	#fbc1a4
+*.color15:	#fbc1a4
 !! URxvt Appearance
 
 URxvt*font: xft:xos4 Terminus:size=10
@@ -46,7 +46,7 @@ URxvt*font: xft:xos4 Terminus:size=10
 
 ! True Transparency
 URxvt*depth: 32
-URxvt*background: [75]#000626
+URxvt*background: [75]#170f18
 
 URxvt.highlightColor: white
 URxvt.highlightTextColor: black
@@ -63,6 +63,12 @@ URxvt.saveline: 2048
 URxvt.scrollBar: false
 URxvt.scrollBar_right: false
 URxvt.iso14755: false
+
+! Keysym Bindings
+URxvt.keysym.Control-Up:     \033[1;5A
+URxvt.keysym.Control-Down:   \033[1;5B
+URxvt.keysym.Control-Left:   \033[1;5D
+URxvt.keysym.Control-Right:  \033[1;5C
 
 !! Xorg Variables
 Xft.dpi: 100

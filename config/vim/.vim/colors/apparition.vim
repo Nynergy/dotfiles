@@ -1,6 +1,6 @@
 " Vim color file
 " Maintainer:	Ben Buchanan <bsbuchanan99@gmail.com>
-" Last Change:	2020 Aug 13
+" Last Change:	2022 May 16
 
 " The hard-coded "8" for the line numbers and terminal status line
 " is the alternate black color defined in .Xresources
@@ -24,6 +24,7 @@ hi Directory		ctermfg=Blue	guifg=Blue
 hi ErrorMsg		ctermfg=White	ctermbg=Red	guibg=Red	guifg=White
 "hi FoldColumn		ctermfg=Blue	ctermbg=Grey	guibg=Grey	guifg=Blue
 "hi Folded		ctermfg=Grey	ctermbg=Black	guibg=Black	guifg=Grey
+hi GitBranch    ctermbg=Black   ctermfg=Magenta     guibg=Magenta   guifg=Black
 hi IncSearch		cterm=reverse	gui=reverse
 hi LineNr		ctermfg=Blue	guifg=Blue
 hi ModeMsg		cterm=bold	gui=bold
@@ -43,6 +44,9 @@ hi SpellCap         ctermbg=blue    ctermfg=black   guibg=black     guifg=blue
 hi SpellRare        ctermbg=green   ctermfg=black   guibg=black     guifg=green
 hi SpellLocal       ctermbg=yellow  ctermfg=black   guibg=black     guifg=yellow
 hi StatusLine		cterm=reverse	ctermbg=black	ctermfg=white	guibg=white	guifg=black
+hi StatusLineFilePercentage		ctermbg=black	ctermfg=red	guibg=red	guifg=black
+hi StatusLineFilePosition		ctermbg=black	ctermfg=cyan	guibg=cyan	guifg=black
+hi StatusLineFileType		    ctermbg=black	ctermfg=green	guibg=green	guifg=black
 hi StatusLineNC		cterm=reverse	ctermbg=white	ctermfg=black	guibg=black	guifg=white
 hi StatusLineTerm	cterm=reverse	ctermbg=black	ctermfg=white	guibg=white	guifg=black
 hi StatusLineTermNC	cterm=reverse	ctermbg=black	ctermfg=8	guibg=black	guifg=black

@@ -19,7 +19,7 @@ getSchemes() {
 }
 
 getChoice() {
-    CHOICE="$(echo -e "\n$SCHEMES" | dmenu -c -l 30 -bw 2 $DMENU_SETTINGS -i -p 'Choose a Scheme:')"
+    CHOICE="$(echo -e "\n$SCHEMES" | dmenu -c -l 30 $DMENU_SETTINGS -i -p 'Choose a Scheme:')"
     if [ -z "$CHOICE" ]; then
         dunstify "ERROR WHEN CHOOSING SCHEME" "User did not pick a valid scheme!"
         exit

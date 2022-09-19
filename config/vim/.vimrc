@@ -1,5 +1,5 @@
 " .vimrc
-" Maintainer: Ben Buchanan @ Apparition
+" Maintainer: Ben Buchanan @ Firmament
 
 " COLORS
 set background=dark
@@ -34,7 +34,11 @@ map g` g<C-A>
 
 " CUSTOM BINDINGS
 map <F4> :setlocal spell!<CR>
-map <F5> :bo term ++rows=15<CR>
+"map <F5> :bo term ++rows=15<CR>
+map <F5> ==<Esc>o<Esc>:put =strftime('%A, %B %d, %Y ') <CR>
+        \I-- <Esc>:exec 'norm '.(72 - strlen(getline('.'))).'A-'<CR>o<CR><CR><CR>
+        \-- References <Esc>:exec 'norm '.(72 - strlen(getline('.'))).'A-'<CR>
+        \o<CR>- N/A<Esc>:5<CR>i
 map <F6> :Goyo<CR>
 map <F7> :call ToggleNetRW()<CR>
 
@@ -45,6 +49,13 @@ hi def link VimwikiLink PreProc
 
 map <Leader>h :VimwikiSplitLink<CR><C-W>r
 map <Leader>v :VimwikiVSplitLink<CR><C-W>r
+
+command! Diary VimwikiDiaryIndex
+augroup vimwikigroup
+    autocmd!
+    " Automatically update links on read diary
+    autocmd BufRead,BufNewFile diary.wiki VimwikiDiaryGenerateLinks
+augroup end
 
 " Fix vimwiki filetype collision with markdown
 let g:vimwiki_ext2syntax = {}
@@ -72,7 +83,7 @@ set laststatus=2
 function StatuslineGit()
     let l:gitBranchExists = trim(system("git rev-parse --is-inside-work-tree"))
     if l:gitBranchExists is# 'true'
-        let g:gitBranch = '  ' . trim(system("git rev-parse --abbrev-ref HEAD")) . ' '
+        let g:gitBranch = '  ' . trim(system("git rev-parse --abbrev-ref HEAD 2>/dev/null | sed 's:HEAD:N/A:g'")) . ' '
     else
         let g:gitBranch = ''
     endif
@@ -80,15 +91,15 @@ function StatuslineGit()
 endfunction
 
 set statusline=
-set statusline+=%#StatusLine#
+set statusline+=%#GitBranch#
 set statusline+=%.30{StatuslineGit()}
 set statusline+=%#Conceal#
 set statusline+=\ %t
 set statusline+=\ %m%r%h
 set statusline+=\ %=
-set statusline+=\ %#SpellRare#
+set statusline+=\ %#StatusLineFileType#
 set statusline+=\ %Y
-set statusline+=\ %#SpellCap#
+set statusline+=\ %#StatusLineFilePosition#
 set statusline+=\ %(%4l,%-3c%)
-set statusline+=\ %#SpellBad#
+set statusline+=\ %#StatusLineFilePercentage#
 set statusline+=\ %3P\ 
