@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Script for mounting the BU reports drive over the network
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    27-Feb-2024
+
+ENV_FILE="$HOME/.env.sh"
+
+if [ -f "$ENV_FILE" ]
+then
+    source "$ENV_FILE"
+else
+    notify-send 'Error when mounting' "Could not locate env file at '$ENV_FILE'"
+    exit
+fi
+
+REPORTS_MOUNT_DIR=/mnt/reports/
+
+if [ -d $REPORTS_MOUNT_DIR ]
+then
+    mount "$BU_REPORTS_PATH" "$REPORTS_MOUNT_DIR" -o user="$BU_REPORTS_USER"
+else
+    notify-send 'Error when mounting' "'$REPORTS_MOUNT_DIR' does not exist"
+    exit
+fi

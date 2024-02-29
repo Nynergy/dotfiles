@@ -1,7 +1,0 @@
-#!/bin/bash
-
-SQUEEZELITE_DIR=/home/benjamin/Repos/squeezelite/
-
-cd "$SQUEEZELITE_DIR"
-
-pkill squeezelite || ./squeezelite -s 192.168.0.188 -n Firmament &

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Setup two 1920x1080 displays with a statusbar
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    25-Feb-2024
+
+CURRENT_WALLPAPER=$HOME/Pictures/Wallpaper/wallpaper.jpg
+GAPS_TOGGLE=$HOME/.toggle-util/gaps-toggle
+STATUSBAR=polybar
+
+OUTPUT_DEVICE_1=$(xrandr -q | awk '/ connected/ {print $1}' | head -n 1)
+OUTPUT_DEVICE_2=$(xrandr -q | awk '/ connected/ {print $1}' | tail -n 1)
+
+XRANDR_OPTIONS_DISPLAY_1=--output $OUTPUT_DEVICE_1 --primary --mode 1920x1080 --pos 1920x0 --rotate normal
+XRANDR_OPTIONS_DISPLAY_2=--output $OUTPUT_DEVICE_2 --mode 1920x1080 --pos 0x0 --rotate normal
+
+xrandr $XRANDR_OPTIONS_DISPLAY_1 $XRANDR_OPTIONS_DISPLAY_2
+
+# Restart polybar on new layout
+pkill $STATUSBAR
+TOGGLE_STATE=$(cat "$GAPS_TOGGLE")
+[ "$TOGGLE_STATE" == "On" ] && marquee gaps
+[ "$TOGGLE_STATE" == "Off" ] && marquee no-gaps
+
+feh --bg-fill "$CURRENT_WALLPAPER"

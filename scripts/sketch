@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+# A script for making generative pixelsorted images with python
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+if [ $# -ne 1 ]
+then
+    echo "Usage: $0 /path/to/image.jpg"
+    exit
+fi
+
+IMAGE_FILE="$1"
+BASENAME="${IMAGE_FILE%.*}"
+
+# Random Interval Function
+INTERVAL_FUNCTIONS=(random edges threshold waves none)
+NUM_INT_FUNCS=${#INTERVAL_FUNCTIONS[@]}
+INT_FUNC_IDX=$((RANDOM % NUM_INT_FUNCS))
+INTERVAL_FUNCTION=${INTERVAL_FUNCTIONS[$INT_FUNC_IDX]}
+
+# Random Randomness
+RANDOMNESS=$((RANDOM % 100))
+
+# Random Angle
+ANGLE=$((RANDOM % 360))
+
+# Random Sorting Function
+SORTING_FUNCTIONS=(lightness hue saturation intensity minimum)
+NUM_SORT_FUNCS=${#SORTING_FUNCTIONS[@]}
+SORT_FUNC_IDX=$((RANDOM % NUM_SORT_FUNCS))
+SORTING_FUNCTION=${SORTING_FUNCTIONS[$SORT_FUNC_IDX]}
+
+# Determine other parameters based on interval function
+case $INTERVAL_FUNCTION in
+    random|waves)
+        CLENGTH=$((50 + RANDOM % 500)) ;
+        LOG=(
+            'Params: ' \
+            "INTERVAL_FUNC=$INTERVAL_FUNCTION, " \
+            "RANDOMNESS=$RANDOMNESS, " \
+            "ANGLE=$ANGLE, " \
+            "SORTING_FUNC=$SORTING_FUNCTION, " \
+            "CLENGTH=$CLENGTH"
+        ) ;
+        OPTS=(-i "$INTERVAL_FUNCTION" -r "$RANDOMNESS" -a "$ANGLE" \
+              -s "$SORTING_FUNCTION" -c "$CLENGTH") ;
+        ;;
+
+    edges)
+        THRESHOLD=$(awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }') ;
+        LOG=(
+            'Params: ' \
+            "INTERVAL_FUNC=$INTERVAL_FUNCTION, " \
+            "RANDOMNESS=$RANDOMNESS, " \
+            "ANGLE=$ANGLE, " \
+            "SORTING_FUNC=$SORTING_FUNCTION, " \
+            "THRESHOLD=$THRESHOLD"
+        ) ;
+        OPTS=(-i "$INTERVAL_FUNCTION" -r "$RANDOMNESS" -a "$ANGLE" \
+              -s "$SORTING_FUNCTION" -t "$THRESHOLD") ;
+        ;;
+
+    threshold)
+        LOWER=$(awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }') ;
+        UPPER=$(awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }') ;
+        if (( $(echo "$UPPER < $LOWER" | bc -l) ))
+        then
+            TEMP=$UPPER
+            UPPER=$LOWER
+            LOWER=$TEMP
+        fi
+
+        LOG=(
+            'Params: ' \
+            "INTERVAL_FUNC=$INTERVAL_FUNCTION, " \
+            "RANDOMNESS=$RANDOMNESS, " \
+            "ANGLE=$ANGLE, " \
+            "SORTING_FUNC=$SORTING_FUNCTION, " \
+            "LOWER_THRESHOLD=$LOWER, " \
+            "UPPER_THRESHOLD=$UPPER"
+        ) ;
+        OPTS=(-i "$INTERVAL_FUNCTION" -r "$RANDOMNESS" -a "$ANGLE" \
+              -s "$SORTING_FUNCTION" -t "$LOWER" -u "$UPPER") ;
+        ;;
+
+    none)
+        LOG=(
+            'Params: ' \
+            "INTERVAL_FUNC=$INTERVAL_FUNCTION, " \
+            "RANDOMNESS=$RANDOMNESS, " \
+            "ANGLE=$ANGLE, " \
+            "SORTING_FUNC=$SORTING_FUNCTION"
+        ) ;
+        OPTS=(-i "$INTERVAL_FUNCTION" -r "$RANDOMNESS" -a "$ANGLE" \
+              -s "$SORTING_FUNCTION") ;
+        ;;
+
+    *)
+        printf "%s is not a valid interval function. Exiting...\n" "$INTERVAL_FUNCTION" ;
+        exit
+        ;;
+esac
+
+printf '%s\n' "${LOG[*]}"
+printf "Sketching '%s'..." "$BASENAME"
+
+python3 -m pixelsort "$IMAGE_FILE" "${OPTS[@]}" -o "$BASENAME Sketch.png"
+
+echo 'Done'

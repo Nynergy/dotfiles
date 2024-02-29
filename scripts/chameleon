@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+# A script for choosing and applying colorschemes to .Xresources
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    23-Feb-2024
+
+XRESOURCES=$HOME/.Xresources
+
+FONT="xos4Terminus-10"
+BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+FOREGROUND=$(awk '/color8:/ {print $2}' "$XRESOURCES")
+
+DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
+                -sb "$FOREGROUND" -sf "$BACKGROUND" \
+                -fn "$FONT")
+
+SCHEME_DIR="$HOME/.config/colorschemes"
+
+getSchemes() {
+    SCHEMES="$(ls -1 "$SCHEME_DIR")"
+    if [ -z "$SCHEMES" ]; then
+        notify-send "ERROR WHEN CHOOSING SCHEME" "Could not read schemes from $SCHEME_DIR!"
+        exit
+    fi
+}
+
+getChoice() {
+    CHOICE="$(echo -e "\n$SCHEMES" | dmenu -c -l 30 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Scheme:')"
+    if [ -z "$CHOICE" ]; then
+        notify-send "ERROR WHEN CHOOSING SCHEME" "User did not pick a valid scheme!"
+        exit
+    fi
+}
+
+getColors() {
+    BLACK=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+    RED=$(awk '/color1:/ {print $2}' "$XRESOURCES")
+    GREEN=$(awk '/color2:/ {print $2}' "$XRESOURCES")
+    YELLOW=$(awk '/color3:/ {print $2}' "$XRESOURCES")
+    BLUE=$(awk '/color4:/ {print $2}' "$XRESOURCES")
+    MAGENTA=$(awk '/color5:/ {print $2}' "$XRESOURCES")
+    CYAN=$(awk '/color6:/ {print $2}' "$XRESOURCES")
+    WHITE=$(awk '/color7:/ {print $2}' "$XRESOURCES")
+    GRAY=$(awk '/color8:/ {print $2}' "$XRESOURCES")
+}
+
+setColors() {
+    # BLACK
+    sed -i "s/color0:\t#[0-9a-z]*/color0:\t$BLACK/g" "$XRESOURCES"
+    sed -i "s/background:\t#[0-9a-z]*/background:\t$BLACK/g" "$XRESOURCES"
+    sed -i "s/background: \[75\]#[0-9a-z]*/background: \[75\]$BLACK/g" "$XRESOURCES"
+
+    # RED
+    sed -i "s/color1:\t#[0-9a-z]*/color1:\t$RED/g" "$XRESOURCES"
+    sed -i "s/color9:\t#[0-9a-z]*/color9:\t$RED/g" "$XRESOURCES"
+
+    # GREEN
+    sed -i "s/color2:\t#[0-9a-z]*/color2:\t$GREEN/g" "$XRESOURCES"
+    sed -i "s/color10:\t#[0-9a-z]*/color10:\t$GREEN/g" "$XRESOURCES"
+
+    # YELLOW
+    sed -i "s/color3:\t#[0-9a-z]*/color3:\t$YELLOW/g" "$XRESOURCES"
+    sed -i "s/color11:\t#[0-9a-z]*/color11:\t$YELLOW/g" "$XRESOURCES"
+
+    # BLUE
+    sed -i "s/color4:\t#[0-9a-z]*/color4:\t$BLUE/g" "$XRESOURCES"
+    sed -i "s/color12:\t#[0-9a-z]*/color12:\t$BLUE/g" "$XRESOURCES"
+
+    # MAGENTA
+    sed -i "s/color5:\t#[0-9a-z]*/color5:\t$MAGENTA/g" "$XRESOURCES"
+    sed -i "s/color13:\t#[0-9a-z]*/color13:\t$MAGENTA/g" "$XRESOURCES"
+
+    # CYAN
+    sed -i "s/color6:\t#[0-9a-z]*/color6:\t$CYAN/g" "$XRESOURCES"
+    sed -i "s/color14:\t#[0-9a-z]*/color14:\t$CYAN/g" "$XRESOURCES"
+
+    # WHITE
+    sed -i "s/foreground:\t#[0-9a-z]*/foreground:\t$WHITE/g" "$XRESOURCES"
+    sed -i "s/cursorColor:\t#[0-9a-z]*/cursorColor:\t$WHITE/g" "$XRESOURCES"
+    sed -i "s/color7:\t#[0-9a-z]*/color7:\t$WHITE/g" "$XRESOURCES"
+    sed -i "s/color15:\t#[0-9a-z]*/color15:\t$WHITE/g" "$XRESOURCES"
+
+    # GRAY
+    sed -i "s/color8:\t#[0-9a-z]*/color8:\t$GRAY/g" "$XRESOURCES"
+}
+
+getSchemes
+getChoice
+getColors
+setColors
+
+# Run master recolor script to set changes
+prism

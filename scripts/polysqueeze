@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# A script that prints squeezelite status for polybar
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+XRESOURCES=$HOME/.Xresources
+
+ON=$(awk '/color6:/ {print $2}' "$XRESOURCES")
+OFF=$(awk '/color5:/ {print $2}' "$XRESOURCES")
+
+if pgrep squeezelite > /dev/null
+then
+    echo "%{F$ON}ON"
+else
+    echo "%{F$OFF}OFF"
+fi

@@ -1,0 +1,304 @@
+; Configuration file for polybar
+
+; Maintainer:       Ben Buchanan
+; Version:          1.0.0
+; Last Modified:    22-Feb-2024
+
+; COLORS
+[colors]
+black = #c0180818
+invisible = #00180818
+red = ${xrdb:color1:#000}
+green = ${xrdb:color2:#000}
+yellow = ${xrdb:color3:#000}
+blue = ${xrdb:color4:#000}
+magenta = ${xrdb:color5:#000}
+cyan = ${xrdb:color6:#000}
+white = ${xrdb:color7:#000}
+gray = ${xrdb:color8:#000}
+
+[bar/gaps]
+; SIZE & POSITION
+; Monitors
+monitor = ${env:MONITOR:}
+
+; Bar appears at the top of the screen
+bottom = false
+
+; Bar width and height
+width = 100%
+height = 35
+
+; Optional offsets
+;offset-x = 1%
+;offset-y = 1%
+
+; BAR DETAILS
+; Background and foreground colors
+background = ${colors.black}
+foreground = ${colors.white}
+
+; Radius for rounded corners
+radius = 0.0
+
+; Pixel size and color for over/underlines
+line-size = 0
+line-color = ${colors.red}
+
+; Size and color for borders
+border-size = 12
+border-bottom-size = 0
+border-color = ${colors.invisible}
+
+; Opacity for fade-in/out
+dim-value = 1.0
+
+; Bar and module padding
+padding-left = 2
+padding-right = 2
+module-margin-left = 1
+module-margin-right = 1
+
+; FONTS
+font-0 = xos4 Terminus:size=14;2
+font-1 = AR PL Ukai CN:size=12;2
+font-2 = Baekmuk Batang:size=12;2
+font-3 = Wuncon Siji:size=12;2
+
+; MODULES
+modules-left = network vpn squeezelite i3
+;modules-center = mpd
+modules-center = date siren
+modules-right = disk pulseaudio battery
+
+; Center block justification
+fixed-center = false
+
+; SYSTEM TRAY
+tray-position = left
+tray-detached = false
+tray-maxsize = 16
+tray-background = ${root.background}
+
+[bar/no-gaps]
+; SIZE & POSITION
+; Monitors
+monitor = ${env:MONITOR:}
+
+; Bar appears at the top of the screen
+bottom = false
+
+; Bar width and height
+width = 100%
+height = 35
+
+; Optional offsets
+;offset-x = 1%
+;offset-y = 1%
+
+; BAR DETAILS
+; Background and foreground colors
+background = ${colors.black}
+foreground = ${colors.white}
+
+; Radius for rounded corners
+radius = 0.0
+
+; Pixel size and color for over/underlines
+line-size = 0
+line-color = ${colors.red}
+
+; Size and color for borders
+border-size = 0;
+border-color = #00000000
+
+; Opacity for fade-in/out
+dim-value = 1.0
+
+; Bar and module padding
+padding-left = 2
+padding-right = 2
+module-margin-left = 1
+module-margin-right = 1
+
+; FONTS
+font-0 = xos4 Terminus:size=14;2
+font-1 = AR PL Ukai CN:size=12;2
+font-2 = Baekmuk Batang:size=12;2
+font-3 = Wuncon Siji:size=12;2
+
+; MODULES
+modules-left = network vpn squeezelite i3
+;modules-center = mpd
+modules-center = date siren
+modules-right = disk pulseaudio battery
+
+; Center block justification
+fixed-center = false
+
+; SYSTEM TRAY
+tray-position = left
+tray-detached = false
+tray-maxsize = 16
+tray-background = ${root.background}
+
+; MODULES
+; I3 MODULE
+[module/i3]
+type = internal/i3
+format = <label-state> <label-mode>
+index-sort = true
+wrapping-scroll = false
+
+; Only show workspaces on the same output as the bar
+pin-workspaces = true
+
+; Strip workspace numbers and show only names
+strip-wsnumbers = true
+
+label-mode-padding = 1
+label-mode-foreground = ${colors.white}
+label-mode-background = ${colors.black}
+
+; focused = Active workspace on focused monitor
+label-focused = %name%
+label-focused-foreground = ${colors.black}
+label-focused-background = ${colors.red}
+label-focused-underline = ${colors.cyan}
+label-focused-padding = 1
+
+; unfocused = Inactive workspace on any monitor
+label-unfocused = %name%
+label-unfocused-padding = 1
+
+; visible = Active workspace on unfocused monitor
+label-visible = %name%
+label-visible-foreground = ${colors.black}
+label-visible-background = ${colors.white}
+label-visible-underline = ${colors.black}
+label-visible-padding = 1
+
+; urgent = Workspace with urgency hint set
+label-urgent = %name%
+label-urgent-foreground = ${colors.black}
+label-urgent-background = ${colors.yellow}
+label-urgent-padding = 1
+
+; Separator in between workspaces
+; label-separator = |
+
+; DATE MODULE
+[module/date]
+type = internal/date
+interval = 1
+
+date = %a %b %d, %Y
+date-alt = %A, %d %B %Y
+
+time = %H:%M:%S
+time-alt = %H:%M
+
+format-foreground = ${colors.white}
+format-background = ${colors.black}
+format-underline = ${colors.blue}
+
+label = %time% :: %date%
+label-foreground = ${colors.white}
+label-background = ${colors.black}
+
+; XWINDOW MODULE
+[module/title]
+type = internal/xwindow
+
+format = <label>
+format-foreground = ${root.foreground}
+format-background = ${root.background}
+
+label = %title%
+label-maxlen = 100
+
+label-empty =
+
+; BATTERY MODULE
+[module/battery]
+type = internal/battery
+battery = BAT0
+adapter = ACAD
+full-at = 90
+
+time-format = %H:%M
+
+bar-capacity-width = 10
+bar-capacity-indicator = |
+bar-capacity-fill = -
+bar-capacity-empty = -
+bar-capacity-fill-foreground = ${colors.green}
+
+format-charging = <label-charging> <bar-capacity>
+format-discharging = <label-discharging> <bar-capacity>
+format-full = <label-full> <bar-capacity>
+
+label-charging = CHR (%time%)
+label-discharging = DIS (%time%)
+label-full = BAT
+
+; NETWORK MODULE
+[module/network]
+type = internal/network
+interface = wlp59s0
+interval = 3.0
+
+format-connected = <label-connected>
+format-connected-foreground = ${colors.green}
+label-connected = %essid%
+
+format-disconnected = <label-disconnected>
+format-disconnected-foreground = ${colors.red}
+label-disconnected = Disconnected
+
+; PULSEAUDIO MODULE
+[module/pulseaudio]
+type = internal/pulseaudio
+
+format-volume = <label-volume> <bar-volume>
+label-volume = VOL
+label-volume-foreground = ${root.foreground}
+
+format-muted = <label-muted> <bar-volume>
+label-muted = MUTE
+
+bar-volume-width = 10
+bar-volume-indicator = |
+bar-volume-fill = -
+bar-volume-empty = -
+bar-volume-fill-foreground = ${colors.yellow}
+
+; DISK MODULE
+[module/disk]
+type = custom/script
+interval = 10
+format-prefix = "DISK "
+format = <label>
+exec = diskbar
+
+; SIREN MODULE
+[module/siren]
+type = custom/script
+interval = 3
+format = |  <label>
+exec = sirenbar
+tail = true
+
+; VPN MODULE
+[module/vpn]
+type = custom/script
+interval = 5
+format = <label>
+exec = polyvpn
+
+; SQUEEZELITE MODULE
+[module/squeezelite]
+type = custom/script
+interval = 5
+format = SQUEEZELITE: <label>
+exec = polysqueeze

@@ -1,0 +1,59 @@
+" Configuration file for vim
+
+" Maintainer:       Ben Buchanan
+" Version:          1.0.0
+" Last Modified:    29-Feb-2024
+
+" COLORS
+set background=dark
+set t_Co=256
+colo apparition
+syntax on
+
+" PATH & MENUS
+set path+=**
+set wildmenu
+
+" TABS & INDENTS
+filetype plugin indent on
+set tabstop=4
+set shiftwidth=4
+set expandtab
+
+" MISC
+set number relativenumber
+set nohlsearch
+set nocompatible
+
+" CUSTOM COMMANDS
+nnoremap c* *Ncgn
+map ` <C-A>
+map g` g<C-A>
+
+" CUSTOM BINDINGS
+map <F4> :setlocal spell!<CR>
+map <F7> <C-W>v:Explore<CR>
+map <F8> :Explore<CR>
+
+" NETRW
+let g:netrw_liststyle = 3
+let g:netrw_banner = 0
+"let g:netrw_browse_split = 4
+"let g:netrw_altv = 1
+let ghregex='\(^\|\s\s\)\zs\.\S\+'
+let g:netrw_list_hide=ghregex
+
+" STATUSLINE
+set laststatus=2
+
+set statusline=
+set statusline+=%#Conceal#
+set statusline+=\ %t
+set statusline+=\ %m%r%h
+set statusline+=\ %=
+set statusline+=\ %#StatusLineFileType#
+set statusline+=\ %Y
+set statusline+=\ %#StatusLineFilePosition#
+set statusline+=\ %(%4l,%-3c%)
+set statusline+=\ %#StatusLineFilePercentage#
+set statusline+=\ %3P\ 

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# A custom locker using i3lock
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    25-Feb-2024
+
+XRESOURCES=$HOME/.Xresources
+
+# Set to one of the methods defined below, or define your own
+LOCK_METHOD=color_fill
+
+color_fill () {
+    BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+    i3lock -c "$BACKGROUND"
+}
+
+blur_screenshot () {
+    # Take a screenshot
+    scrot /tmp/current.png
+
+    # Add blur to the screenshot
+    convert -blur 0x4 /tmp/current.png /tmp/blur.png
+
+    i3lock -i /tmp/blur.png
+}
+
+overlay_screenshot () {
+    # Provide path to your desired overlay
+    OVERLAY=/path/to/overlay.png
+
+    if [ -f "$OVERLAY" ]
+    then
+        # Take a screenshot
+        scrot /tmp/current.png
+
+        # Add overlay to the screenshot
+        composite -gravity southwest "$OVERLAY" /tmp/current.png /tmp/lock.png
+
+        i3lock -i /tmp/lock.png
+    else
+        echo "Provided overlay '$OVERLAY' is not a file."
+        exit
+    fi
+}
+
+$LOCK_METHOD

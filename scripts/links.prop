@@ -1,0 +1,17 @@
+$DOTFILES/scripts/chameleon=$HOME/.local/bin/chameleon
+$DOTFILES/scripts/diskbar=$HOME/.local/bin/diskbar
+$DOTFILES/scripts/doublescreen=$HOME/.local/bin/doublescreen
+$DOTFILES/scripts/juniper=$HOME/.local/bin/juniper
+$DOTFILES/scripts/manila=$HOME/.local/bin/manila
+$DOTFILES/scripts/marquee=$HOME/.local/bin/marquee
+$DOTFILES/scripts/palette=$HOME/.local/bin/palette
+$DOTFILES/scripts/polysqueeze=$HOME/.local/bin/polysqueeze
+$DOTFILES/scripts/polyvpn=$HOME/.local/bin/polyvpn
+$DOTFILES/scripts/prism=$HOME/.local/bin/prism
+$DOTFILES/scripts/puppetmaster=$HOME/.local/bin/puppetmaster
+$DOTFILES/scripts/sketch=$HOME/.local/bin/sketch
+$DOTFILES/scripts/soundbridge=$HOME/.local/bin/soundbridge
+$DOTFILES/scripts/soundspool=$HOME/.local/bin/soundspool
+$DOTFILES/scripts/tether=$HOME/.local/bin/tether
+$DOTFILES/scripts/torch=$HOME/.local/bin/torch
+$DOTFILES/scripts/vault=$HOME/.local/bin/vault

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+# A master script for recoloring applications
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    23-Feb-2024
+
+XRESOURCES=$HOME/.Xresources
+DUNST_CONFIG=$HOME/.config/dunst/dunstrc
+POLYBAR_CONFIG=$HOME/.config/polybar/config
+ZATHURA_CONFIG=$HOME/.config/zathura/zathurarc
+
+FONT="Terminus 10"
+
+xrdb load "$XRESOURCES"
+
+pkill dunst
+
+get_colors () {
+    BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+    FOREGROUND=$(awk '/color7:/ {print $2}' "$XRESOURCES")
+
+    BACKGROUND_NO_HASH=${BACKGROUND//#/}
+
+    RED=$(awk '/color1:/ {print $2}' "$XRESOURCES")
+    GREEN=$(awk '/color2:/ {print $2}' "$XRESOURCES")
+    YELLOW=$(awk '/color3:/ {print $2}' "$XRESOURCES")
+}
+
+gen_dunst () {
+    sed -i -E "s/background = \"#[0-9a-z]+\"/background = \"$BACKGROUND\"/" "$DUNST_CONFIG"
+    sed -i -E "s/foreground = \"#[0-9a-z]+\"/foreground = \"$FOREGROUND\"/" "$DUNST_CONFIG"
+    sed -i -E "s/frame_color = \"#[0-9a-z]+\"/frame_color = \"$GREEN\"/" "$DUNST_CONFIG"
+}
+
+gen_polybar () {
+    sed -i -E "s/black = #c0[0-9a-z]+/black = #c0$BACKGROUND_NO_HASH/" "$POLYBAR_CONFIG"
+    sed -i -E "s/invisible = #00[0-9a-z]+/invisible = #00$BACKGROUND_NO_HASH/" "$POLYBAR_CONFIG"
+}
+
+gen_zathura () {
+    # Rather than modify the config in-place, we just regenerate it from scratch
+    cat > "$ZATHURA_CONFIG" << EOF
+set default-fg \\$BACKGROUND
+set default-bg \\$BACKGROUND
+
+set statusbar-fg \\$BACKGROUND
+set statusbar-bg \\$GREEN
+
+set inputbar-fg \\$GREEN
+set inputbar-bg \\$BACKGROUND
+
+set completion-fg \\$FOREGROUND
+set completion-bg \\$BACKGROUND
+set completion-group-fg \\$BACKGROUND
+set completion-group-bg \\$RED
+set completion-highlight-fg \\$BACKGROUND
+set completion-highlight-bg \\$FOREGROUND
+
+set index-fg \\$FOREGROUND
+set index-bg \\$BACKGROUND
+set index-active-fg \\$BACKGROUND
+set index-active-bg \\$YELLOW
+
+set recolor-darkcolor \\$FOREGROUND
+set recolor-lightcolor \\$BACKGROUND
+
+set font "$FONT"
+
+set scroll-step 300
+EOF
+}
+
+get_colors
+gen_dunst
+gen_polybar
+gen_zathura
+
+i3-msg restart

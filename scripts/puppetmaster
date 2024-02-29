@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+
+# A general system utility script that uses dmenu
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+XRESOURCES=$HOME/.Xresources
+WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
+SET_WALLPAPER_DIR=$HOME/Pictures/Wallpaper
+
+FONT="xos4Terminus-10"
+BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+FOREGROUND=$(awk '/color5:/ {print $2}' "$XRESOURCES")
+CONFIRM_FOREGROUND=$(awk '/color1:/ {print $2}' "$XRESOURCES")
+
+DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
+                -sb "$FOREGROUND" -sf "$BACKGROUND" \
+                -fn "$FONT")
+CONFIRM_SETTINGS=(-nb "$BACKGROUND" -nf "$CONFIRM_FOREGROUND" \
+                  -sb "$CONFIRM_FOREGROUND" -sf "$BACKGROUND" \
+                  -fn "$FONT")
+
+COMPOSITOR=xcompmgr
+NOTIFICATION=dunst
+STATUSBAR=polybar
+SCREENSHOT="scrot -d 1"
+WEBCAM_DEVICE=/dev/video0
+
+GAPS_TOGGLE_FILE=$HOME/.toggle-util/gaps-toggle
+GAPS_SIZE=12
+
+Confirm() {
+	CONFIRM="$(echo -e 'No\nYes' | dmenu -l 2 "${CONFIRM_SETTINGS[@]}" -i -p 'Are you sure?')";
+}
+
+read -r -d '' CHOICES << EOF
+Take Screenshot
+Take Selected Screenshot
+Mount/Unmount Device
+Display Webcam
+--------------------
+Change Wallpaper
+Change and Set Wallpaper
+Regenerate Colors
+Set Colorscheme
+Save Colorscheme
+--------------------
+Toggle Squeezelite
+Toggle Compositor
+Toggle Notifications
+Toggle Gaps
+Toggle Status Bar
+Toggle Light/Dark Mode
+--------------------
+Lock Screen
+Exit i3
+EOF
+
+CHOICE="$(echo -e "$CHOICES" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'System:')"
+
+case $CHOICE in
+	"Take Screenshot")
+		$SCREENSHOT && notify-send "Screenshot Taken" ;;
+
+	"Take Selected Screenshot")
+		scrot -s && notify-send "Screenshot Taken" ;;
+
+	"Mount/Unmount Device")
+		tether ;;
+
+	"Display Webcam")
+		mpv --profile=low-latency --untimed --vf=hflip "$WEBCAM_DEVICE" ;;
+
+	# NOTE: If user marks more than one wallpaper, only the first one will be chosen
+	"Change Wallpaper") 
+		WALLPAPER="$(sxiv -b -t -f -Z -o "$WALLPAPERS_DIR" | head -n 1)";
+		feh --bg-fill "$WALLPAPER" ;;
+
+	"Change and Set Wallpaper")
+		Confirm;
+		if [ "$CONFIRM" == "Yes" ]
+        then
+            WALLPAPER="$(sxiv -b -t -f -Z -o "$WALLPAPERS_DIR" | head -n 1)";
+            if [ -f "$WALLPAPER" ]
+            then
+                cp "$WALLPAPER" "$SET_WALLPAPER_DIR/wallpaper.jpg";
+                feh --bg-fill "$SET_WALLPAPER_DIR/wallpaper.jpg";
+            fi
+        fi
+        ;;
+
+	"Regenerate Colors")
+		prism ;;
+
+	"Set Colorscheme")
+		chameleon ;;
+
+	"Save Colorscheme")
+		palette ;;
+
+	"Toggle SqueezeLite")
+		soundspool ;;
+
+	"Toggle Compositor")
+		pkill $COMPOSITOR || $COMPOSITOR & ;;
+
+	# With dunst, this really just resets the process, which is handy for reading a new dunstrc
+	"Toggle Notifications")
+		pkill $NOTIFICATION || $NOTIFICATION & ;;
+
+	"Toggle Gaps")
+		TOGGLE_STATE=$(cat "$GAPS_TOGGLE_FILE");
+        case "$TOGGLE_STATE" in
+            "On")
+                i3-msg "gaps inner all set 0";
+                marquee no-gaps;
+                echo "Off" > "$GAPS_TOGGLE_FILE" ;;
+            "Off")
+                i3-msg "gaps inner all set $GAPS_SIZE";
+                marquee gaps;
+                echo "On" > "$GAPS_TOGGLE_FILE" ;;
+            *)
+                notify-send 'Error when toggling gaps' "Invalid toggle state '$TOGGLE_STATE'";
+                exit
+                ;;
+        esac
+		;;
+
+	"Toggle Status Bar")
+		if ! pkill $STATUSBAR
+        then
+            TOGGLE_STATE=$(cat "$GAPS_TOGGLE_FILE");
+            case "$TOGGLE_STATE" in
+                "On")
+                    marquee gaps ;;
+                "Off")
+                    marquee no-gaps ;;
+                *)
+                    notify-send 'Error when toggling bar' "Invalid toggle state '$TOGGLE_STATE'";
+                    exit
+                    ;;
+            esac
+        fi
+		;;
+
+	"Toggle Light/Dark Mode")
+		LIGHT=$(awk '/color7:/ {print $2}' "$XRESOURCES");
+		DARK=$(awk '/color0:/ {print $2}' "$XRESOURCES");
+		sed -i "s/$LIGHT/TEMP/g" "$XRESOURCES";
+		sed -i "s/$DARK/$LIGHT/g" "$XRESOURCES";
+		sed -i "s/TEMP/$DARK/g" "$XRESOURCES";
+		prism;
+		;;
+
+	"Lock Screen")
+		vault ;;
+
+	"Exit i3")
+		Confirm;
+		[ "$CONFIRM" == "Yes" ] && i3-msg exit ;;
+
+esac

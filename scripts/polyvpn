@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# A script that prints VPN status for polybar
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+XRESOURCES=$HOME/.Xresources
+
+VPN_INTERFACE=tun0
+
+FOREGROUND=$(awk '/color6:/ {print $2}' "$XRESOURCES")
+NORMAL=$(awk '/color7:/ {print $2}' "$XRESOURCES")
+
+if ifconfig $VPN_INTERFACE > /dev/null 2>&1
+then
+    printf '(%%{F%s}VPN%%{F%s})' "$FOREGROUND" "$NORMAL"
+fi

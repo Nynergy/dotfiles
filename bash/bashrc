@@ -1,0 +1,51 @@
+# Configuration file for bash
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    22-Feb-2024
+
+# This file is sourced by all *interactive* bash shells on startup,
+# including some apparently interactive shells such as scp and rcp
+# that can't tolerate any output.  So make sure this doesn't display
+# anything or bad things will happen !
+
+# Test for an interactive shell.  There is no need to set anything
+# past this point for scp and rcp, and it's important to refrain from
+# outputting anything in those cases.
+if [[ $- != *i* ]]; then
+	# Shell is non-interactive.  Be done now!
+	return
+fi
+
+# Custom shell prompt
+PS1="[\[\e[31m\]\u\[\e[m\]@\[\e[35m\]\h\[\e[m\]] \[\e[34m\]\W\[\e[m\] \[\e[0m\]>\[\e[0m\]>\[\e[m\] \[\e0"
+
+# Custom Git Tree command
+git () {
+    if [[ $@ == "tree" ]]; then
+        command git log --oneline --decorate --graph --all
+    else
+        command git "$@"
+    fi
+}
+
+# Handy helper for sourcing files
+source_if_exists () {
+    if test -r "$1"; then
+        source "$1"
+    fi
+}
+
+export EDITOR="vim"
+
+# $PATH Additions
+export PATH="$HOME/.local/bin:$PATH"
+
+# Ensure sudo can use our $PATH
+alias sudo="sudo env "PATH=$PATH""
+
+# Configuration for pfetch
+export PF_INFO="ascii title os kernel host shell editor wm"
+
+# Any sensitive or machine-specific info goes into ~/.env.sh
+source_if_exists "$HOME"/.env.sh

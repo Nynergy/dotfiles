@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# A script to mount/unmount the Samba fileshare for my LMS
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    28-Feb-2024
+
+ENV_FILE="$HOME/.env.sh"
+
+if [ -f "$ENV_FILE" ]
+then
+    source "$ENV_FILE"
+else
+    notify-send 'Error when mounting' "Could not locate env file at '$ENV_FILE'"
+    exit
+fi
+
+PASS=$(pass "$SIREN_PASS_PATH" | head -n 1)
+USER=$(pass "$SIREN_PASS_PATH" | awk '/User/ {print $2}')
+
+SAMBA_SHARE_PATH="//$LMS_IP_ADDRESS/$LMS_SHARE_NAME"
+
+MOUNT_POINT=/mnt/amaryllis
+
+is_mounted() {
+    mount | awk -v DIR="$1" '{if ($3 == DIR) { exit 0 }} ENDFILE { exit -1 }'
+}
+
+if is_mounted "$MOUNT_POINT";
+then
+    umount -t cifs "$SAMBA_SHARE_PATH" "$MOUNT_POINT"
+    notify-send "Samba Share Unmounted"
+else
+    if mount -t cifs -o username="$USER",password="$PASS" "$SAMBA_SHARE_PATH" "$MOUNT_POINT";
+    then
+        notify-send "Samba Share Mounted"
+    else
+        notify-send "Samba Share Could Not Be Mounted"
+    fi
+fi

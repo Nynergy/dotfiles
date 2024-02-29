@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# A script for connecting to the BU Domain via openconnect
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+SCRIPT=${0##*/}
+PROTOCOL=nc
+USERNAME=$1
+REALM='BU Domain Users'
+SERVER=ssl.binghamton.edu
+
+OPENCONNECT_OPTS=(--protocol="$PROTOCOL" --authgroup="$REALM" \
+                  -u "$USERNAME" --passwd-on-stdin "$SERVER")
+
+function printUsage() {
+    printf '%s\n'   "$SCRIPT: connect to $SERVER via openconnect"
+    printf '%s\n\n' "Usage: $SCRIPT <username>"
+    printf '%s\n\n' '    <username>: the username you use to log in with CAS'
+    printf '%s\n'   'You will be prompted for your password and 2FA token when invoked'
+}
+
+function killVPN() {
+    if pkill openconnect > /dev/null 2>&1
+    then
+        notify-send "VPN ($SCRIPT)" "Disconnected from '$SERVER'"
+    fi
+    sleep 1
+}
+
+[ $# -ne 1 ] && { echo "Usage: $SCRIPT <username>"; exit; }
+
+case $1 in
+    -h|--help)
+        printUsage;
+        exit;;
+    -k|--kill)
+        killVPN;
+        exit;;
+esac
+
+printf "Please enter the password for '%s': " "$USERNAME"
+read -r -s PASSWD
+
+printf "\nPlease enter your 2FA token: "
+read -r TOKEN
+printf "\n"
+
+{ echo "$PASSWD"; echo "$TOKEN"; } | openconnect -q -b "${OPENCONNECT_OPTS[@]}"
+sleep 1
+
+if ifconfig tun0 > /dev/null 2>&1
+then
+    notify-send "VPN ($SCRIPT)" "Connected to '$REALM' at '$SERVER'"
+else
+    notify-send "VPN ($SCRIPT)" "Could not connect to '$SERVER'"
+fi

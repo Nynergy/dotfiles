@@ -1,0 +1,32 @@
+# Configuration file for lf
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    22-Feb-2024
+
+# Set options
+set ratios '1:1'
+set dircounts
+set drawbox
+set info size
+set wrapscroll
+
+# Custom keybindings
+map <backspace> set hidden! # <C-h> to toggle hidden files/directories
+map gp $sxiv -g 700x700 -b . # <gp> to open all images in PWD using sxiv
+map gt $sxiv -g 725x725 -ftb . # <gt> to open all images in PWD using sxiv in fullscreen thumbnail mode
+
+# Custom 'open' command
+cmd open ${{
+	filename=$(basename -- "$f")
+	extension="${filename##*.}"
+	case $extension in
+		txt|c|cpp|h|hs|html|css|scss|js|sh|pl|py|java|rs|md|json|tex|csv) vim "$fx";;
+		jpg|jpeg|JPG|png|PNG|gif|tif) sxiv -g 700x700 -b "$f" &;;
+		mp3|wav|m4a|flv|mpg|mp4|mov|MOV|mkv|webm|avi) mpv "$f" &;;
+		pdf|epub) zathura "$f" &;;
+		*) case $filename in
+			Makefile|makefile) vim "$fx";;
+		esac
+	esac
+}}

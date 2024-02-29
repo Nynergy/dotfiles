@@ -1,0 +1,27 @@
+set default-fg \#180818
+set default-bg \#180818
+
+set statusbar-fg \#180818
+set statusbar-bg \#00ffcf
+
+set inputbar-fg \#00ffcf
+set inputbar-bg \#180818
+
+set completion-fg \#fbc1a4
+set completion-bg \#180818
+set completion-group-fg \#180818
+set completion-group-bg \#e22942
+set completion-highlight-fg \#180818
+set completion-highlight-bg \#fbc1a4
+
+set index-fg \#fbc1a4
+set index-bg \#180818
+set index-active-fg \#180818
+set index-active-bg \#ff7446
+
+set recolor-darkcolor \#fbc1a4
+set recolor-lightcolor \#180818
+
+set font "Terminus 10"
+
+set scroll-step 300

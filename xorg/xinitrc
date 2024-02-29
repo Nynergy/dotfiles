@@ -1,0 +1,13 @@
+# A session start script for x11
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+# These xrandr commands are for machines with Nvidia cards
+# Feel free to comment them out if you don't need them
+xrandr --setprovideroutputsource modesetting NVIDIA-G0
+xrandr --auto
+
+exec xrdb ~/.Xresources &
+exec i3

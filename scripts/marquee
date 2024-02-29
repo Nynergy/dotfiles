@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# A script to start polybar with a specified configuration
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    29-Feb-2024
+
+if [ $# -lt 1 ]
+then
+    notify-send 'Error' 'Please provide the name of the bar configuration'
+    exit
+fi
+
+BAR="$1"
+
+# Kill all instances of polybar
+killall -q polybar
+
+# Wait until the processes have been properly shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+if type "xrandr"
+then
+	for m in $(xrandr --query | awk '/ connected/ {print $1}')
+    do
+		MONITOR=$m polybar --reload "$BAR" &
+	done
+else
+	polybar --reload "$BAR" &
+fi
