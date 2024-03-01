@@ -3,7 +3,7 @@
 # A general system utility script that uses dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
+# Version:          1.0.2
 # Last Modified:    01-Mar-2024
 
 XRESOURCES=$HOME/.Xresources
@@ -32,7 +32,7 @@ GAPS_TOGGLE_FILE=$HOME/.toggle-util/gaps-toggle
 GAPS_SIZE=12
 
 Confirm() {
-	CONFIRM="$(echo -e 'No\nYes' | dmenu -l 2 "${CONFIRM_SETTINGS[@]}" -i -p 'Are you sure?')";
+	CONFIRM="$(echo -e 'No\nYes' | dmenu -c -l 2 "${CONFIRM_SETTINGS[@]}" -i -p 'Are you sure?')";
 }
 
 read -r -d '' CHOICES << EOF
@@ -58,7 +58,7 @@ Lock Screen
 Exit i3
 EOF
 
-CHOICE="$(echo -e "$CHOICES" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'System:')"
+CHOICE="$(echo -e "$CHOICES" | dmenu -c -l 30 "${DMENU_SETTINGS[@]}" -i -p 'System:')"
 
 case $CHOICE in
 	"Take Screenshot")

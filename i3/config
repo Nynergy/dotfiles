@@ -1,8 +1,8 @@
 # Configuration file for i3wm
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    22-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Mar-2024
 
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
@@ -165,7 +165,7 @@ client.background	    $black
 
 # DMENU
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run -l 15 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "xos4 Terminus-10" -p "Run:"
+bindsym $mod+d exec dmenu_run -c -l 15 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "xos4 Terminus-10" -p "Run:"
 
 # I3 RELOAD, RESTART, & EXIT
 # reload the configuration file
