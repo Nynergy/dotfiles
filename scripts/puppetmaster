@@ -3,8 +3,8 @@
 # A general system utility script that uses dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    29-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Mar-2024
 
 XRESOURCES=$HOME/.Xresources
 WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
@@ -148,9 +148,9 @@ case $CHOICE in
 	"Toggle Light/Dark Mode")
 		LIGHT=$(awk '/color7:/ {print $2}' "$XRESOURCES");
 		DARK=$(awk '/color0:/ {print $2}' "$XRESOURCES");
-		sed -i "s/$LIGHT/TEMP/g" "$XRESOURCES";
-		sed -i "s/$DARK/$LIGHT/g" "$XRESOURCES";
-		sed -i "s/TEMP/$DARK/g" "$XRESOURCES";
+		sed -i --follow-symlinks "s/$LIGHT/TEMP/g" "$XRESOURCES";
+		sed -i --follow-symlinks "s/$DARK/$LIGHT/g" "$XRESOURCES";
+		sed -i --follow-symlinks "s/TEMP/$DARK/g" "$XRESOURCES";
 		prism;
 		;;
 

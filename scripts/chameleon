@@ -3,8 +3,8 @@
 # A script for choosing and applying colorschemes to .Xresources
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    23-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Mar-2024
 
 XRESOURCES=$HOME/.Xresources
 
@@ -35,55 +35,55 @@ getChoice() {
 }
 
 getColors() {
-    BLACK=$(awk '/color0:/ {print $2}' "$XRESOURCES")
-    RED=$(awk '/color1:/ {print $2}' "$XRESOURCES")
-    GREEN=$(awk '/color2:/ {print $2}' "$XRESOURCES")
-    YELLOW=$(awk '/color3:/ {print $2}' "$XRESOURCES")
-    BLUE=$(awk '/color4:/ {print $2}' "$XRESOURCES")
-    MAGENTA=$(awk '/color5:/ {print $2}' "$XRESOURCES")
-    CYAN=$(awk '/color6:/ {print $2}' "$XRESOURCES")
-    WHITE=$(awk '/color7:/ {print $2}' "$XRESOURCES")
-    GRAY=$(awk '/color8:/ {print $2}' "$XRESOURCES")
+    BLACK=$(awk '/color0:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    RED=$(awk '/color1:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    GREEN=$(awk '/color2:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    YELLOW=$(awk '/color3:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    BLUE=$(awk '/color4:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    MAGENTA=$(awk '/color5:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    CYAN=$(awk '/color6:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    WHITE=$(awk '/color7:/ {print $2}' "$SCHEME_DIR/$CHOICE")
+    GRAY=$(awk '/color8:/ {print $2}' "$SCHEME_DIR/$CHOICE")
 }
 
 setColors() {
     # BLACK
-    sed -i "s/color0:\t#[0-9a-z]*/color0:\t$BLACK/g" "$XRESOURCES"
-    sed -i "s/background:\t#[0-9a-z]*/background:\t$BLACK/g" "$XRESOURCES"
-    sed -i "s/background: \[75\]#[0-9a-z]*/background: \[75\]$BLACK/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color0:\t#[0-9a-z]*/color0:\t$BLACK/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/background:\t#[0-9a-z]*/background:\t$BLACK/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/background: \[75\]#[0-9a-z]*/background: \[75\]$BLACK/g" "$XRESOURCES"
 
     # RED
-    sed -i "s/color1:\t#[0-9a-z]*/color1:\t$RED/g" "$XRESOURCES"
-    sed -i "s/color9:\t#[0-9a-z]*/color9:\t$RED/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color1:\t#[0-9a-z]*/color1:\t$RED/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color9:\t#[0-9a-z]*/color9:\t$RED/g" "$XRESOURCES"
 
     # GREEN
-    sed -i "s/color2:\t#[0-9a-z]*/color2:\t$GREEN/g" "$XRESOURCES"
-    sed -i "s/color10:\t#[0-9a-z]*/color10:\t$GREEN/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color2:\t#[0-9a-z]*/color2:\t$GREEN/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color10:\t#[0-9a-z]*/color10:\t$GREEN/g" "$XRESOURCES"
 
     # YELLOW
-    sed -i "s/color3:\t#[0-9a-z]*/color3:\t$YELLOW/g" "$XRESOURCES"
-    sed -i "s/color11:\t#[0-9a-z]*/color11:\t$YELLOW/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color3:\t#[0-9a-z]*/color3:\t$YELLOW/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color11:\t#[0-9a-z]*/color11:\t$YELLOW/g" "$XRESOURCES"
 
     # BLUE
-    sed -i "s/color4:\t#[0-9a-z]*/color4:\t$BLUE/g" "$XRESOURCES"
-    sed -i "s/color12:\t#[0-9a-z]*/color12:\t$BLUE/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color4:\t#[0-9a-z]*/color4:\t$BLUE/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color12:\t#[0-9a-z]*/color12:\t$BLUE/g" "$XRESOURCES"
 
     # MAGENTA
-    sed -i "s/color5:\t#[0-9a-z]*/color5:\t$MAGENTA/g" "$XRESOURCES"
-    sed -i "s/color13:\t#[0-9a-z]*/color13:\t$MAGENTA/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color5:\t#[0-9a-z]*/color5:\t$MAGENTA/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color13:\t#[0-9a-z]*/color13:\t$MAGENTA/g" "$XRESOURCES"
 
     # CYAN
-    sed -i "s/color6:\t#[0-9a-z]*/color6:\t$CYAN/g" "$XRESOURCES"
-    sed -i "s/color14:\t#[0-9a-z]*/color14:\t$CYAN/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color6:\t#[0-9a-z]*/color6:\t$CYAN/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color14:\t#[0-9a-z]*/color14:\t$CYAN/g" "$XRESOURCES"
 
     # WHITE
-    sed -i "s/foreground:\t#[0-9a-z]*/foreground:\t$WHITE/g" "$XRESOURCES"
-    sed -i "s/cursorColor:\t#[0-9a-z]*/cursorColor:\t$WHITE/g" "$XRESOURCES"
-    sed -i "s/color7:\t#[0-9a-z]*/color7:\t$WHITE/g" "$XRESOURCES"
-    sed -i "s/color15:\t#[0-9a-z]*/color15:\t$WHITE/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/foreground:\t#[0-9a-z]*/foreground:\t$WHITE/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/cursorColor:\t#[0-9a-z]*/cursorColor:\t$WHITE/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color7:\t#[0-9a-z]*/color7:\t$WHITE/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color15:\t#[0-9a-z]*/color15:\t$WHITE/g" "$XRESOURCES"
 
     # GRAY
-    sed -i "s/color8:\t#[0-9a-z]*/color8:\t$GRAY/g" "$XRESOURCES"
+    sed -i --follow-symlinks "s/color8:\t#[0-9a-z]*/color8:\t$GRAY/g" "$XRESOURCES"
 }
 
 getSchemes

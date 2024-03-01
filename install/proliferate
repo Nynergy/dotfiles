@@ -4,8 +4,8 @@
 # Original bootstrap script by Andrew Burgess (github.com/andrew8088)
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    22-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Mar-2024
 
 # Setup some globals
 USER_OPTIONS='       [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?'
@@ -13,7 +13,7 @@ ENV_FILE=$HOME/.env.sh
 
 # Orient ourselves in the correct directory
 cd "$(dirname "$0")/.."
-DOTFILES=$(pwd -P)
+export DOTFILES=$(pwd -P)
 
 set -e
 
@@ -21,19 +21,19 @@ echo
 
 # Log Messages
 info () {
-    printf "\r[ \033[0;34m..\033[0m ] %s\n" "$1"
+    printf "\r[ \033[0;34m..\033[0m ] %b\n" "$1"
 }
 
 user () {
-    printf "\r[ \033[0;33m??\033[0m ] %s\n" "$1"
+    printf "\r[ \033[0;33m??\033[0m ] %b\n" "$1"
 }
 
 success () {
-    printf "\r\033[2K[ \033[0;32mOK\033[0m ] %s\n" "$1"
+    printf "\r\033[2K[ \033[0;32mOK\033[0m ] %b\n" "$1"
 }
 
 fail () {
-    printf "\r\033[2K[\033[0;31mFAIL\033[0m] %s\n" "$1"
+    printf "\r\033[2K[\033[0;31mFAIL\033[0m] %b\n" "$1"
     echo
     exit
 }
@@ -42,14 +42,17 @@ fail () {
 link_file () {
     local src=$1 dst=$2
 
-    local skip overwrite backup action
+    local skip=
+    local overwrite=
+    local backup=
+    local action=
 
     if [ -f "$dst" ] || [ -d "$dst" ] || [ -L "$dst" ]
     then
         if [ "$overwrite_all" == "false" ] && [ "$backup_all" == "false" ] && [ "$skip_all" == "false" ]
         then
-            local current_src=
-            current_src=$(readlink "$dst")
+            # We ignore the case where readlink returns a non-zero exit code
+            local current_src=$(readlink "$dst")
 
             if [ "$current_src" == "$src" ]
             then
@@ -122,8 +125,8 @@ install_dotfiles () {
             local dst=
             local dir=
 
-            src=$(echo "$line" | cut -d '=' -f 1)
-            dst=$(echo "$line" | cut -d '=' -f 2)
+            src=$(echo "$line" | cut -d '=' -f 1 | envsubst)
+            dst=$(echo "$line" | cut -d '=' -f 2 | envsubst)
             dir=$(dirname "$dst")
 
             mkdir -p "$dir"
@@ -185,6 +188,7 @@ populate_env_file () {
 
 install_dotfiles
 create_env_file
+populate_env_file
 
 echo
 success 'all installed!'
