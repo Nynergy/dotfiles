@@ -3,10 +3,15 @@
 # A script to mount/unmount the Samba fileshare for my LMS
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    28-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Mar-2024
 
-ENV_FILE="$HOME/.env.sh"
+if [ "$EUID" -ne 0 ]
+then
+    ENV_FILE="$HOME/.env.sh"
+else
+    ENV_FILE="/.env.sh"
+fi
 
 if [ -f "$ENV_FILE" ]
 then
