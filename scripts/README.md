@@ -23,6 +23,7 @@ They do a bunch of things,
   - [marquee](#marquee)
   - [polysqueeze](#polysqueeze)
   - [polyvpn](#polyvpn)
+  - [sirenbar](#sirenbar)
 - [System Scripts](#system-scripts)
   - [puppetmaster](#puppetmaster)
 - [Misc Scripts](#misc-scripts)
@@ -223,6 +224,22 @@ None
 #### Suggested Installs
 
 - Emerge
+  - x11-misc/polybar
+
+### sirenbar
+
+It prints the song info.
+
+#### Dependencies
+
+- Emerge
+  - app-misc/jq
+  - net-misc/curl
+
+#### Suggested Installs
+
+- Emerge
+  - x11-misc/dunst
   - x11-misc/polybar
 
 ## System Scripts

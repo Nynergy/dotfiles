@@ -1,0 +1,180 @@
+#!/usr/bin/env bash
+
+# A script that prints song info to polybar
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    05-Mar-2024
+
+if [ "$EUID" -ne 0 ]
+then
+    ENV_FILE="$HOME/.env.sh"
+else
+    ENV_FILE="/.env.sh"
+fi
+
+if [ -f "$ENV_FILE" ]
+then
+    source "$ENV_FILE"
+else
+    notify-send 'Error' "Could not locate env file at '$ENV_FILE'"
+    printf '\n' && exit
+fi
+
+XRESOURCES=$HOME/.Xresources
+
+NORMAL=$(awk '/color7:/ {print $2}' "$XRESOURCES")
+FILLED=$(awk '/color5:/ {print $2}' "$XRESOURCES")
+
+RPC_ENDPOINT="http://$LMS_IP_ADDRESS:9000/jsonrpc.js"
+
+MAX_TITLE_LENGTH=60
+PLAYBAR_LENGTH=20
+
+PLAYER_HIERARCHY=('SIREN' 'Megistus' "$(hostname)")
+
+payload () {
+    printf '{ "method": "slim.request", "params": [ %s, [ %s ] ] }' "$1" "$2"
+}
+
+query () {
+    local payload=
+    payload=$(payload "$1" "$2")
+
+    curl -s --header 'Content-Type: application/json' \
+         --request POST \
+         --data "$payload" \
+         "$RPC_ENDPOINT" | jq '.result'
+}
+
+get_players () {
+    local server_status=
+    server_status=$(query '"-"' '"serverstatus", 0')
+    echo "$server_status" | jq '[ .players_loop[] | { (.name): .playerid } ]'
+}
+
+get_id_from_player () {
+    local player_id=
+
+    for player in "$@"; {
+        player_id=$(echo "$PLAYERS" | jq ".[] | select(has(\"$player\")) | .$player")
+        [ -n "$player_id" ] && break
+    }
+
+    # If none of the provided players exist, then exit
+    [ -z "$player_id" ] && player_id='EXIT'
+
+    printf '%s' "$player_id"
+}
+
+get_player_status () {
+    local player_status=
+    local total_tracks=
+    local playlist_index=
+    local playlist_mode=
+    local time_info=
+    local elapsed=
+
+    player_status=$(query "$PLAYER_ID" '"status", 0, 9999')
+    total_tracks=$(echo "$player_status" | jq '.playlist_tracks')
+
+    # If the playlist is empty, then return early
+    [ "$total_tracks" -eq 0 ] && {
+        printf 'EXIT'
+        exit
+    }
+
+    playlist_index=$(echo "$player_status" | jq '.playlist_cur_index')
+
+    playlist_mode=$(echo "$player_status" | jq '.mode')
+    time_info=$(query "$PLAYER_ID" '"time", "?"')
+
+    case "$playlist_mode" in
+        'stop')
+            elapsed=0.0 ;;
+        *)
+            elapsed=$(echo "$time_info" | jq '._time') ;;
+    esac
+
+    printf '{ "playlist_index": %s, "elapsed": %s }' "$playlist_index" "$elapsed"
+}
+
+get_player_playlist () {
+    local player_status=
+    local playlist_loop=
+
+    player_status=$(query "$PLAYER_ID" '"status", 0, 9999, "tags:adl"')
+    playlist_loop=$(echo "$player_status" | jq '.playlist_loop')
+
+    printf '%s' "$playlist_loop"
+}
+
+construct_song_string () {
+    local raw_title_string=
+    local title_string=
+    local fraction_played=
+    local playbar=
+
+    raw_title_string="$ARTIST - $TITLE"
+    title_string="${raw_title_string:0:MAX_TITLE_LENGTH}"
+
+    [ "${#raw_title_string}" -gt "$MAX_TITLE_LENGTH" ] && title_string="$title_string..."
+
+    fraction_played=$(echo "$ELAPSED / $DURATION * 100" | bc -l)
+    playbar=$(construct_playbar "$fraction_played" "$PLAYBAR_LENGTH")
+
+    printf '%s %s' "$title_string" "$playbar"
+}
+
+construct_playbar () {
+    local elapsed=
+    local remaining=
+
+    elapsed=$(printf '%.*f' 0 "$(echo "$1 * $2 / 100" | bc -l)")
+    remaining=$(echo "$2 - $elapsed" | bc -l)
+
+    [ "$elapsed" -eq "$PLAYBAR_LENGTH" ] && elapsed=$((elapsed - 1))
+    [ "$elapsed" -lt "$PLAYBAR_LENGTH" ] && remaining=$((remaining - 1))
+    [ "$remaining" -lt 0 ] && remaining=0
+
+    printf -v prog "%${elapsed}s"
+    printf -v total "%${remaining}s"
+
+    printf '%s' "%{F$FILLED}${prog// /-}%{F$NORMAL}|${total// /-}"
+}
+
+PLAYERS=$(get_players)
+
+# If no players are found, exit silently
+[ -z "$PLAYERS" ] && {
+    printf '\n'
+    exit
+}
+
+PLAYER_ID=$(get_id_from_player "${PLAYER_HIERARCHY[@]}")
+
+[ "$PLAYER_ID" == 'EXIT' ] && {
+    printf '\n'
+    exit
+}
+
+player_status=$(get_player_status)
+
+[ "$player_status" == 'EXIT' ] && {
+    printf '\n'
+    exit
+}
+
+index=$(echo "$player_status" | jq '.playlist_index' | tr -d \")
+ELAPSED=$(echo "$player_status" | jq '.elapsed' | tr -d \")
+
+player_playlist=$(get_player_playlist)
+
+current_track=$(echo "$player_playlist" | jq ".[] | select(.\"playlist index\" == $index)")
+ARTIST=$(echo "$current_track" | jq '.artist' | tr -d \")
+TITLE=$(echo "$current_track" | jq '.title' | tr -d \")
+DURATION=$(echo "$current_track" | jq '.duration' | tr -d \")
+
+song_string=$(construct_song_string)
+
+printf '%s' "$song_string"
