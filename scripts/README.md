@@ -29,6 +29,7 @@ They do a bunch of things,
 - [Misc Scripts](#misc-scripts)
   - [juniper](#juniper)
   - [sketch](#sketch)
+  - [slip](#slip)
   - [soundspool](#soundspool)
 
 ## Color Scripts
@@ -292,6 +293,18 @@ It sorts the image.
   - dev-lang/python
 - Other
   - (pip) pixelsort
+
+#### Suggested Installs
+
+None
+
+### slip
+
+It presents the slides.
+
+#### Dependencies
+
+None
 
 #### Suggested Installs
 

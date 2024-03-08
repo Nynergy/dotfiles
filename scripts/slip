@@ -1,0 +1,410 @@
+#!/usr/bin/env bash
+
+# (Sli)de (P)resenter :: 'slip'
+# A script for presenting slides in the terminal
+
+# Maintainer:       Ben Buchanan
+# Version:          0.1.0
+# Last Modified:    08-Mar-2024
+
+RED_FG='\e[38;5;1m'
+GREEN_FG='\e[38;5;2m'
+YELLOW_FG='\e[38;5;3m'
+BLUE_FG='\e[38;5;4m'
+MAGENTA_FG='\e[38;5;5m'
+CYAN_FG='\e[38;5;6m'
+
+NO_FORMAT='\e[m'
+BOLD='\e[1m'
+ITALIC='\e[3m'
+UNDERLINE='\e[4m'
+HIGHLIGHT='\e[7m'
+
+main () {
+    # TODO: More robust argument validation
+    # TODO: Arguments for turning off rendering for certain elements
+    # TODO: Argument for local config file
+    [[ -f "$1" ]] || {
+        printf 'Please provide a valid file.\n'
+        exit 1
+    }
+
+    # TODO: Read style/color configuration from file
+
+    extract_slides "$1"
+    # Pop the metadata from the rest of the slides
+    # We need to do this with subtitles, too
+    extract_metadata "${slides[0]}"
+    slides=("${slides[@]:1}")
+    num_slides="$((${#slides[@]} - 1))"
+    subtitles=("${subtitles[@]:1}")
+
+    current_slide=0
+
+    ((BASH_VERSINFO[0] > 3)) &&
+        read_flags=(-t 0.05)
+
+    trap 'reset_terminal' EXIT
+    trap 'get_term_size; redraw' WINCH
+
+    get_term_size
+    setup_terminal
+    redraw
+
+    # Vintage infinite loop
+    for ((;;)); {
+        read "${read_flags[@]}" -srn 1 && key "$REPLY"
+
+        # Exit if there is no longer a terminal attached
+        [[ -t 1 ]] || exit 1
+    }
+}
+
+extract_slides () {
+    declare -ag slides # a: Array, g: Global Scope
+    declare -ag subtitles # a: Array, g: Global Scope
+
+    slide=''
+    current_subtitle=''
+    IFS='' # Preserve whitespace
+    while read -r line; do
+        # Skip leading empty lines
+        [[ -z $slide && -z $line ]] && continue
+
+        [[ -n $slide && $line == '---' ]] && {
+            slides+=("$slide")
+            slide=''
+            
+            subtitles+=("$current_subtitle")
+
+            continue
+        }
+
+        # h1 headers are treated as title cards
+        [[ $line =~ ^#\ +.*$ ]] && {
+            [[ -n $slide ]] && {
+                slides+=("$slide")
+                slide=''
+            }
+
+            slides+=("$line")
+            slide=''
+
+            # Title card slides themselves never have subtitles
+            subtitles+=('')
+            current_subtitle="${line### }"
+
+            continue
+        }
+
+        [[ $line != '---' ]] && slide+="$line"$'\n'
+    done < "$1"
+
+    [[ -n $slide ]] && {
+        slides+=("$slide")
+        subtitles+=("$current_subtitle")
+    }
+}
+
+extract_metadata () {
+    declare -Ag metadata # A: Associative Array, g: Global Scope
+
+    while IFS=$'\n' read -r line; do
+        [[ $line =~ ^\ *(.*)\ *:\ *(.*)\ *$ ]] && {
+            key="${BASH_REMATCH[1]^^}"
+            val="${BASH_REMATCH[2]}"
+            metadata["$key"]="$val"
+        }
+    done <<< "$1"
+}
+
+save_cursor_position () {
+    printf '\e[s'
+}
+
+restore_cursor_position () {
+    printf '\e[u'
+}
+
+use_alt_screen_buffer () {
+    printf '\e[?1049h'
+}
+
+use_main_screen_buffer () {
+    printf '\e[?1049l'
+}
+
+disable_line_wrapping () {
+    printf '\e[?7l'
+}
+
+enable_line_wrapping () {
+    printf '\e[?7h'
+}
+
+hide_cursor () {
+    printf '\e[?25l'
+}
+
+show_cursor () {
+    printf '\e[?25h'
+}
+
+move () {
+    printf '\e[%d;%dH' "$1" "$2"
+}
+
+erase_up () {
+    printf '\e[1J'
+}
+
+erase_all () {
+    printf '\e[2J'
+}
+
+clear_screen () {
+    move "$LINES" "$COLUMNS"
+    erase_up
+    [[ -v "$TMUX" ]] && erase_all # Fix for tmux
+    move 0 0
+}
+
+set_modifiers () {
+    printf '%b' "$1"
+}
+
+reset_modifiers () {
+    printf '%b' "$NO_FORMAT"
+}
+
+setup_terminal () {
+    save_cursor_position
+    use_alt_screen_buffer
+    disable_line_wrapping
+    hide_cursor
+    clear_screen
+
+    # Hide echoing of user input
+    stty -echo
+}
+
+reset_terminal () {
+    enable_line_wrapping
+    show_cursor
+    clear_screen
+    use_main_screen_buffer
+    restore_cursor_position
+
+    # Show user input
+    stty echo
+}
+
+get_term_size () {
+    read -r LINES COLUMNS < <(stty size)
+}
+
+redraw () {
+    clear_screen
+    slide_header
+    slide_content
+    slide_footer
+}
+
+slide_header () {
+    move 0 0
+    border_bar
+
+    subtitle="${subtitles[$current_slide]}"
+    printf -v title '%s%s' "${metadata['TITLE']}" "${subtitle:+" > $subtitle"}"
+    hcenter_string "$title" 3 "$GREEN_FG$BOLD"
+}
+
+border_bar () {
+    printf -v hline "%${COLUMNS}s"
+    printf '%s' "${hline// /=}"
+}
+
+slide_footer () {
+    move "$LINES" 0
+    border_bar
+
+    author_name
+    slide_number
+}
+
+author_name () {
+    author="${metadata['AUTHOR']}"
+
+    move "$((LINES - 2))" 3
+    set_modifiers "$YELLOW_FG"
+    printf '%s' "$author"
+    reset_modifiers
+}
+
+slide_number () {
+    move "$((LINES - 2))" "$((COLUMNS - 4))"
+    set_modifiers "$CYAN_FG"
+    printf '%3d' "$num_slides"
+    reset_modifiers
+
+    move "$((LINES - 2))" "$((COLUMNS - 6))"
+    set_modifiers "$YELLOW_FG"
+    printf '/'
+    reset_modifiers
+
+    move "$((LINES - 2))" "$((COLUMNS - 10))"
+    set_modifiers "$CYAN_FG"
+    printf '%3d' "$current_slide"
+    reset_modifiers
+}
+
+slide_content () {
+    content="${slides[$current_slide]}"
+
+    pos_y=5
+    in_code_block=0
+    while read -r line; do
+        move "$pos_y" 3
+
+        # Check for formatting opportunities
+        # **BOLD** __BOLD__
+        while [[ $line =~ ^(.*)(\*\*|__)(.*)(\*\*|__)(.*)$ ]]; do
+            line="${BASH_REMATCH[1]}$BOLD${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+        done
+
+        # *italic* _italic_
+        while [[ $line =~ ^(.*)(\*|_)(.*)(\*|_)(.*)$ ]]; do
+            line="${BASH_REMATCH[1]}$ITALIC${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+        done
+
+        # ==Highlighted Text==
+        while [[ $line =~ ^(.*)(==)(.*)(==)(.*)$ ]]; do
+            line="${BASH_REMATCH[1]}$HIGHLIGHT${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+        done
+
+        # Blockquotes (>)
+        # Nested Blockquotes (>>)
+        while [[ $line =~ ^(\ *)\>(.*)$ ]]; do
+            printf '%s %b' "${BASH_REMATCH[1]}" "$HIGHLIGHT $NO_FORMAT"
+            line="${BASH_REMATCH[2]}"
+        done
+
+        # Code ```blocks```
+        # Toggle between code block mode when we encounter three backticks
+        [[ $line == '```' ]] && {
+            ((in_code_block ^= 1))
+            continue
+        }
+
+        # Style things inside code blocks
+        [[ $in_code_block == 1 ]] && {
+            # Two different string literals
+            while [[ $line =~ ^(.*)(\'.*\')(.*)$ ]]; do
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                line="${BASH_REMATCH[3]}"
+            done
+            while [[ $line =~ ^(.*)(\".*\")(.*)$ ]]; do
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                line="${BASH_REMATCH[3]}"
+            done
+
+            # Number literals
+            while [[ $line =~ ^(.*[^0-9])([0-9]+)([^0-9].*)$ ]]; do
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                line="${BASH_REMATCH[3]}"
+            done
+
+            # Generic function names
+            while [[ $line =~ ^(.*\ )([a-zA-Z][0-9a-zA-Z]*)(\(\).*)$ ]]; do
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$BLUE_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                line="${BASH_REMATCH[3]}"
+            done
+        }
+
+        # Inline `code`
+        while [[ $line =~ ^(.*)(\`)(.*)(\`)(.*)$ ]]; do
+            line="${BASH_REMATCH[1]}$MAGENTA_FG${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+        done
+
+        # h1, h2, etc.
+        [[ $line =~ ^#{2,6}\ +.*$ ]] && set_modifiers "$GREEN_FG$BOLD$UNDERLINE"
+
+        # Task Lists
+        [[ $line =~ ^(\ *-\ \[)([\ ~xX])(\]\ +.*)$ ]] && {
+            case "${BASH_REMATCH[2]}" in
+                '~')
+                    color="$YELLOW_FG"
+                    ;;
+                'x'|'X')
+                    color="$GREEN_FG"
+                    ;;
+                *)
+                    color="$NO_FORMAT"
+                    ;;
+            esac
+            line="${BASH_REMATCH[1]}$color${BASH_REMATCH[2]}$NO_FORMAT${BASH_REMATCH[3]}"
+        }
+
+        # Ordered & Unordered Lists
+        [[ $line =~ ^(\ *)(-|\+|\*|[0-9]*\.)(\ +.*)$ ]] && {
+            set_modifiers "$RED_FG"
+            printf '%s%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+            line="${BASH_REMATCH[3]}"
+            reset_modifiers
+        }
+
+        # Tables
+        # Regular rows
+        [[ $line =~ ^(\ *)\|([^-]*)\|(.*)$ ]] && {
+            line="${line//\|/$MAGENTA_FG\|$NO_FORMAT}"
+        }
+        # Divider rows
+        [[ $line =~ ^(\ *)\|(\ *-+\ *)\|(.*)$ ]] && {
+            line="${line//\|/$MAGENTA_FG\|$NO_FORMAT}"
+            line="${line//-/$MAGENTA_FG-$NO_FORMAT}"
+        }
+
+        # TODO: Images (w3m-img)
+
+        # Print title cards centered
+        if [[ $line =~ ^#\ +.*$ ]]; then
+            hcenter_string "${line### }" "$((LINES / 2))" "$BLUE_FG$BOLD"
+        else
+            printf '%b' "$line"
+        fi
+
+        pos_y=$((pos_y + 1))
+        reset_modifiers
+    done <<< "$content"
+}
+
+hcenter_string () {
+    str_len="${#1}"
+    pos_x=$((COLUMNS / 2 - str_len / 2))
+
+    move "$2" "$pos_x"
+    set_modifiers "$3"
+    printf '%s' "$1"
+    reset_modifiers
+}
+
+key () {
+    # TODO: Bindings beyond just vim-like mappings
+    case "$1" in
+        q)
+            exit
+            ;;
+        l|' ')
+            : $((current_slide + 1))
+            current_slide=$((_ > num_slides ? current_slide : _))
+            redraw
+            ;;
+        h)
+            : $((current_slide - 1))
+            current_slide=$((_ < 0 ? current_slide : _))
+            redraw
+            ;;
+    esac
+}
+
+main "$@"
