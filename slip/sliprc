@@ -1,0 +1,35 @@
+# COLORS
+border_color                = 7
+title_color                 = 2
+author_color                = 3
+slide_number_color          = 6
+slide_number_divider_color  = 3
+title_card_color            = 4
+header_color                = 2
+list_tick_color             = 1
+task_list_in_progress_color = 3
+task_list_complete_color    = 2
+inline_code_color           = 5
+code_block_string_color     = 6
+code_block_number_color     = 6
+code_block_func_color       = 4
+blockquote_color            = 8
+table_color                 = 5
+
+# STYLES
+border_style                =
+title_style                 = bold
+author_style                =
+slide_number_style          =
+slide_number_divider_style  =
+title_card_style            = bold
+header_style                = bold, underline
+list_tick_style             =
+task_list_in_progress_style = bold
+task_list_complete_style    = bold
+inline_code_style           =
+code_block_string_style     =
+code_block_number_style     =
+code_block_func_style       =
+blockquote_style            = highlight
+table_style                 =

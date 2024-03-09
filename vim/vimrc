@@ -21,7 +21,7 @@ set shiftwidth=4
 set expandtab
 
 " MISC
-set number relativenumber
+set number relativenumber cursorline
 set nohlsearch
 set nocompatible
 

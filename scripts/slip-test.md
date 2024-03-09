@@ -93,6 +93,7 @@ And how about a task list:
 
 - [ ] Get bread
 - [~] Get a life
+- [-] Acquire hardware
 - [x] Program slip, for some reason
 - [X] Free Space (BINGO!)
 

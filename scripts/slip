@@ -16,12 +16,7 @@
 
 SCRIPT="${BASH_SOURCE[0]##*/}"
 
-RED_FG='\e[38;5;1m'
-GREEN_FG='\e[38;5;2m'
-YELLOW_FG='\e[38;5;3m'
-BLUE_FG='\e[38;5;4m'
-MAGENTA_FG='\e[38;5;5m'
-CYAN_FG='\e[38;5;6m'
+[[ -v "$XDG_CONFIG_HOME" ]] || XDG_CONFIG_HOME="$HOME/.config"
 
 NO_FORMAT='\e[m'
 BOLD='\e[1m'
@@ -45,9 +40,7 @@ print_version () {
 
 main () {
     process_args "$@"
-
-    # TODO: Read style/color configuration from file
-
+    process_config
     process_input_file "$1"
 
     current_slide=0
@@ -108,6 +101,126 @@ process_args () {
         printf 'Please provide a valid file.\n'
         exit 1
     }
+}
+
+process_config () {
+    declare -Ag config # A: Associative Array; g: Global Scope
+
+    config=(
+        # COLORS
+        [BORDER_COLOR]=7
+        [TITLE_COLOR]=2
+        [AUTHOR_COLOR]=3
+        [SLIDE_NUMBER_COLOR]=6
+        [SLIDE_NUMBER_DIVIDER_COLOR]=3
+        [TITLE_CARD_COLOR]=4
+        [HEADER_COLOR]=2
+        [LIST_TICK_COLOR]=1
+        [TASK_LIST_IN_PROGRESS_COLOR]=3
+        [TASK_LIST_COMPLETE_COLOR]=2
+        [INLINE_CODE_COLOR]=5
+        [CODE_BLOCK_STRING_COLOR]=6
+        [CODE_BLOCK_NUMBER_COLOR]=6
+        [CODE_BLOCK_FUNC_COLOR]=4
+        [BLOCKQUOTE_COLOR]=8
+        [TABLE_COLOR]=5
+
+        # STYLES
+        [BORDER_STYLE]=
+        [TITLE_STYLE]='BOLD'
+        [AUTHOR_STYLE]=
+        [SLIDE_NUMBER_STYLE]=
+        [SLIDE_NUMBER_DIVIDER_STYLE]=
+        [TITLE_CARD_STYLE]='BOLD'
+        [HEADER_STYLE]='BOLD,UNDERLINE'
+        [LIST_TICK_STYLE]=
+        [TASK_LIST_IN_PROGRESS_STYLE]='BOLD'
+        [TASK_LIST_COMPLETE_STYLE]='BOLD'
+        [INLINE_CODE_STYLE]=
+        [CODE_BLOCK_STRING_STYLE]=
+        [CODE_BLOCK_NUMBER_STYLE]=
+        [CODE_BLOCK_FUNC_STYLE]=
+        [BLOCKQUOTE_STYLE]='HIGHLIGHT'
+        [TABLE_STYLE]=
+    )
+
+    [[ -f "$XDG_CONFIG_HOME/slip/sliprc" ]] && {
+        while read -r line; do
+            [[ $line =~ ^\ *([0-9a-zA-Z_]*)\ *=\ *([0-9a-zA-Z_,\ ]*)\ *$ ]] && {
+                key="${BASH_REMATCH[1]^^}"
+                val="${BASH_REMATCH[2]^^}"
+
+                # Validate color numbers
+                [[ $key == *COLOR ]] && validate_color_num "$val"
+                # Validate style strings
+                [[ $key == *STYLE ]] && validate_styles "$val"
+
+                config[$key]=$val
+            }
+        done < "$XDG_CONFIG_HOME/slip/sliprc"
+    }
+
+    # Convert values into actual printable styles
+    for key in "${!config[@]}"; {
+        val="${config[$key]}"
+        [[ -n $val && $key == *COLOR ]] && 
+            config[$key]="\e[38;5;${val}m"
+        [[ -n $val && $key == *STYLE ]] && {
+            IFS=$' \n' read -d "" -ra styles <<< "${val//,/$'\n'}"
+            combined_style=
+            for style in "${styles[@]}"; {
+                string_to_style "$style"
+                combined_style+="\e[${converted_style_num}m"
+            }
+            config[$key]="$combined_style"
+        }
+    }
+}
+
+validate_color_num () {
+    # We only allow the xterm colors 0-8
+    [[ $1 =~ ^[0-8]$ ]] || {
+        printf '%s is not a valid color number.\n' "'$1'"
+        exit 1
+    }
+}
+
+validate_styles () {
+    # We only allow styles for bold, underline, italic, and highlight
+    IFS=$' \n' read -d "" -ra styles <<< "${1//,/$'\n'}"
+    for style in "${styles[@]}"; {
+        case $style in
+            BOLD|\
+            UNDERLINE|\
+            ITALIC|\
+            HIGHLIGHT)
+                ;;
+            *)
+                printf '%s is not a valid style.\n' "'$style'"
+                exit 1
+                ;;
+        esac
+    }
+}
+
+string_to_style () {
+    case "$1" in
+        BOLD)
+            converted_style_num=1
+            ;;
+        ITALIC)
+            converted_style_num=3
+            ;;
+        UNDERLINE)
+            converted_style_num=4
+            ;;
+        HIGHLIGHT)
+            converted_style_num=7
+            ;;
+        *)
+            converted_style_num=
+            ;;
+    esac
 }
 
 process_input_file () {
@@ -286,12 +399,12 @@ slide_header () {
 
     subtitle="${subtitles[$current_slide]}"
     printf -v title '%s%s' "${metadata['TITLE']}" "${subtitle:+" > $subtitle"}"
-    hcenter_string "$title" 3 "$GREEN_FG$BOLD"
+    hcenter_string "$title" 3 "${config['TITLE_COLOR']}${config['TITLE_STYLE']}"
 }
 
 border_bar () {
     printf -v hline "%${COLUMNS}s"
-    printf '%s' "${hline// /=}"
+    printf '%b%s%b' "${config['BORDER_COLOR']}${config['BORDER_STYLE']}" "${hline// /=}" "$NO_FORMAT"
 }
 
 slide_footer () {
@@ -306,24 +419,24 @@ author_name () {
     author="${metadata['AUTHOR']}"
 
     move "$((LINES - 2))" 3
-    set_modifiers "$YELLOW_FG"
+    set_modifiers "${config['AUTHOR_COLOR']}${config['AUTHOR_STYLE']}"
     printf '%s' "$author"
     reset_modifiers
 }
 
 slide_number () {
     move "$((LINES - 2))" "$((COLUMNS - 4))"
-    set_modifiers "$CYAN_FG"
+    set_modifiers "${config['SLIDE_NUMBER_COLOR']}${config['SLIDE_NUMBER_STYLE']}"
     printf '%3d' "$num_slides"
     reset_modifiers
 
     move "$((LINES - 2))" "$((COLUMNS - 6))"
-    set_modifiers "$YELLOW_FG"
+    set_modifiers "${config['SLIDE_NUMBER_DIVIDER_COLOR']}${config['SLIDE_NUMBER_DIVIDER_STYLE']}"
     printf '/'
     reset_modifiers
 
     move "$((LINES - 2))" "$((COLUMNS - 10))"
-    set_modifiers "$CYAN_FG"
+    set_modifiers "${config['SLIDE_NUMBER_COLOR']}${config['SLIDE_NUMBER_STYLE']}"
     printf '%3d' "$current_slide"
     reset_modifiers
 }
@@ -361,7 +474,7 @@ slide_content () {
         # Blockquotes (>)
         # Nested Blockquotes (>>)
         while [[ $line =~ ^(\ *)\>(.*)$ ]]; do
-            printf '%s %b' "${BASH_REMATCH[1]}" "$HIGHLIGHT $NO_FORMAT"
+            printf '%s %b' "${BASH_REMATCH[1]}" "${config['BLOCKQUOTE_STYLE']}${config['BLOCKQUOTE_COLOR']} $NO_FORMAT"
             line="${BASH_REMATCH[2]}"
         done
 
@@ -377,26 +490,26 @@ slide_content () {
             # Two different string literals
             while [[ $line =~ ^(.*)(\'.*\')(.*)$ ]]; do
                 printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                                  "${config['CODE_BLOCK_STRING_COLOR']}${config['CODE_BLOCK_STRING_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
             while [[ $line =~ ^(.*)(\".*\")(.*)$ ]]; do
                 printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                                  "${config['CODE_BLOCK_STRING_COLOR']}${config['CODE_BLOCK_STRING_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
 
             # Number literals
             while [[ $line =~ ^(.*[^0-9])([0-9]+)([^0-9].*)$ ]]; do
                 printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                                  "${config['CODE_BLOCK_NUMBER_COLOR']}${config['CODE_BLOCK_NUMBER_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
 
             # Generic function names
             while [[ $line =~ ^(.*\ )([a-zA-Z][0-9a-zA-Z]*)(\(\).*)$ ]]; do
                 printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "$BLUE_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                                  "${config['CODE_BLOCK_FUNC_COLOR']}${config['CODE_BLOCK_FUNC_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
         }
@@ -404,22 +517,22 @@ slide_content () {
         # Inline `code`
         while [[ $line =~ ^(.*)(\`)(.*)(\`)(.*)$ ]]; do
             line="${BASH_REMATCH[1]}"
-            line+="$MAGENTA_FG${BASH_REMATCH[3]}$NO_FORMAT"
+            line+="${config['INLINE_CODE_COLOR']}${config['INLINE_CODE_STYLE']}${BASH_REMATCH[3]}$NO_FORMAT"
             line+="${BASH_REMATCH[5]}"
         done
 
         # h1, h2, etc.
         [[ $line =~ ^#{2,6}\ +.*$ ]] &&
-            line="$GREEN_FG$BOLD$UNDERLINE$line$NO_FORMAT"
+            line="${config['HEADER_COLOR']}${config['HEADER_STYLE']}$line$NO_FORMAT"
 
         # Task Lists
-        [[ $line =~ ^(\ *-\ \[)([\ ~xX])(\]\ +.*)$ ]] && {
+        [[ $line =~ ^(\ *-\ \[)([\ ~xX]|-)(\]\ +.*)$ ]] && {
             case "${BASH_REMATCH[2]}" in
-                '~')
-                    color="$YELLOW_FG"
+                '~'|'-')
+                    color="${config['TASK_LIST_IN_PROGRESS_COLOR']}${config['TASK_LIST_IN_PROGRESS_STYLE']}"
                     ;;
                 'x'|'X')
-                    color="$GREEN_FG"
+                    color="${config['TASK_LIST_COMPLETE_COLOR']}${config['TASK_LIST_COMPLETE_STYLE']}"
                     ;;
                 *)
                     color="$NO_FORMAT"
@@ -433,26 +546,26 @@ slide_content () {
         # Ordered & Unordered Lists
         [[ $line =~ ^(\ *)(-|\+|\*|[0-9]*\.)(\ +.*)$ ]] && {
             printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                              "$RED_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                              "${config['LIST_TICK_COLOR']}${config['LIST_TICK_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
             line="${BASH_REMATCH[3]}"
         }
 
         # Tables
         # Regular rows
         [[ $line =~ ^(\ *)\|([^-]*)\|(.*)$ ]] && {
-            line="${line//\|/$MAGENTA_FG\|$NO_FORMAT}"
+            line="${line//\|/${config['TABLE_COLOR']}${config['TABLE_STYLE']}\|$NO_FORMAT}"
         }
         # Divider rows
         [[ $line =~ ^(\ *)\|(\ *-+\ *)\|(.*)$ ]] && {
-            line="${line//\|/$MAGENTA_FG\|$NO_FORMAT}"
-            line="${line//-/$MAGENTA_FG-$NO_FORMAT}"
+            line="${line//\|/${config['TABLE_COLOR']}${config['TABLE_STYLE']}\|$NO_FORMAT}"
+            line="${line//-/${config['TABLE_COLOR']}${config['TABLE_STYLE']}-$NO_FORMAT}"
         }
 
         # TODO: Images (w3m-img)
 
         # Print title cards centered
         if [[ $line =~ ^#\ +.*$ ]]; then
-            hcenter_string "${line### }" "$((LINES / 2))" "$BLUE_FG$BOLD"
+            hcenter_string "${line### }" "$((LINES / 2))" "${config['TITLE_CARD_COLOR']}${config['TITLE_CARD_STYLE']}"
         else
             printf '%b' "$line"
         fi
