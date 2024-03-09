@@ -4,8 +4,17 @@
 # A script for presenting slides in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          0.1.0
-# Last Modified:    08-Mar-2024
+# Version:          0.2.0
+# Last Modified:    09-Mar-2024
+
+## Present slides in the terminal
+##
+## Usage: $0 [OPTIONS] <FILE>
+##
+## Options:
+##   -h, --help   Show this usage output
+
+SCRIPT="${BASH_SOURCE[0]##*/}"
 
 RED_FG='\e[38;5;1m'
 GREEN_FG='\e[38;5;2m'
@@ -20,24 +29,26 @@ ITALIC='\e[3m'
 UNDERLINE='\e[4m'
 HIGHLIGHT='\e[7m'
 
+print_usage () {
+    while read -r line; do
+        [[ $line =~ ^##\ ?(.*)$ ]] &&
+            printf '%s\n' "${BASH_REMATCH[1]/\$0/$SCRIPT}"
+    done < "${BASH_SOURCE[0]}"
+}
+
+print_version () {
+    while read -r line; do
+        [[ $line =~ ^#\ Version:\ *(.*)$ ]] &&
+            printf '%s %s\n' "$SCRIPT" "${BASH_REMATCH[1]}"
+    done < "${BASH_SOURCE[0]}"
+}
+
 main () {
-    # TODO: More robust argument validation
-    # TODO: Arguments for turning off rendering for certain elements
-    # TODO: Argument for local config file
-    [[ -f "$1" ]] || {
-        printf 'Please provide a valid file.\n'
-        exit 1
-    }
+    process_args "$@"
 
     # TODO: Read style/color configuration from file
 
-    extract_slides "$1"
-    # Pop the metadata from the rest of the slides
-    # We need to do this with subtitles, too
-    extract_metadata "${slides[0]}"
-    slides=("${slides[@]:1}")
-    num_slides="$((${#slides[@]} - 1))"
-    subtitles=("${subtitles[@]:1}")
+    process_input_file "$1"
 
     current_slide=0
 
@@ -58,6 +69,57 @@ main () {
         # Exit if there is no longer a terminal attached
         [[ -t 1 ]] || exit 1
     }
+}
+
+process_args () {
+    positional_args=()
+
+    for arg in "$@"; {
+        # TODO: Arguments for turning off rendering for certain elements
+        # TODO: Argument for local config file
+        case $arg in
+            -h|--help)
+                print_usage
+                exit 0
+                ;;
+            -v|--version)
+                print_version
+                exit 0
+                ;;
+            -*)
+                arg="${arg##*-}"
+                arg="${arg%%=*}"
+                printf '%s: invalid option -- %s\n' "$SCRIPT" "'$arg'"
+                printf 'Try %s for more information.\n' "'$SCRIPT --help'"
+                exit 1
+                ;;
+            *)
+                positional_args+=("$arg") # save positional args
+                shift # past argument
+                ;;
+        esac
+    }
+
+    # Restore positional args
+    set -- "${positional_args[@]}"
+
+    # TODO: More robust file validation
+    [[ -f "$1" ]] || {
+        printf 'Please provide a valid file.\n'
+        exit 1
+    }
+}
+
+process_input_file () {
+    extract_slides "$1"
+    extract_metadata "${slides[0]}"
+
+    # Pop the metadata from the rest of the slides
+    # We need to do this with subtitles, too
+    slides=("${slides[@]:1}")
+    subtitles=("${subtitles[@]:1}")
+
+    num_slides="$((${#slides[@]} - 1))"
 }
 
 extract_slides () {
@@ -116,6 +178,12 @@ extract_metadata () {
             metadata["$key"]="$val"
         }
     done <<< "$1"
+
+    # Verify that a title was supplied
+    [[ -z "${metadata['TITLE']}" ]] && {
+        printf 'Please provide a title in your presentation metadata.\n'
+        exit 1
+    }
 }
 
 save_cursor_position () {
@@ -151,6 +219,8 @@ show_cursor () {
 }
 
 move () {
+    # TODO: Our WINCH trap isn't working properly for some reason
+    #       The values being passed in here are invalid numbers
     printf '\e[%d;%dH' "$1" "$2"
 }
 
@@ -269,17 +339,23 @@ slide_content () {
         # Check for formatting opportunities
         # **BOLD** __BOLD__
         while [[ $line =~ ^(.*)(\*\*|__)(.*)(\*\*|__)(.*)$ ]]; do
-            line="${BASH_REMATCH[1]}$BOLD${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+            line="${BASH_REMATCH[1]}"
+            line+="$BOLD${BASH_REMATCH[3]}$NO_FORMAT"
+            line+="${BASH_REMATCH[5]}"
         done
 
         # *italic* _italic_
         while [[ $line =~ ^(.*)(\*|_)(.*)(\*|_)(.*)$ ]]; do
-            line="${BASH_REMATCH[1]}$ITALIC${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+            line="${BASH_REMATCH[1]}"
+            line+="$ITALIC${BASH_REMATCH[3]}$NO_FORMAT"
+            line+="${BASH_REMATCH[5]}"
         done
 
         # ==Highlighted Text==
         while [[ $line =~ ^(.*)(==)(.*)(==)(.*)$ ]]; do
-            line="${BASH_REMATCH[1]}$HIGHLIGHT${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+            line="${BASH_REMATCH[1]}"
+            line+="$HIGHLIGHT${BASH_REMATCH[3]}$NO_FORMAT"
+            line+="${BASH_REMATCH[5]}"
         done
 
         # Blockquotes (>)
@@ -300,34 +376,41 @@ slide_content () {
         [[ $in_code_block == 1 ]] && {
             # Two different string literals
             while [[ $line =~ ^(.*)(\'.*\')(.*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
+                                  "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
             while [[ $line =~ ^(.*)(\".*\")(.*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
+                                  "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
 
             # Number literals
             while [[ $line =~ ^(.*[^0-9])([0-9]+)([^0-9].*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
+                                  "$CYAN_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
 
             # Generic function names
             while [[ $line =~ ^(.*\ )([a-zA-Z][0-9a-zA-Z]*)(\(\).*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" "$BLUE_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
+                                  "$BLUE_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
                 line="${BASH_REMATCH[3]}"
             done
         }
 
         # Inline `code`
         while [[ $line =~ ^(.*)(\`)(.*)(\`)(.*)$ ]]; do
-            line="${BASH_REMATCH[1]}$MAGENTA_FG${BASH_REMATCH[3]}$NO_FORMAT${BASH_REMATCH[5]}"
+            line="${BASH_REMATCH[1]}"
+            line+="$MAGENTA_FG${BASH_REMATCH[3]}$NO_FORMAT"
+            line+="${BASH_REMATCH[5]}"
         done
 
         # h1, h2, etc.
-        [[ $line =~ ^#{2,6}\ +.*$ ]] && set_modifiers "$GREEN_FG$BOLD$UNDERLINE"
+        [[ $line =~ ^#{2,6}\ +.*$ ]] &&
+            line="$GREEN_FG$BOLD$UNDERLINE$line$NO_FORMAT"
 
         # Task Lists
         [[ $line =~ ^(\ *-\ \[)([\ ~xX])(\]\ +.*)$ ]] && {
@@ -342,15 +425,16 @@ slide_content () {
                     color="$NO_FORMAT"
                     ;;
             esac
-            line="${BASH_REMATCH[1]}$color${BASH_REMATCH[2]}$NO_FORMAT${BASH_REMATCH[3]}"
+            line="${BASH_REMATCH[1]}"
+            line+="$color${BASH_REMATCH[2]}$NO_FORMAT"
+            line+="${BASH_REMATCH[3]}"
         }
 
         # Ordered & Unordered Lists
         [[ $line =~ ^(\ *)(-|\+|\*|[0-9]*\.)(\ +.*)$ ]] && {
-            set_modifiers "$RED_FG"
-            printf '%s%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+            printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
+                              "$RED_FG" "${BASH_REMATCH[2]}" "$NO_FORMAT"
             line="${BASH_REMATCH[3]}"
-            reset_modifiers
         }
 
         # Tables
@@ -374,7 +458,6 @@ slide_content () {
         fi
 
         pos_y=$((pos_y + 1))
-        reset_modifiers
     done <<< "$content"
 }
 
@@ -384,22 +467,38 @@ hcenter_string () {
 
     move "$2" "$pos_x"
     set_modifiers "$3"
-    printf '%s' "$1"
+    printf '%b' "$1"
     reset_modifiers
 }
 
 key () {
-    # TODO: Bindings beyond just vim-like mappings
-    case "$1" in
-        q)
+    # Handle special key presses
+    [[ $1 == $'\e' ]] && {
+        read "${read_flags[@]}" -rsn 2
+
+        # Handle a normal escape key press
+        [[ ${1}${REPLY} == $'\e\e['* ]] &&
+            read "${read_flags[@]}" -rsn 1 _
+
+        local special_key=${1}${REPLY}
+    }
+
+    case ${special_key:-$1} in
+        # '\e'              :: Escape
+        q|$'\e')
             exit
             ;;
-        l|' ')
+        # ' '               :: Space
+        # ''                :: Enter
+        # '\e[C', '\e[OC'   :: Right Arrow Key
+        l|' '|''|$'\e[C'|$'\e[OC')
             : $((current_slide + 1))
             current_slide=$((_ > num_slides ? current_slide : _))
             redraw
             ;;
-        h)
+        # '\177', '\b'      :: Backspace
+        # '\e[D', '\e[OD'   :: Left Arrow Key
+        h|$'\177'|$'\b'|$'\e[D'|$'\e[OD')
             : $((current_slide - 1))
             current_slide=$((_ < 0 ? current_slide : _))
             redraw

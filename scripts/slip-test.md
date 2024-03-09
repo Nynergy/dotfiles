@@ -7,7 +7,11 @@ author: Ben Buchanan
 
 This is a test presentation file for use with `Sli`de `P`resenter, or '`slip`'.
 
-Hit `l` to go forward one slide, or `h` to go backward.
+### Controls
+
+- `q` or `Escape` to exit
+- `l`, `Space`, `Enter`, or `Right Arrow Key` to move to next slide
+- `h`, `Backspace`, or `Left Arrow Key` to move to previous slide
 
 ---
 
