@@ -4,7 +4,7 @@
 # A script for presenting slides in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          0.2.0
+# Version:          0.3.0
 # Last Modified:    09-Mar-2024
 
 ## Present slides in the terminal
@@ -21,7 +21,6 @@ SCRIPT="${BASH_SOURCE[0]##*/}"
 NO_FORMAT='\e[m'
 BOLD='\e[1m'
 ITALIC='\e[3m'
-UNDERLINE='\e[4m'
 HIGHLIGHT='\e[7m'
 
 print_usage () {
@@ -126,22 +125,22 @@ process_config () {
         [TABLE_COLOR]=5
 
         # STYLES
-        [BORDER_STYLE]=
+        [BORDER_STYLE]=''
         [TITLE_STYLE]='BOLD'
-        [AUTHOR_STYLE]=
-        [SLIDE_NUMBER_STYLE]=
-        [SLIDE_NUMBER_DIVIDER_STYLE]=
+        [AUTHOR_STYLE]=''
+        [SLIDE_NUMBER_STYLE]=''
+        [SLIDE_NUMBER_DIVIDER_STYLE]=''
         [TITLE_CARD_STYLE]='BOLD'
         [HEADER_STYLE]='BOLD,UNDERLINE'
-        [LIST_TICK_STYLE]=
+        [LIST_TICK_STYLE]=''
         [TASK_LIST_IN_PROGRESS_STYLE]='BOLD'
         [TASK_LIST_COMPLETE_STYLE]='BOLD'
-        [INLINE_CODE_STYLE]=
-        [CODE_BLOCK_STRING_STYLE]=
-        [CODE_BLOCK_NUMBER_STYLE]=
-        [CODE_BLOCK_FUNC_STYLE]=
+        [INLINE_CODE_STYLE]=''
+        [CODE_BLOCK_STRING_STYLE]=''
+        [CODE_BLOCK_NUMBER_STYLE]=''
+        [CODE_BLOCK_FUNC_STYLE]=''
         [BLOCKQUOTE_STYLE]='HIGHLIGHT'
-        [TABLE_STYLE]=
+        [TABLE_STYLE]=''
     )
 
     [[ -f "$XDG_CONFIG_HOME/slip/sliprc" ]] && {
