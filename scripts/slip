@@ -4,15 +4,16 @@
 # A script for presenting slides in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          0.3.0
-# Last Modified:    09-Mar-2024
+# Version:          0.4.0
+# Last Modified:    11-Mar-2024
 
 ## Present slides in the terminal
 ##
 ## Usage: $0 [OPTIONS] <FILE>
 ##
 ## Options:
-##   -h, --help   Show this usage output
+##   -h, --help     Show this usage output
+##   -v, --version  Show the version of the script
 
 SCRIPT="${BASH_SOURCE[0]##*/}"
 
@@ -96,6 +97,7 @@ process_args () {
     set -- "${positional_args[@]}"
 
     # TODO: More robust file validation
+    # TODO: If no file is provided, print usage
     [[ -f "$1" ]] || {
         printf 'Please provide a valid file.\n'
         exit 1
@@ -331,8 +333,6 @@ show_cursor () {
 }
 
 move () {
-    # TODO: Our WINCH trap isn't working properly for some reason
-    #       The values being passed in here are invalid numbers
     printf '\e[%d;%dH' "$1" "$2"
 }
 
@@ -382,7 +382,7 @@ reset_terminal () {
 }
 
 get_term_size () {
-    read -r LINES COLUMNS < <(stty size)
+    shopt -s checkwinsize; (:;:)
 }
 
 redraw () {
@@ -397,13 +397,27 @@ slide_header () {
     border_bar
 
     subtitle="${subtitles[$current_slide]}"
-    printf -v title '%s%s' "${metadata['TITLE']}" "${subtitle:+" > $subtitle"}"
-    hcenter_string "$title" 3 "${config['TITLE_COLOR']}${config['TITLE_STYLE']}"
+    title="${metadata['TITLE']}${subtitle:+" > $subtitle"}"
+    set_modifiers "${config['TITLE_COLOR']}"
+    set_modifiers "${config['TITLE_STYLE']}"
+    hcenter_string "$title" 3
+    reset_modifiers
 }
 
 border_bar () {
     printf -v hline "%${COLUMNS}s"
-    printf '%b%s%b' "${config['BORDER_COLOR']}${config['BORDER_STYLE']}" "${hline// /=}" "$NO_FORMAT"
+    set_modifiers "${config['BORDER_COLOR']}"
+    set_modifiers "${config['BORDER_STYLE']}"
+    printf '%s' "${hline// /=}"
+    reset_modifiers
+}
+
+hcenter_string () {
+    str_len="${#1}"
+    pos_x=$((COLUMNS / 2 - str_len / 2))
+
+    move "$2" "$pos_x"
+    printf '%b' "$1"
 }
 
 slide_footer () {
@@ -418,25 +432,29 @@ author_name () {
     author="${metadata['AUTHOR']}"
 
     move "$((LINES - 2))" 3
-    set_modifiers "${config['AUTHOR_COLOR']}${config['AUTHOR_STYLE']}"
+    set_modifiers "${config['AUTHOR_COLOR']}"
+    set_modifiers "${config['AUTHOR_STYLE']}"
     printf '%s' "$author"
     reset_modifiers
 }
 
 slide_number () {
     move "$((LINES - 2))" "$((COLUMNS - 4))"
-    set_modifiers "${config['SLIDE_NUMBER_COLOR']}${config['SLIDE_NUMBER_STYLE']}"
-    printf '%3d' "$num_slides"
+    set_modifiers "${config['SLIDE_NUMBER_COLOR']}"
+    set_modifiers "${config['SLIDE_NUMBER_STYLE']}"
+    printf '%3d' "$((num_slides + 1))"
     reset_modifiers
 
     move "$((LINES - 2))" "$((COLUMNS - 6))"
-    set_modifiers "${config['SLIDE_NUMBER_DIVIDER_COLOR']}${config['SLIDE_NUMBER_DIVIDER_STYLE']}"
+    set_modifiers "${config['SLIDE_NUMBER_DIVIDER_COLOR']}"
+    set_modifiers "${config['SLIDE_NUMBER_DIVIDER_STYLE']}"
     printf '/'
     reset_modifiers
 
     move "$((LINES - 2))" "$((COLUMNS - 10))"
-    set_modifiers "${config['SLIDE_NUMBER_COLOR']}${config['SLIDE_NUMBER_STYLE']}"
-    printf '%3d' "$current_slide"
+    set_modifiers "${config['SLIDE_NUMBER_COLOR']}"
+    set_modifiers "${config['SLIDE_NUMBER_STYLE']}"
+    printf '%3d' "$((current_slide + 1))"
     reset_modifiers
 }
 
@@ -473,7 +491,11 @@ slide_content () {
         # Blockquotes (>)
         # Nested Blockquotes (>>)
         while [[ $line =~ ^(\ *)\>(.*)$ ]]; do
-            printf '%s %b' "${BASH_REMATCH[1]}" "${config['BLOCKQUOTE_STYLE']}${config['BLOCKQUOTE_COLOR']} $NO_FORMAT"
+            printf '%s ' "${BASH_REMATCH[1]}"
+            set_modifiers "${config['BLOCKQUOTE_COLOR']}"
+            set_modifiers "${config['BLOCKQUOTE_STYLE']}"
+            printf ' '
+            reset_modifiers
             line="${BASH_REMATCH[2]}"
         done
 
@@ -488,27 +510,39 @@ slide_content () {
         [[ $in_code_block == 1 ]] && {
             # Two different string literals
             while [[ $line =~ ^(.*)(\'.*\')(.*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "${config['CODE_BLOCK_STRING_COLOR']}${config['CODE_BLOCK_STRING_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b' "${BASH_REMATCH[1]}"
+                set_modifiers "${config['CODE_BLOCK_STRING_COLOR']}"
+                set_modifiers "${config['CODE_BLOCK_STRING_STYLE']}"
+                printf '%b' "${BASH_REMATCH[2]}"
+                reset_modifiers
                 line="${BASH_REMATCH[3]}"
             done
             while [[ $line =~ ^(.*)(\".*\")(.*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "${config['CODE_BLOCK_STRING_COLOR']}${config['CODE_BLOCK_STRING_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b' "${BASH_REMATCH[1]}"
+                set_modifiers "${config['CODE_BLOCK_STRING_COLOR']}"
+                set_modifiers "${config['CODE_BLOCK_STRING_STYLE']}"
+                printf '%b' "${BASH_REMATCH[2]}"
+                reset_modifiers
                 line="${BASH_REMATCH[3]}"
             done
 
             # Number literals
             while [[ $line =~ ^(.*[^0-9])([0-9]+)([^0-9].*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "${config['CODE_BLOCK_NUMBER_COLOR']}${config['CODE_BLOCK_NUMBER_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b' "${BASH_REMATCH[1]}"
+                set_modifiers "${config['CODE_BLOCK_NUMBER_COLOR']}"
+                set_modifiers "${config['CODE_BLOCK_NUMBER_STYLE']}"
+                printf '%b' "${BASH_REMATCH[2]}"
+                reset_modifiers
                 line="${BASH_REMATCH[3]}"
             done
 
             # Generic function names
             while [[ $line =~ ^(.*\ )([a-zA-Z][0-9a-zA-Z]*)(\(\).*)$ ]]; do
-                printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                                  "${config['CODE_BLOCK_FUNC_COLOR']}${config['CODE_BLOCK_FUNC_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+                printf '%b' "${BASH_REMATCH[1]}"
+                set_modifiers "${config['CODE_BLOCK_FUNC_COLOR']}"
+                set_modifiers "${config['CODE_BLOCK_FUNC_STYLE']}"
+                printf '%b' "${BASH_REMATCH[2]}"
+                reset_modifiers
                 line="${BASH_REMATCH[3]}"
             done
         }
@@ -516,71 +550,82 @@ slide_content () {
         # Inline `code`
         while [[ $line =~ ^(.*)(\`)(.*)(\`)(.*)$ ]]; do
             line="${BASH_REMATCH[1]}"
-            line+="${config['INLINE_CODE_COLOR']}${config['INLINE_CODE_STYLE']}${BASH_REMATCH[3]}$NO_FORMAT"
+            line+="${config['INLINE_CODE_COLOR']}"
+            line+="${config['INLINE_CODE_STYLE']}"
+            line+="${BASH_REMATCH[3]}"
+            line+="$NO_FORMAT"
             line+="${BASH_REMATCH[5]}"
         done
 
-        # h1, h2, etc.
-        [[ $line =~ ^#{2,6}\ +.*$ ]] &&
-            line="${config['HEADER_COLOR']}${config['HEADER_STYLE']}$line$NO_FORMAT"
+        # h2 - h6
+        [[ $line =~ ^#{2,6}\ +.*$ ]] && {
+            color="${config['HEADER_COLOR']}"
+            style="${config['HEADER_STYLE']}"
+            line="$color$style$line$NO_FORMAT"
+        }
 
         # Task Lists
         [[ $line =~ ^(\ *-\ \[)([\ ~xX]|-)(\]\ +.*)$ ]] && {
             case "${BASH_REMATCH[2]}" in
                 '~'|'-')
-                    color="${config['TASK_LIST_IN_PROGRESS_COLOR']}${config['TASK_LIST_IN_PROGRESS_STYLE']}"
+                    color="${config['TASK_LIST_IN_PROGRESS_COLOR']}"
+                    style="${config['TASK_LIST_IN_PROGRESS_STYLE']}"
                     ;;
                 'x'|'X')
-                    color="${config['TASK_LIST_COMPLETE_COLOR']}${config['TASK_LIST_COMPLETE_STYLE']}"
+                    color="${config['TASK_LIST_COMPLETE_COLOR']}"
+                    style="${config['TASK_LIST_COMPLETE_STYLE']}"
                     ;;
                 *)
                     color="$NO_FORMAT"
+                    style="$NO_FORMAT"
                     ;;
             esac
             line="${BASH_REMATCH[1]}"
-            line+="$color${BASH_REMATCH[2]}$NO_FORMAT"
+            line+="$color$style"
+            line+="${BASH_REMATCH[2]}"
+            line+="$NO_FORMAT"
             line+="${BASH_REMATCH[3]}"
         }
 
         # Ordered & Unordered Lists
         [[ $line =~ ^(\ *)(-|\+|\*|[0-9]*\.)(\ +.*)$ ]] && {
-            printf '%b%b%b%b' "${BASH_REMATCH[1]}" \
-                              "${config['LIST_TICK_COLOR']}${config['LIST_TICK_STYLE']}" "${BASH_REMATCH[2]}" "$NO_FORMAT"
+            printf '%b' "${BASH_REMATCH[1]}"
+            set_modifiers "${config['LIST_TICK_COLOR']}"
+            set_modifiers "${config['LIST_TICK_STYLE']}"
+            printf '%b' "${BASH_REMATCH[2]}" 
+            reset_modifiers
             line="${BASH_REMATCH[3]}"
         }
 
         # Tables
         # Regular rows
         [[ $line =~ ^(\ *)\|([^-]*)\|(.*)$ ]] && {
-            line="${line//\|/${config['TABLE_COLOR']}${config['TABLE_STYLE']}\|$NO_FORMAT}"
+            color="${config['TABLE_COLOR']}"
+            style="${config['TABLE_STYLE']}"
+            line="${line//\|/$color$style\|$NO_FORMAT}"
         }
         # Divider rows
         [[ $line =~ ^(\ *)\|(\ *-+\ *)\|(.*)$ ]] && {
-            line="${line//\|/${config['TABLE_COLOR']}${config['TABLE_STYLE']}\|$NO_FORMAT}"
-            line="${line//-/${config['TABLE_COLOR']}${config['TABLE_STYLE']}-$NO_FORMAT}"
+            color="${config['TABLE_COLOR']}"
+            style="${config['TABLE_STYLE']}"
+            line="${line//\|/$color$style\|$NO_FORMAT}"
+            line="${line//-/$color$style-$NO_FORMAT}"
         }
 
         # TODO: Images (w3m-img)
 
         # Print title cards centered
         if [[ $line =~ ^#\ +.*$ ]]; then
-            hcenter_string "${line### }" "$((LINES / 2))" "${config['TITLE_CARD_COLOR']}${config['TITLE_CARD_STYLE']}"
+            set_modifiers "${config['TITLE_CARD_COLOR']}"
+            set_modifiers "${config['TITLE_CARD_STYLE']}"
+            hcenter_string "${line### }" "$((LINES / 2))"
+            reset_modifiers
         else
             printf '%b' "$line"
         fi
 
         pos_y=$((pos_y + 1))
     done <<< "$content"
-}
-
-hcenter_string () {
-    str_len="${#1}"
-    pos_x=$((COLUMNS / 2 - str_len / 2))
-
-    move "$2" "$pos_x"
-    set_modifiers "$3"
-    printf '%b' "$1"
-    reset_modifiers
 }
 
 key () {
