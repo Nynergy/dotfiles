@@ -78,4 +78,5 @@ URxvt.keysym.C-plus:	command:\033]710;xft:xos4 Terminus:pixelsize=20\007
 Xft.dpi: 100
 
 ! Fix for prompt appearing mid-terminal
-URxvt*geometry: 80x240+0+0
+! Commented out due to complications with floating terminals
+!URxvt*geometry: 80x240+0+0

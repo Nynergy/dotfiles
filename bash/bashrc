@@ -49,3 +49,6 @@ export PF_INFO="ascii title os kernel host shell editor wm"
 
 # Any sensitive or machine-specific info goes into ~/.env.sh
 source_if_exists "$HOME"/.env.sh
+
+# Fix for urxvt geometry issues
+[[ $(ps ho command $(ps ho ppid $$)) == 'urxvt' ]] && clear
