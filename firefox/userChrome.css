@@ -1,0 +1,238 @@
+/* Custom Firefox userChrome.css */
+
+/*
+ * Maintainer:      Ben Buchanan
+ * Version:         1.0.0
+ * Last Modified:   11-Mar-2024
+ */
+
+/* Buttons, URL Status Panel */
+#PanelUI-button {
+    display: block !important;
+    position: fixed !important;
+    right: 0px !important; /*close/max/min placement*/
+    padding-top: 2px !important;
+}
+#alltabs-button {
+    position: fixed !important;
+    left: -1px !important;
+    padding-right: 28px !important; /*close/max/min placement*/
+}
+
+/* Allows for title bar in and out */
+#navigator-toolbox {margin-top: -33px; transition: all 0.15s ease-in;}
+#navigator-toolbox:hover {margin-top: 0px; transition: all 0.15s ease;}
+#navigator-toolbox:focus-within {margin-top: 0px; transition: all 0.15s ease;}
+
+/* Navigation Bar */
+#nav-bar {
+    margin-top: -33px !important;
+    margin-right: 70vw !important;
+    height: 33px !important;
+    padding-top: 0px !important;
+    padding-left: 0px !important;
+}
+:root[sizemode="fullscreen"] #nav-bar {
+    padding-left: 0px !important;
+}
+
+/* Titlebar */
+.titlebar-placeholder {
+    border: none !important;
+}
+#titlebar {
+    background-color: var(--color-bg) !important;
+}
+#navigator-toolbox {
+    border-bottom: none !important;
+}
+
+/* Urlbar */
+#urlbar[breakout][breakout-extend] {
+    top: calc((var(--urlbar-toolbar-height) - var(--urlbar-height)) / 2) !important;
+    left: 0 !important;
+    width: 100% !important;
+}
+#urlbar[breakout][breakout-extend]>#urlbar-input-container {
+    height: var(--urlbar-height) !important;
+    padding-block: 0px !important;
+    padding-inline: 0px !important;
+}
+#urlbar-container {
+    margin-top: 1px !important;
+    max-width: 950px !important;
+    min-width: 150px !important;
+}
+#tracking-protection-icon-container {
+    margin-left: -3px !important;
+    margin-right: -12px !important;
+    border-image-slice: 0 !important;
+}
+
+/* Bookmark Bar */
+#PlacesToolbarItems {
+    margin-top: 1px !important;
+    -moz-box-pack: center;
+}
+
+
+/* Tabs */
+#tabs-newtab-button {
+    padding-right: 28px !important; /*close/max/min placement*/
+}
+#TabsToolbar {
+    margin-left: 30vw !important;    
+  margin-right: 28px !important;
+}
+.tabbrowser-tab::after {
+    display: none !important;
+}
+#TabsToolbar .private-browsing-indicator {
+    margin-right: 28px !important; /*close/max/min placement*/
+}
+
+/* Other Visual Changes */
+/* Hide some bloat */
+.tab-close-button,
+.tab-line,
+.tabbrowser-tab::before,
+.tabbrowser-tab::after {
+      display: none !important;
+}
+/* Hide back and forward buttons */
+#back-button {
+    display: none !important;
+}
+#forward-button {
+    display: none !important;
+}
+/* Hide more stuff */
+.urlbarView-favicon,
+.urlbar-history-dropmarker,
+#unified-extensions-button,
+#pocket-button,
+#identity-box {
+      display: none !important;
+}
+#tracking-protection-icon-container,
+#urlbar-search-button {
+      background-color: none !important;
+      background-image: none !important;
+      border: none !important;
+}
+/* Hide min, max and close buttons and some spacers */
+#tabs-newtab-button,
+.titlebar-buttonbox-container,
+.titlebar-buttonbox,
+.titlebar-spacer[type="pre-tabs"],
+.titlebar-spacer[type="post-tabs"]{
+    display: none !important;
+}
+/* Regular browser tabs */
+.tabbrowser-tab {
+      background-color: var(--color-bg) !important;
+      margin-inline-end: var(--gap-between-tabs) !important;
+      max-height: var(--tab-height) !important;
+      min-height: var(--tab-height) !important;
+    font-size: var(--tab-font-size) !important;
+      font-weight: var(--tab-font-weight) !important;
+}
+.tabbrowser-tab:hover {
+      background-color: none !important;
+    font-size: var(--tab-font-size) !important;
+      font-weight: var(--tab-font-weight) !important;
+}
+.tabbrowser-tab[selected="true"] {
+      background-color: var(--color-bg-light) !important;
+    font-size: var(--tab-font-size) !important;
+      font-weight: var(--tab-font-selected-weight) !important;
+}
+.tab-content {
+      background-color: none !important;
+      background-image: none !important;
+}
+/* Pinned tabs */
+.tabbrowser-tab[pinned="true"] {
+      max-width: var(--tab-height) !important;
+      min-width: var(--tab-height) !important;
+}
+.tabbrowser-tab[pinned="true"] .tab-icon-image {
+      align-items: center !important;
+      display: inline-block !important;
+      min-height: var(--pinned-tab-favicon-dim) !important;
+      min-width: var(--pinned-tab-favicon-dim) !important;
+}
+
+.tabbrowser-tab[pinned="true"] .tab-label-container {
+      display: none !important;
+}
+.tab-stack {
+      display: flex !important;
+      justify-content: center !important;
+}
+/* Hacky way to make the url input bar centered */
+input#urlbar-input {
+      caret-color: transparent !important;
+      font-family: var(--urlbar-text-font) !important;
+      font-size: var(--urlbar-text-size) !important;
+      font-weight: var(--urlbar-text-weight) !important;
+      text-align: left !important;
+      padding-left: 10px !important;
+      width: 99999px !important;
+}
+.browser-toolbar:not(.titlebar-color) {
+    background-color: var(--color-bg) !important;
+}
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+:root {
+    --in-content-page-background: var(--color-bg);
+}
+
+/*changes "flash" on tab open color*/
+#browser vbox#appcontent tabbrowser,
+#content,
+#tabbrowser-tabpanels,
+browser[type=content-primary],
+browser[type=content] > html {
+  background: var(--in-content-page-background)!important;
+}
+
+/* Variables */
+html#main-window {
+    --color-bg: #2c2b2b;
+    --color-bg-light: #3c3b3b;
+    --toolbar-bgcolor: #2c2b2b !important;
+
+    --gap-between-tabs: 0px;
+    --margin-after-tab-list: 0x;
+    --margin-before-tab-list: 0px;
+    --tab-font-size: 10pt;
+    --tab-font-weight: 100;
+    --tab-font-selected-weight: 150;
+    --tab-height: 33px;
+
+    --urlbar-height: 33px;
+    --urlbar-container-margin: 0px;
+    --urlbar-text-size: 9pt;
+    --urlbar-text-weight: 100;
+
+    /* Firefox variables */
+    --lwt-toolbar-field-focus-color: #fefefa !important;
+    --lwt-toolbar-field-color: #fefefa !important;
+    --lwt-toolbar-field-background-color: var(--color-bg) !important;
+    --lwt-toolbar-field-border-color: var(--color-bg) !important;
+    --lwt-toolbar-field-focus-background-color: #2c2b2b !important;
+}
+
+/* Clean new urlbar */
+#urlbar #urlbar-background {
+    background-color: var(--color-bg) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+#urlbar[focused=true] {
+    background-color: var(--color-bg) !important;
+    border: none !important;
+}
