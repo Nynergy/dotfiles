@@ -1,0 +1,15 @@
+# COLORS
+border_color                = 3
+header_color                = 1
+blockquote_color            = 4
+
+# STYLES
+title_card_style            = bold, underline
+header_style                = bold
+
+# RENDERING
+render_title                = false
+render_author               = false
+
+# OTHER
+border_bar_character        = +

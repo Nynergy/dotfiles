@@ -33,3 +33,12 @@ code_block_number_style     =
 code_block_func_style       =
 blockquote_style            = highlight
 table_style                 =
+
+# RENDERING
+render_border_bars          = true
+render_title                = true
+render_author               = true
+render_slide_numbers        = true
+
+# OTHER
+border_bar_character        = =
