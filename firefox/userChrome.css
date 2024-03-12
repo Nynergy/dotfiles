@@ -2,8 +2,8 @@
 
 /*
  * Maintainer:      Ben Buchanan
- * Version:         1.0.0
- * Last Modified:   11-Mar-2024
+ * Version:         1.0.1
+ * Last Modified:   12-Mar-2024
  */
 
 /* Buttons, URL Status Panel */
@@ -20,9 +20,12 @@
 }
 
 /* Allows for title bar in and out */
+/* Uncomment the lines below to auto-hide the top bar until mouse-over */
+/*
 #navigator-toolbox {margin-top: -33px; transition: all 0.15s ease-in;}
 #navigator-toolbox:hover {margin-top: 0px; transition: all 0.15s ease;}
 #navigator-toolbox:focus-within {margin-top: 0px; transition: all 0.15s ease;}
+*/
 
 /* Navigation Bar */
 #nav-bar {
@@ -208,7 +211,7 @@ html#main-window {
     --gap-between-tabs: 0px;
     --margin-after-tab-list: 0x;
     --margin-before-tab-list: 0px;
-    --tab-font-size: 10pt;
+    --tab-font-size: 9pt;
     --tab-font-weight: 100;
     --tab-font-selected-weight: 150;
     --tab-height: 33px;
