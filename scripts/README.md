@@ -308,7 +308,12 @@ None
 
 #### Suggested Installs
 
-None
+- Emerge
+  - www-client/w3m
+  - x11-misc/xdotool
+
+NOTE: You should install w3m with USE="X imlib" in order to properly pull in the
+'w3mimgdisplay' functionality that can display images to the terminal.
 
 ### soundspool
 

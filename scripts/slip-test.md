@@ -115,3 +115,13 @@ How about a table?
 You can even include formatting inside the table!
 
 ---
+
+## Images
+
+`slip` can even render images directly in the terminal!*
+
+* as long as you have w3m-img installed
+
+![This is an image caption](slip-image.jpg)
+
+---

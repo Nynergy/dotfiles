@@ -4,8 +4,8 @@
 # A script for presenting slides in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          0.5.0
-# Last Modified:    12-Mar-2024
+# Version:          1.0.0
+# Last Modified:    17-May-2024
 
 ## Present slides in the terminal
 ##
@@ -40,6 +40,9 @@ print_version () {
 }
 
 main () {
+    get_os
+    get_w3m_path
+
     process_args "$@"
     process_config "$local_config_path"
     process_input_file "$presentation_file_path"
@@ -63,6 +66,20 @@ main () {
         # Exit if there is no longer a terminal attached
         [[ -t 1 ]] || exit 1
     }
+}
+
+get_os () {
+    case $OSTYPE in
+        # Mac OS X / macOS
+        darwin*)
+            file_flags=bIL
+            ;;
+    esac
+}
+
+get_w3m_path () {
+    w3m_paths=(/usr/{pkg/,}{local/,}{bin,lib,libexec,lib64,libexec64}/w3m/w3mi*)
+    read -r w3m _ < <(type -p w3mimgdisplay "${w3m_paths[@]}")
 }
 
 process_args () {
@@ -296,6 +313,8 @@ process_input_file () {
     subtitles=("${subtitles[@]:1}")
 
     num_slides="$((${#slides[@]} - 1))"
+
+    presentation_dir=$(dirname "$1")
 }
 
 extract_slides () {
@@ -331,6 +350,21 @@ extract_slides () {
             # Title card slides themselves never have subtitles
             subtitles+=('')
             current_subtitle="${line### }"
+
+            continue
+        }
+
+        # images are treated as separate slides
+        [[ $line =~ ^!\[.*\]\(.*\)$ ]] && {
+            [[ -n $slide ]] && {
+                slides+=("$slide")
+                slide=''
+            }
+
+            slides+=("$line")
+            slide=''
+
+            subtitles+=("$current_subtitle")
 
             continue
         }
@@ -411,6 +445,7 @@ clear_screen () {
     erase_up
     [[ -v "$TMUX" ]] && erase_all # Fix for tmux
     move 0 0
+    [[ $image_shown -eq 1 ]] && clear_image
 }
 
 set_modifiers () {
@@ -433,6 +468,8 @@ setup_terminal () {
 }
 
 reset_terminal () {
+    [[ $image_shown -eq 1 ]] && clear_image
+
     enable_line_wrapping
     show_cursor
     clear_screen
@@ -682,7 +719,11 @@ slide_content () {
             line="${line//-/$color$style-$NO_FORMAT}"
         }
 
-        # TODO: Images (w3m-img)
+        # Images (w3m-img)
+        [[ $line =~ ^!\[(.*)\]\((.*)\)$ ]] && {
+            draw_img "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+            continue
+        }
 
         # Print title cards centered
         if [[ $line =~ ^#\ +.*$ ]]; then
@@ -696,6 +737,192 @@ slide_content () {
 
         pos_y=$((pos_y + 1))
     done <<< "$content"
+}
+
+render_img_error () {
+    printf 'Error when attempting to display image: %s' "$error_msg"
+}
+
+draw_img () {
+    caption="$1"
+    img_path="$presentation_dir/$2"
+
+    # Rather than return in certain cases, just print an error to the slide
+    validate_img || {
+        case $? in
+            "$BAD_X_SERVER")
+                error_msg='X server is not running, or framebuffer is unavailable!' ;;
+            "$BAD_FILE")
+                error_msg="Path '$img_path' is not a valid image file!" ;;
+            "$BAD_W3M")
+                error_msg='Could not locate w3m_img!' ;;
+            "$BAD_WIN_INFO_CMD")
+                error_msg="Window information tool '$win_info_cmd' is not installed!" ;;
+            *)
+                error_msg='Something went wrong, and we have no idea why :(' ;;
+        esac
+
+        render_img_error
+
+        return
+    }
+
+    get_pixel_dimensions || {
+        case $? in
+            "$BAD_XDOTOOL")
+                error_msg='xdotool could not declare the window dimensions!' ;;
+            *)
+                error_msg='Something went wrong, and we have no idea why :(' ;;
+        esac
+
+        render_img_error
+
+        return
+    }
+
+    single_line_h=$((HEIGHT / LINES))
+
+    # If we're in a TMUX session, we'll need to do some math
+    [[ $TMUX ]] && calculate_tmux_dimensions
+
+    # Get the image size in pixels
+    IFS=' ' read -r img_width img_height < <("$w3m" <<< "5;$img_path")
+
+    # Subtract lines to make image appear within certain area
+    ((HEIGHT=HEIGHT-(11*single_line_h)))
+
+    # Set our height/width bounds
+    ((img_width > WIDTH)) && {
+        ((img_height=img_height*WIDTH/img_width))
+        ((img_width=WIDTH))
+    }
+
+    ((img_height > HEIGHT)) && {
+        ((img_width=img_width*HEIGHT/img_height))
+        ((img_height=HEIGHT))
+    }
+
+    # Calculate centered offsets
+    W3M_XOFFSET=$((${x_offset:-0} + WIDTH / 2 - img_width / 2))
+    W3M_YOFFSET=$((${y_offset:-0} + 4 * single_line_h))
+
+    # Small delay for VTE terminals
+    ((BASH_VERSINFO[0] > 3)) &&
+        read "${read_flags[@]}" -srn 1
+
+    # Display the image
+    printf '0;1;%s;%s;%s;%s;;;;;%s\n3;\n4\n' \
+        "$W3M_XOFFSET" \
+        "$W3M_YOFFSET" \
+        "$img_width" \
+        "$img_height" \
+        "$img_path" | "$w3m" &>/dev/null
+
+    image_shown=1
+
+    # Display the caption underneath the image
+    hcenter_string "$caption" "$((LINES - 4))"
+}
+
+validate_img () {
+    # We'll use "enums" for our error "types"
+    BAD_X_SERVER=101
+    BAD_FILE=102
+    BAD_W3M=103
+    BAD_WIN_INFO_CMD=104
+
+    # Check if we can use the framebuffer
+    [[ $(tty) == /dev/tty[0-9]* && -w /dev/fb0 ]] && win_info_cmd=fbset
+
+    # Ensure X is running and able to show the image
+    [[ -z $DISPLAY && $win_info_cmd != fbset ]] && return $BAD_X_SERVER
+
+    # Ensure image exists, and is a file
+    get_mime_type "$img_path"
+    [[ $mime_type != image/* ]] && return $BAD_FILE
+
+    # Ensure w3m-img is installed
+    type -p "$w3m" &>/dev/null || return $BAD_W3M
+
+    # Ensure our win_info_cmd is installed
+    type -p "${win_info_cmd:=xdotool}" &>/dev/null || return $BAD_WIN_INFO_CMD
+
+    return 0
+}
+
+get_pixel_dimensions () {
+    # We'll use "enums" for our error "types"
+    BAD_XDOTOOL=105
+
+    # Get terminal window size in pixels
+    if [[ $win_info_cmd == xdotool ]]; then
+        IFS=$'\n' read -d "" -ra win_info \
+            < <(xdotool getactivewindow getwindowgeometry --shell)
+
+        declare -g "${win_info[@]}" &>/dev/null || return $BAD_XDOTOOL
+    else
+        [[ $(fbset --show) =~ .*\"([0-9]+x[0-9]+)\".* ]]
+        IFS=x read -r WIDTH HEIGHT <<< "${BASH_REMATCH[1]}"
+    fi
+
+    return 0
+}
+
+calculate_tmux_dimensions () {
+    # Get the full window layout
+    read -r layout < <(tmux display-message -p '#{window_layout}')
+
+    # Get the full window dimensions in cells
+    [[ $layout =~ .{4},([0-9]+)x([0-9]+),.* ]]
+    window_w="${BASH_REMATCH[1]}"
+    window_h="${BASH_REMATCH[2]}"
+    single_line_h=$((HEIGHT / window_h + 2))
+
+    # Extract the x and y offsets of the active pane
+    while [[ $layout =~ (.*)[0-9]+x[0-9]+,([0-9]+),([0-9]+),([0-9]+)(.*) ]]; do
+        pane_id="${BASH_REMATCH[4]}"
+
+        [[ "%$pane_id" == "$TMUX_PANE" ]] && {
+            x_offset="${BASH_REMATCH[2]}"
+            y_offset="${BASH_REMATCH[3]}"
+        }
+
+        layout="${BASH_REMATCH[1]}${BASH_REMATCH[5]}"
+    done
+
+    # Get the active pane's cell width/height
+    IFS=' ' read -r pane_w pane_h \
+        < <(tmux display-message -p '#{pane_width} #{pane_height}')
+
+    # Calculate x/y offsets in pixels
+    x_offset=$(bc -l <<< "$x_offset / $window_w * $WIDTH" || '0.0')
+    [[ $x_offset =~ ([0-9]+)\..* ]] && x_offset="${BASH_REMATCH[1]}"
+
+    y_offset=$(bc -l <<< "$y_offset / $window_h * $HEIGHT" || '0.0')
+    [[ $y_offset =~ ([0-9]+)\..* ]] && y_offset="${BASH_REMATCH[1]}"
+
+    # Calculate actual WIDTH and HEIGHT in pixels of tmux pane
+    width=$(bc -l <<< "$pane_w / $window_w * $WIDTH" || '0.0')
+    [[ $width =~ ([0-9]+)\..* ]] && WIDTH="${BASH_REMATCH[1]}"
+
+    height=$(bc -l <<< "$pane_h / $window_h * $HEIGHT" || '0.0')
+    [[ $height =~ ([0-9]+)\..* ]] && HEIGHT="${BASH_REMATCH[1]}"
+}
+
+clear_image () {
+    # Clear image
+    printf '6;%s;%s;%s;%s\n3;' \
+        "$W3M_XOFFSET" \
+        "$W3M_YOFFSET" \
+        "$((img_width + 2))" \
+        "$((img_height + 2))" | "$w3m" &>/dev/null
+    # Additional pixels for clearing are to remove artifacts
+
+    image_shown=0
+}
+
+get_mime_type () {
+    mime_type=$(file "-${file_flags:-biL}" "$1" 2>/dev/null)
 }
 
 key () {

@@ -56,7 +56,7 @@ URxvt*dynamicColors: on
 
 URxvt.letterSpace: 0
 URxvt.lineSpace: 0
-URxvt.internalBorder: 16
+URxvt.externalBorder: 16
 URxvt.cursorBlink: true
 URxvt.cursorUnderline: false
 URxvt.saveline: 2048

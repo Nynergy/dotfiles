@@ -51,7 +51,7 @@ hi StatusLineTermNC             ctermbg=Black   ctermfg=8       guibg=Black     
 " NOTE: End of column shift
 hi TabLine                      ctermfg=White                   guifg=White
 hi TabLineFill                  ctermfg=White                   guifg=White
-hi TabLineSel   ctermbg=White   ctermfg=Black   guibg=White     guifg=Black     cterm=None      gui=None
+hi TabLineSel   ctermbg=Yellow  ctermfg=Black   guibg=Yellow    guifg=Black     cterm=None      gui=None
 hi Title                        ctermfg=Green                   guifg=Green     cterm=Bold      gui=Bold
 hi VertSplit    ctermbg=Black   ctermfg=White   guibg=Black     guifg=Black     cterm=None      gui=None
 hi Visual                                                                       cterm=Reverse   gui=Reverse
