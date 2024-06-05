@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Setup two 1920x1080 displays and a third vertical monitor with a statusbar
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    05-Jun-2024
+
+# NOTE: This is very much hard-coded for my setup at work right now
+
+xrandr --output eDP-1 --primary --mode 1920x1080 --pos 1920x300 --rotate normal \
+       --output HDMI-1 --mode 1680x1050 --pos 3840x0 --rotate left \
+       --output DP-1 --off \
+       --output DP-2 --off \
+       --output DP-2-1 --off \
+       --output DP-2-2 --mode 1920x1080 --pos 0x300 --rotate normal \
+       --output DP-2-3 --off
+
+feh --bg-fill ~/Pictures/Wallpaper/wallpaper.jpg

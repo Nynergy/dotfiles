@@ -16,4 +16,5 @@ $DOTFILES/scripts/soundbridge=$HOME/.local/bin/soundbridge
 $DOTFILES/scripts/soundspool=$HOME/.local/bin/soundspool
 $DOTFILES/scripts/tether=$HOME/.local/bin/tether
 $DOTFILES/scripts/torch=$HOME/.local/bin/torch
+$DOTFILES/scripts/triplescreen=$HOME/.local/bin/triplescreen
 $DOTFILES/scripts/vault=$HOME/.local/bin/vault

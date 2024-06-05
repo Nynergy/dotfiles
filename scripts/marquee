@@ -3,8 +3,8 @@
 # A script to start polybar with a specified configuration
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    29-Feb-2024
+# Version:          1.1.0
+# Last Modified:    05-Jun-2024
 
 if [ $# -lt 1 ]
 then
@@ -24,7 +24,15 @@ if type "xrandr"
 then
 	for m in $(xrandr --query | awk '/ connected/ {print $1}')
     do
-		MONITOR=$m polybar --reload "$BAR" &
+        orientation=$(xrandr -q --verbose | awk -v pattern=$m '$0 ~ pattern {sub("primary ", "", $0); print $5}')
+        case $orientation in
+            left|right)
+                MONITOR=$m polybar --reload "$BAR-tiny" &
+                ;;
+            *)
+                MONITOR=$m polybar --reload "$BAR" &
+                ;;
+        esac
 	done
 else
 	polybar --reload "$BAR" &

@@ -13,6 +13,7 @@ They do a bunch of things,
 - [Display Scripts](#display-scripts)
   - [doublescreen](#doublescreen)
   - [torch](#torch)
+  - [triplescreen](#triplescreen)
   - [vault](#vault)
 - [Mounting Scripts](#mounting-scripts)
   - [manila](#manila)
@@ -109,6 +110,21 @@ It controls the lights.
 #### Suggested Installs
 
 None
+
+### triplescreen
+
+It sets up three screens.
+
+#### Dependencies
+
+- Emerge
+  - x11-apps/xrandr
+
+#### Suggested Installs
+
+- Emerge
+  - media-gfx/feh
+  - x11-misc/polybar
 
 ### vault
 
