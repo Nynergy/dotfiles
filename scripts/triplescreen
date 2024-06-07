@@ -3,29 +3,28 @@
 # Setup two 1920x1080 displays and a third vertical monitor with a statusbar
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
+# Version:          1.1.1
 # Last Modified:    07-Jun-2024
 
-# NOTE: This is very much hard-coded for my setup at work right now
+CURRENT_WALLPAPER=$HOME/Pictures/Wallpaper/wallpaper.jpg
+GAPS_TOGGLE=$HOME/.toggle-util/gaps-toggle
+STATUSBAR=polybar
 
-GAPS_TOGGLE_FILE=$HOME/.toggle-util/gaps-toggle
+# NOTE: I don't like hard-coding these, but it's easier for the moment
+OUTPUT_DEVICE_1=eDP-1
+OUTPUT_DEVICE_2=DP-2-2
+OUTPUT_DEVICE_3=HDMI-1
 
-xrandr --output eDP-1 --primary --mode 1920x1080 --pos 1920x300 --rotate normal \
-       --output HDMI-1 --mode 1680x1050 --pos 3840x0 --rotate left \
-       --output DP-2-2 --mode 1920x1080 --pos 0x300 --rotate normal
+XRANDR_OPTIONS_DISPLAY_1=(--output $OUTPUT_DEVICE_1 --primary --mode 1920x1080 --pos 1920x300 --rotate normal)
+XRANDR_OPTIONS_DISPLAY_2=(--output $OUTPUT_DEVICE_2 --mode 1920x1080 --pos 0x300 --rotate normal)
+XRANDR_OPTIONS_DISPLAY_3=(--output $OUTPUT_DEVICE_3 --mode 1680x1050 --pos 3840x0 --rotate left)
 
-feh --bg-fill ~/Pictures/Wallpaper/wallpaper.jpg
+xrandr "${XRANDR_OPTIONS_DISPLAY_1[@]}" "${XRANDR_OPTIONS_DISPLAY_2[@]}" "${XRANDR_OPTIONS_DISPLAY_3[@]}"
 
-pkill polybar
+# Restart polybar on new layout
+pkill $STATUSBAR
+TOGGLE_STATE=$(cat "$GAPS_TOGGLE")
+[ "$TOGGLE_STATE" == "On" ] && marquee gaps
+[ "$TOGGLE_STATE" == "Off" ] && marquee no-gaps
 
-TOGGLE_STATE=$(cat "$GAPS_TOGGLE_FILE");
-case "$TOGGLE_STATE" in
-    "On")
-        marquee gaps ;;
-    "Off")
-        marquee no-gaps ;;
-    *)
-        notify-send 'Error when toggling bar' "Invalid toggle state '$TOGGLE_STATE'";
-        exit
-        ;;
-esac
+feh --bg-fill "$CURRENT_WALLPAPER"
