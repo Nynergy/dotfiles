@@ -124,6 +124,7 @@ It sets up three screens.
 
 - Emerge
   - media-gfx/feh
+  - x11-misc/dunst
   - x11-misc/polybar
 
 ### vault
