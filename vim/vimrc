@@ -24,11 +24,13 @@ set expandtab
 set number relativenumber cursorline
 set nohlsearch
 set nocompatible
+set backupcopy=yes
 
 " CUSTOM COMMANDS
 nnoremap c* *Ncgn
 map ` <C-A>
 map g` g<C-A>
+nnoremap <leader>b :buffers<CR>:b<space>
 
 " CUSTOM BINDINGS
 map <F4> :setlocal spell!<CR>
