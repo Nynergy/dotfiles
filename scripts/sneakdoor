@@ -59,6 +59,7 @@ case $1 in
 esac
 
 openvpn "$1" &
+sleep 2
 
 if ifconfig tun0 > /dev/null 2>&1
 then
