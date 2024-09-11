@@ -12,6 +12,7 @@ $DOTFILES/scripts/puppetmaster=$HOME/.local/bin/puppetmaster
 $DOTFILES/scripts/sirenbar=$HOME/.local/bin/sirenbar
 $DOTFILES/scripts/sketch=$HOME/.local/bin/sketch
 $DOTFILES/scripts/slip=$HOME/.local/bin/slip
+$DOTFILES/scripts/sneakdoor=$HOME/.local/bin/sneakdoor
 $DOTFILES/scripts/soundbridge=$HOME/.local/bin/soundbridge
 $DOTFILES/scripts/soundspool=$HOME/.local/bin/soundspool
 $DOTFILES/scripts/tether=$HOME/.local/bin/tether
