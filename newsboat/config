@@ -1,0 +1,31 @@
+# Configuration file for newsboat
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    08-Nov-2024
+
+# Keybindings
+bind-key    j   next
+bind-key    k   prev
+
+bind-key    j   down    article
+bind-key    k   up      article
+
+# Colors
+color background          white   default
+color listnormal          white   default
+color listfocus           white   default   reverse
+color listnormal_unread   white   default   bold
+color listfocus_unread    white   default  bold reverse
+color title               color0   green
+color info                color0   green
+color hint-key            color0   green
+color hint-keys-delimiter white   green
+color hint-separator      white   green     bold
+color hint-description    white   green
+color article             white   default
+
+# Misc
+browser                 "firefox %u"
+show-keymap-hint        no
+swap-title-and-hints    yes
