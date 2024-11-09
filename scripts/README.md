@@ -31,6 +31,7 @@ They do a bunch of things,
   - [juniper](#juniper)
   - [sketch](#sketch)
   - [slip](#slip)
+  - [sneakdoor](#sneakdoor)
   - [soundspool](#soundspool)
 
 ## Color Scripts
@@ -330,6 +331,20 @@ None
 
 NOTE: You should install w3m with USE="X imlib" in order to properly pull in the
 'w3mimgdisplay' functionality that can display images to the terminal.
+
+### sneakdoor
+
+It does the OpenVPN tunnel.
+
+#### Dependencies
+
+- Emerge
+  - net-vpn/openvpn
+
+#### Suggested Installs
+
+- Emerge
+  - x11-misc/dunst
 
 ### soundspool
 

@@ -3,8 +3,21 @@
 # A script for connecting to the BU Domain via openconnect
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    29-Feb-2024
+# Version:          1.0.1
+# Last Modified:    11-Sep-2024
+
+## Connect to the BU network via openconnect
+##
+## Usage: $0 [OPTIONS] <USERNAME>
+##
+## Options:
+##   -h, --help     Show this usage output
+##   -v, --version  Show the version of the script
+##   -k, --kill     Close the VPN tunnel
+##
+##   <USERNAME>     The username you use to log in with CAS
+##                  (You will be prompted for your password
+##                  and 2FA token when invoked)
 
 SCRIPT=${0##*/}
 PROTOCOL=nc
@@ -16,10 +29,17 @@ OPENCONNECT_OPTS=(--protocol="$PROTOCOL" --authgroup="$REALM" \
                   -u "$USERNAME" --passwd-on-stdin "$SERVER")
 
 function printUsage() {
-    printf '%s\n'   "$SCRIPT: connect to $SERVER via openconnect"
-    printf '%s\n\n' "Usage: $SCRIPT <username>"
-    printf '%s\n\n' '    <username>: the username you use to log in with CAS'
-    printf '%s\n'   'You will be prompted for your password and 2FA token when invoked'
+    while read -r line; do
+        [[ $line =~ ^##\ ?(.*)$ ]] &&
+            printf '%s\n' "${BASH_REMATCH[1]/\$0/$SCRIPT}"
+    done < "${BASH_SOURCE[0]}"
+}
+
+printVersion () {
+    while read -r line; do
+        [[ $line =~ ^#\ Version:\ *(.*)$ ]] &&
+            printf '%s %s\n' "$SCRIPT" "${BASH_REMATCH[1]}"
+    done < "${BASH_SOURCE[0]}"
 }
 
 function killVPN() {
@@ -30,15 +50,21 @@ function killVPN() {
     sleep 1
 }
 
-[ $# -ne 1 ] && { echo "Usage: $SCRIPT <username>"; exit; }
+[ $# -ne 1 ] && { printUsage; exit; }
 
 case $1 in
     -h|--help)
         printUsage;
-        exit;;
+        exit 0
+        ;;
+    -v|--version)
+        printVersion;
+        exit 0
+        ;;
     -k|--kill)
         killVPN;
-        exit;;
+        exit 0
+        ;;
 esac
 
 printf "Please enter the password for '%s': " "$USERNAME"
