@@ -3,8 +3,8 @@
 # A script that prints song info to polybar
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    05-Mar-2024
+# Version:          1.1.0
+# Last Modified:    09-Jan-2025
 
 if [ "$EUID" -ne 0 ]
 then
@@ -31,7 +31,7 @@ RPC_ENDPOINT="http://$LMS_IP_ADDRESS:9000/jsonrpc.js"
 MAX_TITLE_LENGTH=60
 PLAYBAR_LENGTH=20
 
-PLAYER_HIERARCHY=('SIREN' 'Megistus' "$(hostname)")
+PLAYER_HIERARCHY=('Sunshower' 'Megistus' "$(hostname)")
 
 payload () {
     printf '{ "method": "slim.request", "params": [ %s, [ %s ] ] }' "$1" "$2"
