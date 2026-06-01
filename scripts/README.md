@@ -11,10 +11,8 @@ They do a bunch of things,
   - [palette](#palette)
   - [prism](#prism)
 - [Display Scripts](#display-scripts)
-  - [doublescreen](#doublescreen)
   - [mosaic](#mosaic)
   - [torch](#torch)
-  - [triplescreen](#triplescreen)
   - [vault](#vault)
 - [Mounting Scripts](#mounting-scripts)
   - [manila](#manila)
@@ -81,21 +79,6 @@ It recolors things.
 
 ## Display Scripts
 
-### doublescreen
-
-It sets up two screens.
-
-#### Dependencies
-
-- Apt
-  - x11-server-utils
-
-#### Suggested Installs
-
-- Apt
-  - feh
-  - polybar
-
 ### mosaic
 
 It applies the layout.
@@ -123,21 +106,6 @@ It controls the lights.
 #### Suggested Installs
 
 None
-
-### triplescreen
-
-It sets up three screens.
-
-#### Dependencies
-
-- Apt
-  - x11-server-utils
-
-#### Suggested Installs
-
-- Apt
-  - feh
-  - polybar
 
 ### vault
 

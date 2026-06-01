@@ -8,7 +8,7 @@
 
 XRESOURCES=$HOME/.Xresources
 
-FONT="xos4Terminus-10"
+FONT="Terminus-10"
 BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
 FOREGROUND=$(awk '/color8:/ {print $2}' "$XRESOURCES")
 
