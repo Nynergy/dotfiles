@@ -1,8 +1,8 @@
 # A session start script for x11
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    29-Feb-2024
+# Version:          1.1.0
+# Last Modified:    01-Jun-2026
 
 # These xrandr commands are for machines with Nvidia cards
 # Feel free to comment them out if you don't need them

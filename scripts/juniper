@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# A script for connecting to the BU Domain via openconnect
+# A script for connecting to the BU network via openconnect
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
-# Last Modified:    11-Sep-2024
+# Version:          2.0.0
+# Last Modified:    01-Jun-2026
 
 ## Connect to the BU network via openconnect
 ##
@@ -22,11 +22,9 @@
 SCRIPT=${0##*/}
 PROTOCOL=anyconnect
 USERNAME=$1
-REALM='BU Domain Users'
 SERVER=buvpn.binghamton.edu
 
-OPENCONNECT_OPTS=(--protocol="$PROTOCOL" --authgroup="$REALM" \
-                  -u "$USERNAME" --passwd-on-stdin "$SERVER")
+OPENCONNECT_OPTS=(--protocol="$PROTOCOL" -u "$USERNAME" --passwd-on-stdin "$SERVER")
 
 function printUsage() {
     while read -r line; do
@@ -77,9 +75,9 @@ printf "\n"
 { echo "$PASSWD"; echo "$TOKEN"; } | openconnect -q -b "${OPENCONNECT_OPTS[@]}"
 sleep 1
 
-if ifconfig tun0 > /dev/null 2>&1
-then
-    notify-send "VPN ($SCRIPT)" "Connected to '$REALM' at '$SERVER'"
-else
+tunnel="$(ip a | grep tun0)"
+if [ -z "$tunnel" ]; then
     notify-send "VPN ($SCRIPT)" "Could not connect to '$SERVER'"
+else
+    notify-send "VPN ($SCRIPT)" "Connected to '$SERVER'"
 fi

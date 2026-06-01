@@ -1,13 +1,13 @@
 ; Configuration file for polybar
 
 ; Maintainer:       Ben Buchanan
-; Version:          1.1.0
-; Last Modified:    05-Jun-2024
+; Version:          1.1.1
+; Last Modified:    01-Jun-2026
 
 ; COLORS
 [colors]
-black = #c0180818
-invisible = #00180818
+black = #c0151110
+invisible = #00151110
 red = ${xrdb:color1:#000}
 green = ${xrdb:color2:#000}
 yellow = ${xrdb:color3:#000}

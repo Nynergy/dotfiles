@@ -1,8 +1,8 @@
 # Configuration file for dunst
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    22-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Jun-2026
 
 [global]
     ### Display ###

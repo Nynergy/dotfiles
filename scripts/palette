@@ -3,8 +3,8 @@
 # A script for storing current .Xresources colors in a colorscheme file
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    23-Feb-2024
+# Version:          1.0.1
+# Last Modified:    01-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
@@ -35,7 +35,7 @@ getSchemes() {
 }
 
 getFilename() {
-    FILENAME="$(echo -e "\n$SCHEMES" | dmenu -c -l 20 "${DMENU_SETTINGS[@]}" -i -p 'Scheme Name:')"
+    FILENAME="$(echo -e "\n$SCHEMES" | dmenu -l 20 "${DMENU_SETTINGS[@]}" -i -p 'Scheme Name:')"
     if [ -z "$FILENAME" ]; then
         notify-send "ERROR WHEN SAVING SCHEME" "User did not provide a scheme name!"
         exit

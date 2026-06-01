@@ -3,8 +3,8 @@
 # A general system utility script that uses dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.3
-# Last Modified:    05-Mar-2024
+# Version:          1.1.0
+# Last Modified:    01-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
