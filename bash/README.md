@@ -6,7 +6,7 @@ It's a shell.
 
 ## Install
 
-- app-shells/bash
+- bash
 
 ## Dependencies
 
@@ -14,9 +14,9 @@ None
 
 ## Suggested Installs
 
-- Emerge
-  - app-editors/vim
-  - app-shells/bash-completion
-  - dev-vcs/git
+- Apt
+  - vim
+  - bash-completion
+  - git
 - Repos
   - https://github.com/dylanaraps/pfetch

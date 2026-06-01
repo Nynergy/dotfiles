@@ -6,8 +6,8 @@ It's a document viewer.
 
 ## Install
 
-- app-text/zathura
-- app-text/zathura-pdf-mupdf
+- zathura
+- zathura-pdf-poppler
 
 ## Dependencies
 
@@ -15,5 +15,5 @@ None
 
 ## Suggested Installs
 
-- Emerge
-  - media-fonts/terminus-font
+- Apt
+  - fonts-terminus

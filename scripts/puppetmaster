@@ -10,7 +10,7 @@ XRESOURCES=$HOME/.Xresources
 WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
 SET_WALLPAPER_DIR=$HOME/Pictures/Wallpaper
 
-FONT="xos4Terminus-10"
+FONT="Terminus-10"
 BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
 FOREGROUND=$(awk '/color5:/ {print $2}' "$XRESOURCES")
 CONFIRM_FOREGROUND=$(awk '/color1:/ {print $2}' "$XRESOURCES")
@@ -32,7 +32,7 @@ GAPS_TOGGLE_FILE=$HOME/.toggle-util/gaps-toggle
 GAPS_SIZE=12
 
 Confirm() {
-	CONFIRM="$(echo -e 'No\nYes' | dmenu -c -l 2 "${CONFIRM_SETTINGS[@]}" -i -p 'Are you sure?')";
+	CONFIRM="$(echo -e 'No\nYes' | dmenu -l 2 "${CONFIRM_SETTINGS[@]}" -i -p 'Are you sure?')";
 }
 
 read -r -d '' CHOICES << EOF
@@ -58,7 +58,7 @@ Lock Screen
 Exit i3
 EOF
 
-CHOICE="$(echo -e "$CHOICES" | dmenu -c -l 30 "${DMENU_SETTINGS[@]}" -i -p 'System:')"
+CHOICE="$(echo -e "$CHOICES" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'System:')"
 
 case $CHOICE in
 	"Take Screenshot")

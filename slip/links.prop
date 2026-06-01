@@ -1,1 +1,2 @@
+$DOTFILES/slip/slip=$HOME/.local/bin/slip
 $DOTFILES/slip/sliprc=$HOME/.config/slip/sliprc

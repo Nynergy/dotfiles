@@ -6,7 +6,7 @@ It's a text editor.
 
 ## Install
 
-- app-editors/vim
+- vim
 
 ## Dependencies
 

@@ -19,7 +19,7 @@ floating_modifier $mod
 
 # BASIC COMMANDS & MOVEMENTS
 # start a terminal
-bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec urxvt
 bindsym $mod+Shift+Return exec urxvt -name "_floater"
 
 # kill focused window
@@ -124,7 +124,7 @@ gaps inner 12
 gaps outer 0
 
 # WINDOW CONFIG
-for_window [class=".*"] border pixel 0
+for_window [class=".*"] border pixel 1
 for_window [class="Sxiv"] floating enable
 for_window [class="zoom"] floating enable
 for_window [title="midna"] floating enable
@@ -165,7 +165,7 @@ client.background	    $black
 
 # DMENU
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run -c -l 15 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "xos4 Terminus-10" -p "Run:"
+bindsym $mod+d exec dmenu_run -l 15 -nb "$black" -nf "$green" -sb "$green" -sf "$black" -fn "Terminus-10" -p "Run:"
 
 # I3 RELOAD, RESTART, & EXIT
 # reload the configuration file

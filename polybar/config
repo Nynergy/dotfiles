@@ -60,7 +60,7 @@ module-margin-left = 1
 module-margin-right = 1
 
 ; FONTS
-font-0 = xos4 Terminus:size=14;2
+font-0 = Terminus:size=14;2
 font-1 = AR PL Ukai CN:size=12;2
 font-2 = Baekmuk Batang:size=12;2
 font-3 = Wuncon Siji:size=12;2

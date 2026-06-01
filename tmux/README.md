@@ -6,7 +6,7 @@ It's a terminal multiplexer.
 
 ## Install
 
-- app-misc/tmux
+- tmux
 
 ## Dependencies
 
@@ -14,5 +14,5 @@ None
 
 ## Suggested Installs
 
-- Emerge
-  - x11-misc/xclip
+- Apt
+  - xclip

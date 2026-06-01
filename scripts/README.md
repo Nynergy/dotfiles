@@ -17,7 +17,6 @@ They do a bunch of things,
   - [vault](#vault)
 - [Mounting Scripts](#mounting-scripts)
   - [manila](#manila)
-  - [soundbridge](#soundbridge)
   - [tether](#tether)
 - [Polybar Scripts](#polybar-scripts)
   - [diskbar](#diskbar)
@@ -29,9 +28,6 @@ They do a bunch of things,
   - [puppetmaster](#puppetmaster)
 - [Misc Scripts](#misc-scripts)
   - [juniper](#juniper)
-  - [sketch](#sketch)
-  - [slip](#slip)
-  - [sneakdoor](#sneakdoor)
   - [soundspool](#soundspool)
 
 ## Color Scripts
@@ -47,8 +43,8 @@ It applies colors to Xresources.
 
 #### Suggested Installs
 
-- Emerge
-  - media-fonts/terminus-font
+- Apt
+  - fonts-terminus
 
 ### palette
 
@@ -61,8 +57,8 @@ It saves colors from Xresources.
 
 #### Suggested Installs
 
-- Emerge
-  - media-fonts/terminus-font
+- Apt
+  - fonts-terminus
 
 ### prism
 
@@ -70,17 +66,17 @@ It recolors things.
 
 #### Dependencies
 
-- Emerge
-  - x11-apps/xrdb
+- Apt
+  - x11-server-utils
 
 #### Suggested Installs
 
-- Emerge
-  - app-text/zathura
-  - app-text/zathura-pdf-mupdf
-  - media-fonts/terminus-font
-  - x11-misc/dunst
-  - x11-misc/polybar
+- Apt
+  - zathura
+  - zathura-pdf-poppler
+  - fonts-terminus
+  - dunst
+  - polybar
 
 ## Display Scripts
 
@@ -90,14 +86,14 @@ It sets up two screens.
 
 #### Dependencies
 
-- Emerge
-  - x11-apps/xrandr
+- Apt
+  - x11-server-utils
 
 #### Suggested Installs
 
-- Emerge
-  - media-gfx/feh
-  - x11-misc/polybar
+- Apt
+  - feh
+  - polybar
 
 ### torch
 
@@ -105,8 +101,8 @@ It controls the lights.
 
 #### Dependencies
 
-- Emerge
-  - x11-apps/xrandr
+- Apt
+  - x11-server-utils
 
 #### Suggested Installs
 
@@ -118,14 +114,14 @@ It sets up three screens.
 
 #### Dependencies
 
-- Emerge
-  - x11-apps/xrandr
+- Apt
+  - x11-server-utils
 
 #### Suggested Installs
 
-- Emerge
-  - media-gfx/feh
-  - x11-misc/polybar
+- Apt
+  - feh
+  - polybar
 
 ### vault
 
@@ -133,14 +129,14 @@ It locks the screen.
 
 #### Dependencies
 
-- Emerge
-  - x11-misc/i3lock
+- Apt
+  - i3lock
 
 #### Suggested Installs
 
-- Emerge
-  - media-gfx/imagemagick
-  - media-gfx/scrot
+- Apt
+  - imagemagick
+  - scrot
 
 ## Mounting Scripts
 
@@ -154,23 +150,8 @@ None
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/dunst
-
-### soundbridge
-
-It bridges the sound.
-
-#### Dependencies
-
-- Emerge
-  - app-admin/pass
-  - net-fs/cifs-utils
-
-#### Suggested Installs
-
-- Emerge
-  - x11-misc/dunst
+- Apt
+  - dunst
 
 ### tether
 
@@ -183,9 +164,9 @@ It mounts the devices.
 
 #### Suggested Installs
 
-- Emerge
-  - media-fonts/terminus-font
-  - x11-misc/dunst
+- Apt
+  - fonts-terminus
+  - dunst
 
 ## Polybar Scripts
 
@@ -199,8 +180,8 @@ None
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/polybar
+- Apt
+  - polybar
 
 ### marquee
 
@@ -208,14 +189,14 @@ It runs the bars.
 
 #### Dependencies
 
-- Emerge
-  - x11-apps/xrandr
-  - x11-misc/polybar
+- Apt
+  - polybar
+  - x11-server-utils
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/dunst
+- Apt
+  - dunst
 
 ### polysqueeze
 
@@ -223,13 +204,13 @@ It prints the squeezelite status.
 
 #### Dependencies
 
-- Repos
-  - https://github.com/ralph-irving/squeezelite
+- Apt
+  - squeezelite-pulseaudio
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/polybar
+- Apt
+  - polybar
 
 ### polyvpn
 
@@ -241,8 +222,8 @@ None
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/polybar
+- Apt
+  - polybar
 
 ### sirenbar
 
@@ -250,15 +231,15 @@ It prints the song info.
 
 #### Dependencies
 
-- Emerge
-  - app-misc/jq
-  - net-misc/curl
+- Apt
+  - jq
+  - curl
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/dunst
-  - x11-misc/polybar
+- Apt
+  - dunst
+  - polybar
 
 ## System Scripts
 
@@ -273,16 +254,16 @@ It pulls the strings.
 
 #### Suggested Installs
 
-- Emerge
-  - media-fonts/terminus-font
-  - media-gfx/feh
-  - media-gfx/scrot
-  - media-gfx/sxiv
-  - media-video/mpv
-  - x11-misc/dunst
-  - x11-misc/polybar
-  - x11-misc/xcompmgr
-  - x11-wm/i3
+- Apt
+  - fonts-terminus
+  - feh
+  - scrot
+  - sxiv
+  - mpv
+  - dunst
+  - polybar
+  - xcompmgr
+  - i3-wm
 
 ## Misc Scripts
 
@@ -292,59 +273,13 @@ It does the BU VPN.
 
 #### Dependencies
 
-- Emerge
-  - net-vpn/openconnect
+- Apt
+  - openconnect
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/dunst
-
-### sketch
-
-It sorts the image.
-
-#### Dependencies
-
-- Emerge
-  - dev-lang/python
-- Other
-  - (pip) pixelsort
-
-#### Suggested Installs
-
-None
-
-### slip
-
-It presents the slides.
-
-#### Dependencies
-
-None
-
-#### Suggested Installs
-
-- Emerge
-  - www-client/w3m
-  - x11-misc/xdotool
-
-NOTE: You should install w3m with USE="X imlib" in order to properly pull in the
-'w3mimgdisplay' functionality that can display images to the terminal.
-
-### sneakdoor
-
-It does the OpenVPN tunnel.
-
-#### Dependencies
-
-- Emerge
-  - net-vpn/openvpn
-
-#### Suggested Installs
-
-- Emerge
-  - x11-misc/dunst
+- Apt
+  - dunst
 
 ### soundspool
 
@@ -352,10 +287,10 @@ It spools the sounds.
 
 #### Dependencies
 
-- Repos
-  - https://github.com/ralph-irving/squeezelite
+- Apt
+  - squeezelite-pulseaudio
 
 #### Suggested Installs
 
-- Emerge
-  - x11-misc/dunst
+- Apt
+  - dunst

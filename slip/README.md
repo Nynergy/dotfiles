@@ -10,9 +10,11 @@ None
 
 ## Dependencies
 
-- Emerge
-  - app-shells/bash
+- Apt
+  - bash
 
 ## Suggested Installs
 
-None
+- Apt
+  - w3m-img
+  - xdotool

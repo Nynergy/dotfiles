@@ -6,7 +6,7 @@ It's a browser.
 
 ## Install
 
-- www-client/firefox
+- firefox-esr
 
 ## Dependencies
 

@@ -6,7 +6,7 @@ It's a display server.
 
 ## Install
 
-- x11-base/xorg-server
+- xorg
 
 ## Dependencies
 
@@ -14,7 +14,10 @@ None
 
 ## Suggested Installs
 
-- Emerge
-  - x11-apps/xrandr
-  - x11-apps/xrdb
-  - x11-wm/i3
+- Apt
+  - i3-wm
+  - x11-server-utils
+
+## NOTE
+
+The `x11-server-utils` package contains both `xrandr` and `xrdb`.

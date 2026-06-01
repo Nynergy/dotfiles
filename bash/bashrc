@@ -40,6 +40,7 @@ export EDITOR="vim"
 
 # $PATH Additions
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="/usr/sbin:$PATH"
 
 # Ensure sudo can use our $PATH
 alias sudo="sudo env "PATH=$PATH""

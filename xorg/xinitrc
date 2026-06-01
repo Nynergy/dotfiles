@@ -6,8 +6,12 @@
 
 # These xrandr commands are for machines with Nvidia cards
 # Feel free to comment them out if you don't need them
-xrandr --setprovideroutputsource modesetting NVIDIA-G0
-xrandr --auto
+#xrandr --setprovideroutputsource modesetting NVIDIA-G0
+#xrandr --auto
+
+if [ -d "$HOME/.local/bin" ]; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
 
 exec xrdb ~/.Xresources &
 exec i3

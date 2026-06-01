@@ -20,10 +20,10 @@
 ##                  and 2FA token when invoked)
 
 SCRIPT=${0##*/}
-PROTOCOL=nc
+PROTOCOL=anyconnect
 USERNAME=$1
 REALM='BU Domain Users'
-SERVER=ssl.binghamton.edu
+SERVER=buvpn.binghamton.edu
 
 OPENCONNECT_OPTS=(--protocol="$PROTOCOL" --authgroup="$REALM" \
                   -u "$USERNAME" --passwd-on-stdin "$SERVER")

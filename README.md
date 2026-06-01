@@ -18,11 +18,11 @@ If you want to see all the documented dependencies/suggested installs, run the
 following command from within the base directory of this dotfiles repo:
 
 ```
-$ grep -r "\- " ./**/*.md | grep -Ev "Emerge|Repos|Other|#|\`" | cut -d '-' -f 2- | sed 's/ //' | sort | uniq
+$ grep -r "\- " ./**/README.md | grep -Ev "Apt|Repos|Other|#|\`" | cut -d '-' -f 2- | sed 's/ //' | sort | uniq
 ```
 
-Some of those will be atoms for Gentoo packages that can be installed using
-portage (emerge), others will be third party repositories that you can download
-or clone and then build from source. There may also be some that simply bring
-you to a webpage with further instructions to follow, or some that should be
-installed with a language-specific package manager, like python's 'pip'.
+Some of those will be Debian packages that can be installed using `apt`, others
+will be third party repositories that you can download or clone and then build
+from source. There may also be some that simply bring you to a webpage with
+further instructions to follow, or some that should be installed with a
+language-specific package manager, like python's 'pip'.

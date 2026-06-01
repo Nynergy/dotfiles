@@ -6,7 +6,7 @@ Minimal notifications.
 
 ## Install
 
-- x11-misc/dunst
+- dunst
 
 ## Dependencies
 
