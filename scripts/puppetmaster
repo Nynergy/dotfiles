@@ -46,6 +46,7 @@ Change and Set Wallpaper
 Regenerate Colors
 Set Colorscheme
 Save Colorscheme
+Set Screen Layout
 --------------------
 Toggle Squeezelite
 Toggle Compositor
@@ -99,6 +100,9 @@ case $CHOICE in
 
 	"Save Colorscheme")
 		palette ;;
+
+    "Set Screen Layout")
+        mosaic ;;
 
 	"Toggle Squeezelite")
 		soundspool ;;

@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+# Select and apply a screen layout
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    01-Jun-2026
+
+XRESOURCES=$HOME/.Xresources
+
+FONT="Terminus-10"
+BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+FOREGROUND=$(awk '/color8:/ {print $2}' "$XRESOURCES")
+
+DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
+                -sb "$FOREGROUND" -sf "$BACKGROUND" \
+                -fn "$FONT")
+
+CURRENT_WALLPAPER=$HOME/Pictures/Wallpaper/wallpaper.jpg
+GAPS_TOGGLE=$HOME/.toggle-util/gaps-toggle
+STATUSBAR=polybar
+
+LAYOUT_DIR="$HOME/.config/layouts"
+
+getLayouts() {
+    LAYOUTS="$(ls -1 "$LAYOUT_DIR")"
+    if [ -z "$LAYOUTS" ]; then
+        notify-send "ERROR" "Could not read layouts from $LAYOUT_DIR!"
+        exit
+    fi
+}
+
+getChoice() {
+    CHOICE="$(echo -e "\n$LAYOUTS" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Layout:')"
+    if [ -z "$CHOICE" ]; then
+        notify-send "ERROR" "User did not pick a valid layout!"
+        exit
+    fi
+}
+
+getLayouts
+getChoice
+
+DISPLAYS="$(xrandr | grep ' connected')"
+
+declare -a XRANDR_OPTS
+
+while read -r line; do
+    [[ $line =~ ^output\ +(.*)$ ]] && {
+        output="${BASH_REMATCH[1]}"
+        exists="$(echo $DISPLAYS | grep $output)"
+
+        [[ -z $exists ]] && {
+            notify-send "ERROR" "Could not detect display '$output'"
+            exit
+        }
+
+        XRANDR_OPTS+=("--output")
+        XRANDR_OPTS+=("${BASH_REMATCH[1]}")
+    }
+
+    [[ $line =~ ^primary$ ]] && {
+        XRANDR_OPTS+=("--primary")
+    }
+    [[ $line =~ ^mode\ +(.+x.+)$ ]] && {
+        XRANDR_OPTS+=("--mode")
+        XRANDR_OPTS+=("${BASH_REMATCH[1]}")
+    }
+    [[ $line =~ ^pos\ +(.+x.+)$ ]] && {
+        XRANDR_OPTS+=("--pos")
+        XRANDR_OPTS+=("${BASH_REMATCH[1]}")
+    }
+    [[ $line =~ ^rotate\ +(.+)$ ]] && {
+        XRANDR_OPTS+=("--rotate")
+        XRANDR_OPTS+=("${BASH_REMATCH[1]}")
+    }
+done < "$LAYOUT_DIR/$CHOICE"
+
+xrandr "${XRANDR_OPTS[@]}"
+
+# Restart polybar on new layout
+pkill $STATUSBAR
+TOGGLE_STATE=$(cat "$GAPS_TOGGLE")
+[ "$TOGGLE_STATE" == "On" ] && marquee gaps
+[ "$TOGGLE_STATE" == "Off" ] && marquee no-gaps
+
+feh --bg-fill "$CURRENT_WALLPAPER"

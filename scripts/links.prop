@@ -4,6 +4,7 @@ $DOTFILES/scripts/doublescreen=$HOME/.local/bin/doublescreen
 $DOTFILES/scripts/juniper=$HOME/.local/bin/juniper
 $DOTFILES/scripts/manila=$HOME/.local/bin/manila
 $DOTFILES/scripts/marquee=$HOME/.local/bin/marquee
+$DOTFILES/scripts/mosaic=$HOME/.local/bin/mosaic
 $DOTFILES/scripts/palette=$HOME/.local/bin/palette
 $DOTFILES/scripts/polysqueeze=$HOME/.local/bin/polysqueeze
 $DOTFILES/scripts/polyvpn=$HOME/.local/bin/polyvpn

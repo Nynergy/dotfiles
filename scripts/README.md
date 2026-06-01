@@ -12,6 +12,7 @@ They do a bunch of things,
   - [prism](#prism)
 - [Display Scripts](#display-scripts)
   - [doublescreen](#doublescreen)
+  - [mosaic](#mosaic)
   - [torch](#torch)
   - [triplescreen](#triplescreen)
   - [vault](#vault)
@@ -83,6 +84,21 @@ It recolors things.
 ### doublescreen
 
 It sets up two screens.
+
+#### Dependencies
+
+- Apt
+  - x11-server-utils
+
+#### Suggested Installs
+
+- Apt
+  - feh
+  - polybar
+
+### mosaic
+
+It applies the layout.
 
 #### Dependencies
 
