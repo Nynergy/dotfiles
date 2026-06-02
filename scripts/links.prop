@@ -1,6 +1,7 @@
 $DOTFILES/scripts/chameleon=$HOME/.local/bin/chameleon
 $DOTFILES/scripts/diskbar=$HOME/.local/bin/diskbar
 $DOTFILES/scripts/juniper=$HOME/.local/bin/juniper
+$DOTFILES/scripts/lintel=$HOME/.local/bin/lintel
 $DOTFILES/scripts/manila=$HOME/.local/bin/manila
 $DOTFILES/scripts/marquee=$HOME/.local/bin/marquee
 $DOTFILES/scripts/mosaic=$HOME/.local/bin/mosaic
