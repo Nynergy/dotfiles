@@ -1,8 +1,8 @@
 " Configuration file for vim
 
 " Maintainer:       Ben Buchanan
-" Version:          1.0.0
-" Last Modified:    29-Feb-2024
+" Version:          1.1.0
+" Last Modified:    02-Nov-2025
 
 " COLORS
 set background=dark
@@ -13,6 +13,7 @@ syntax on
 " PATH & MENUS
 set path+=**
 set wildmenu
+set wildignorecase
 
 " TABS & INDENTS
 filetype plugin indent on
@@ -33,9 +34,9 @@ map g` g<C-A>
 nnoremap <leader>b :buffers<CR>:b<space>
 
 " CUSTOM BINDINGS
-map <F4> :setlocal spell!<CR>
-map <F7> <C-W>v:Explore<CR>
-map <F8> :Explore<CR>
+map <silent> <F4> :setlocal spell!<CR>
+map <silent> <F7> :Lexplore<CR>
+nnoremap <leader>qq :confirm qall<CR>
 
 " NETRW
 let g:netrw_liststyle = 3
@@ -44,6 +45,9 @@ let g:netrw_banner = 0
 "let g:netrw_altv = 1
 let ghregex='\(^\|\s\s\)\zs\.\S\+'
 let g:netrw_list_hide=ghregex
+let g:netrw_fastbrowse = 0
+let g:netrw_preview = 1
+let g:netrw_winsize = -30
 
 " STATUSLINE
 set laststatus=2

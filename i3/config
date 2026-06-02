@@ -75,11 +75,11 @@ bindsym $mod+F9 exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
 
 # Screen brightness controls
 # We use our own custom brightness controller because intel gives us guff
-bindsym XF86MonBrightnessUp exec torch --inc 10 # increase screen brightness
-bindsym XF86MonBrightnessDown exec torch --dec 10 # decrease screen brightness
+bindsym XF86MonBrightnessUp exec --no-startup-id torch --inc 10 # increase screen brightness
+bindsym XF86MonBrightnessDown exec --no-startup-id torch --dec 10 # decrease screen brightness
 
-bindsym $mod+F3 exec torch --inc 10
-bindsym $mod+F2 exec torch --dec 10
+bindsym $mod+F3 exec --no-startup-id torch --inc 10
+bindsym $mod+F2 exec --no-startup-id torch --dec 10
 
 # WORKSPACES
 # Define names for default workspaces for which we configure key bindings later on.
@@ -184,10 +184,11 @@ bindsym $mod+x exec urxvt -e lf
 bindsym $mod+k exec urxvt -g "180x60" -e kadai
 bindsym $mod+y exec urxvt -e lyra
 bindsym $mod+n exec urxvt -e joplin
+bindsym $mod+o exec lintel
 
 # MISCELLANEOUS BINDINGS
 bindsym $mod+l exec vault
-bindsym $mod+b exec boomer
+bindsym $mod+b exec --no-startup-id boomer
 
 # RESIZE MODE
 # resize window (you can also use the mouse for that)
@@ -238,9 +239,9 @@ bar {
 }
 
 # EXECUTE WHEN I3 STARTS
-exec feh --bg-fill ~/Pictures/Wallpaper/wallpaper.jpg
+exec --no-startup-id feh --bg-fill ~/Pictures/Wallpaper/wallpaper.jpg
 exec --no-startup-id xcompmgr
-exec dunst
+exec --no-startup-id dunst
 exec_always --no-startup-id marquee gaps
 exec --no-startup-id urxvt -name "_scratchpad"
-exec torch --refresh 0
+exec --no-startup-id torch --refresh 0

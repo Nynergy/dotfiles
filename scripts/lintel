@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# A script that uses dmenu to open a specific programming project
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    20-Oct-2025
+
+XRESOURCES=$HOME/.Xresources
+BASE_DIR=$HOME/Programming
+
+FONT="Terminus-10"
+BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+FOREGROUND=$(awk '/color2:/ {print $2}' "$XRESOURCES")
+
+DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
+                -sb "$FOREGROUND" -sf "$BACKGROUND" \
+                -fn "$FONT")
+
+PROJECTS="$(find "$BASE_DIR" -maxdepth 2 -mindepth 2 -type d)"
+PROJECTS="${PROJECTS//$BASE_DIR\//}"
+
+CHOICE="$(echo -e "$PROJECTS" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'Project:')"
+
+[ -z "$CHOICE" ] && exit 0
+
+OPEN_DIR="$BASE_DIR"/"$CHOICE"
+
+[ -d "$OPEN_DIR" ] || exit 1
+
+urxvt -cd "$OPEN_DIR" -e tmux &

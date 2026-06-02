@@ -4,6 +4,9 @@
 # Version:          1.1.0
 # Last Modified:    01-Jun-2026
 
+# Fix zenity startup issues
+dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY &
+
 # These xrandr commands are for machines with Nvidia cards
 # Feel free to comment them out if you don't need them
 #xrandr --setprovideroutputsource modesetting NVIDIA-G0

@@ -26,6 +26,7 @@ They do a bunch of things,
 - [System Scripts](#system-scripts)
   - [puppetmaster](#puppetmaster)
 - [Misc Scripts](#misc-scripts)
+  - [lintel](#lintel)
   - [juniper](#juniper)
   - [soundspool](#soundspool)
 
@@ -250,6 +251,23 @@ It pulls the strings.
   - i3-wm
 
 ## Misc Scripts
+
+### lintel
+
+It opens the project.
+
+#### Dependencies
+
+- Apt
+  - tmux
+  - rxvt-unicode
+- Repos
+  - https://git.suckless.org/dmenu
+
+#### Suggested Installs
+
+- Apt
+  - fonts-terminus
 
 ### juniper
 
