@@ -127,7 +127,8 @@ It holds the reports.
 
 #### Dependencies
 
-None
+- Apt
+  - cifs-utils
 
 #### Suggested Installs
 
