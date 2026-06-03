@@ -4,11 +4,11 @@
 # Basically, we just cop out and use xrandr instead
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    25-Feb-2024
+# Version:          1.1.0
+# Last Modified:    03-Jun-2026
 
 OUTPUT_DEVICES=$(xrandr -q | awk '/ connected/ {print $1}')
-BRIGHTNESS_FILE=$HOME/.torch-brightness
+BRIGHTNESS_FILE=$HOME/.config/torch-brightness
 
 if [ $# -ne 2 ]
 then

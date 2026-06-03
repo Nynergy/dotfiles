@@ -26,3 +26,22 @@ will be third party repositories that you can download or clone and then build
 from source. There may also be some that simply bring you to a webpage with
 further instructions to follow, or some that should be installed with a
 language-specific package manager, like python's 'pip'.
+
+If you want to see the versions of all the files (or at least all the files that
+provide a version), run the following command from within the base directory of
+this dotfiles repo:
+
+```
+$ grep -r Version: ./**/* | grep -v '$line' | cut -d ':' -f 1,3 | column -t
+```
+
+Due to how some scripts function, there are some files that do not contain
+version information or other metadata at the top of the file. Here are all those
+files without version information:
+
+- All color palette files in the [misc/colorschemes](misc/colorschemes)
+  directory
+- All layout files in the [misc/layouts](misc/layouts) directory
+- [polybar/gaps-toggle](polybar/gaps-toggle)
+- [urxvt/Xresources](urxvt/Xresources)
+- [zathura/zathurarc](zathura/zathurarc)
