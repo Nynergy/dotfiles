@@ -1,8 +1,12 @@
 # A session start script for x11
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    01-Jun-2026
+# Version:          1.2.0
+# Last Modified:    03-Jun-2026
+
+# Disable screensaver
+xset -dpms
+xset s off
 
 # Fix zenity startup issues
 dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY &
