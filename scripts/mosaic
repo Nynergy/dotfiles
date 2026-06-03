@@ -3,8 +3,8 @@
 # Select and apply a screen layout
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
-# Last Modified:    01-Jun-2026
+# Version:          1.1.0
+# Last Modified:    03-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
@@ -17,7 +17,7 @@ DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
                 -fn "$FONT")
 
 CURRENT_WALLPAPER=$HOME/Pictures/Wallpaper/wallpaper.jpg
-GAPS_TOGGLE=$HOME/.toggle-util/gaps-toggle
+GAPS_TOGGLE=$HOME/.config/polybar/gaps-toggle
 STATUSBAR=polybar
 
 LAYOUT_DIR="$HOME/.config/layouts"
@@ -25,7 +25,7 @@ LAYOUT_DIR="$HOME/.config/layouts"
 getLayouts() {
     LAYOUTS="$(ls -1 "$LAYOUT_DIR")"
     if [ -z "$LAYOUTS" ]; then
-        notify-send "ERROR" "Could not read layouts from $LAYOUT_DIR!"
+        dunstify "ERROR" "Could not read layouts from $LAYOUT_DIR!"
         exit
     fi
 }
@@ -33,7 +33,7 @@ getLayouts() {
 getChoice() {
     CHOICE="$(echo -e "\n$LAYOUTS" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Layout:')"
     if [ -z "$CHOICE" ]; then
-        notify-send "ERROR" "User did not pick a valid layout!"
+        dunstify "ERROR" "User did not pick a valid layout!"
         exit
     fi
 }
@@ -51,7 +51,7 @@ while read -r line; do
         exists="$(echo "$DISPLAYS" | grep "$output")"
 
         [[ -z $exists ]] && {
-            notify-send "ERROR" "Could not detect display '$output'"
+            dunstify "ERROR" "Could not detect display '$output'"
             exit
         }
 

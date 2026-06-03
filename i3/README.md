@@ -17,11 +17,11 @@ None
 
 - Apt
   - fonts-terminus
+  - fonts-terminus-otb
   - feh
   - lf
   - pulseaudio
   - dunst
   - xcompmgr
   - rxvt-unicode
-- Repos
-  - https://git.suckless.org/dmenu
+  - suckless-tools

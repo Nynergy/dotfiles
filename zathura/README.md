@@ -7,7 +7,6 @@ It's a document viewer.
 ## Install
 
 - zathura
-- zathura-pdf-poppler
 
 ## Dependencies
 
@@ -17,3 +16,4 @@ None
 
 - Apt
   - fonts-terminus
+  - fonts-terminus-otb

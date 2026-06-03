@@ -38,8 +38,8 @@ It applies colors to Xresources.
 
 #### Dependencies
 
-- Repos
-  - https://git.suckless.org/dmenu
+- Apt
+  - suckless-tools
 
 #### Suggested Installs
 
@@ -52,8 +52,8 @@ It saves colors from Xresources.
 
 #### Dependencies
 
-- Repos
-  - https://git.suckless.org/dmenu
+- Apt
+  - suckless-tools
 
 #### Suggested Installs
 
@@ -66,14 +66,12 @@ It recolors things.
 
 #### Dependencies
 
-- Apt
-  - x11-server-utils
+None
 
 #### Suggested Installs
 
 - Apt
   - zathura
-  - zathura-pdf-poppler
   - fonts-terminus
   - dunst
   - polybar
@@ -86,8 +84,7 @@ It applies the layout.
 
 #### Dependencies
 
-- Apt
-  - x11-server-utils
+None
 
 #### Suggested Installs
 
@@ -101,8 +98,7 @@ It controls the lights.
 
 #### Dependencies
 
-- Apt
-  - x11-server-utils
+None
 
 #### Suggested Installs
 
@@ -144,8 +140,8 @@ It mounts the devices.
 
 #### Dependencies
 
-- Repos
-  - https://git.suckless.org/dmenu
+- Apt
+  - suckless-tools
 
 #### Suggested Installs
 
@@ -176,7 +172,6 @@ It runs the bars.
 
 - Apt
   - polybar
-  - x11-server-utils
 
 #### Suggested Installs
 
@@ -234,8 +229,8 @@ It pulls the strings.
 
 #### Dependencies
 
-- Repos
-  - https://git.suckless.org/dmenu
+- Apt
+  - suckless-tools
 
 #### Suggested Installs
 
@@ -261,8 +256,7 @@ It opens the project.
 - Apt
   - tmux
   - rxvt-unicode
-- Repos
-  - https://git.suckless.org/dmenu
+  - suckless-tools
 
 #### Suggested Installs
 

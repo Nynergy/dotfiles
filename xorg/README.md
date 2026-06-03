@@ -16,8 +16,3 @@ None
 
 - Apt
   - i3-wm
-  - x11-server-utils
-
-## NOTE
-
-The `x11-server-utils` package contains both `xrandr` and `xrdb`.

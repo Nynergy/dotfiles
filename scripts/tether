@@ -3,8 +3,8 @@
 # A script for mounting/unmounting devices using dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
-# Last Modified:    01-Jun-2026
+# Version:          1.0.2
+# Last Modified:    03-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
@@ -20,7 +20,7 @@ get_devices_by_label() {
     DEVICES="$(ls -1 /dev/disk/by-label/)"
     if [ -z "$DEVICES" ]
     then
-        notify-send "Error when reading devices" "No labeled devices could be found. Exiting..."
+        dunstify "Error when reading devices" "No labeled devices could be found. Exiting..."
         exit
     fi
 }
@@ -29,7 +29,7 @@ get_choice() {
     CHOICE="$(echo -e "\n$DEVICES" | dmenu -l 20 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Device:')"
     if [ -z "$CHOICE" ]
     then
-        notify-send "No device chosen" "Exiting..."
+        dunstify "No device chosen" "Exiting..."
         exit
     fi
 }
@@ -42,10 +42,10 @@ if ! mount LABEL="$CHOICE"
 then
     if ! umount LABEL="$CHOICE"
     then
-        notify-send "ERROR" "Something went wrong when mounting/unmounting device '$CHOICE'"
+        dunstify "ERROR" "Something went wrong when mounting/unmounting device '$CHOICE'"
     else
-        notify-send "Device $CHOICE unmounted"
+        dunstify "Device $CHOICE unmounted"
     fi
 else
-    notify-send "Device $CHOICE mounted"
+    dunstify "Device $CHOICE mounted"
 fi

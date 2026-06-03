@@ -1,1 +1,2 @@
 $DOTFILES/polybar/config=$HOME/.config/polybar/config
+$DOTFILES/polybar/gaps-toggle=$HOME/.config/polybar/gaps-toggle

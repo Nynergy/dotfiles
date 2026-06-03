@@ -3,8 +3,8 @@
 # A script that prints song info to polybar
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    09-Jan-2025
+# Version:          1.2.0
+# Last Modified:    03-Jun-2026
 
 if [ "$EUID" -ne 0 ]
 then
@@ -17,8 +17,8 @@ if [ -f "$ENV_FILE" ]
 then
     source "$ENV_FILE"
 else
-    notify-send 'Error' "Could not locate env file at '$ENV_FILE'"
-    printf '\n' && exit
+    printf 'Could not locate env file at %s\n' "'$ENV_FILE'"
+    exit
 fi
 
 XRESOURCES=$HOME/.Xresources

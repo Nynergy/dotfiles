@@ -16,4 +16,5 @@ None
 
 - Apt
   - fonts-terminus
+  - fonts-terminus-otb
   - xcompmgr

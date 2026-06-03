@@ -17,6 +17,5 @@ None
 - Apt
   - vim
   - zathura
-  - zathura-pdf-poppler
   - sxiv
   - mpv

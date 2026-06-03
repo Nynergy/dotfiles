@@ -3,12 +3,12 @@
 # A script to start polybar with a specified configuration
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    05-Jun-2024
+# Version:          1.1.1
+# Last Modified:    03-Jun-2026
 
 if [ $# -lt 1 ]
 then
-    notify-send 'Error' 'Please provide the name of the bar configuration'
+    dunstify 'Error' 'Please provide the name of the bar configuration'
     exit
 fi
 

@@ -3,8 +3,8 @@
 # A script for choosing and applying colorschemes to .Xresources
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.2
-# Last Modified:    01-Jun-2026
+# Version:          1.0.3
+# Last Modified:    03-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
@@ -21,7 +21,7 @@ SCHEME_DIR="$HOME/.config/colorschemes"
 getSchemes() {
     SCHEMES="$(ls -1 "$SCHEME_DIR")"
     if [ -z "$SCHEMES" ]; then
-        notify-send "ERROR WHEN CHOOSING SCHEME" "Could not read schemes from $SCHEME_DIR!"
+        dunstify "ERROR WHEN CHOOSING SCHEME" "Could not read schemes from $SCHEME_DIR!"
         exit
     fi
 }
@@ -29,7 +29,7 @@ getSchemes() {
 getChoice() {
     CHOICE="$(echo -e "\n$SCHEMES" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Scheme:')"
     if [ -z "$CHOICE" ]; then
-        notify-send "ERROR WHEN CHOOSING SCHEME" "User did not pick a valid scheme!"
+        dunstify "ERROR WHEN CHOOSING SCHEME" "User did not pick a valid scheme!"
         exit
     fi
 }

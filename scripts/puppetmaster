@@ -3,8 +3,8 @@
 # A general system utility script that uses dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    01-Jun-2026
+# Version:          1.2.0
+# Last Modified:    03-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
@@ -28,7 +28,7 @@ STATUSBAR=polybar
 SCREENSHOT="scrot -d 1"
 WEBCAM_DEVICE=/dev/video0
 
-GAPS_TOGGLE_FILE=$HOME/.toggle-util/gaps-toggle
+GAPS_TOGGLE_FILE=$HOME/.config/polybar/gaps-toggle
 GAPS_SIZE=12
 
 Confirm() {
@@ -63,10 +63,10 @@ CHOICE="$(echo -e "$CHOICES" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'System:
 
 case $CHOICE in
 	"Take Screenshot")
-		$SCREENSHOT && notify-send "Screenshot Taken" ;;
+		$SCREENSHOT && dunstify "Screenshot Taken" ;;
 
 	"Take Selected Screenshot")
-		scrot -s && notify-send "Screenshot Taken" ;;
+		scrot -s && dunstify "Screenshot Taken" ;;
 
 	"Mount/Unmount Device")
 		tether ;;
@@ -126,7 +126,7 @@ case $CHOICE in
                 marquee gaps;
                 echo "On" > "$GAPS_TOGGLE_FILE" ;;
             *)
-                notify-send 'Error when toggling gaps' "Invalid toggle state '$TOGGLE_STATE'";
+                dunstify 'Error when toggling gaps' "Invalid toggle state '$TOGGLE_STATE'";
                 exit
                 ;;
         esac
@@ -142,7 +142,7 @@ case $CHOICE in
                 "Off")
                     marquee no-gaps ;;
                 *)
-                    notify-send 'Error when toggling bar' "Invalid toggle state '$TOGGLE_STATE'";
+                    dunstify 'Error when toggling bar' "Invalid toggle state '$TOGGLE_STATE'";
                     exit
                     ;;
             esac

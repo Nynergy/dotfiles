@@ -18,6 +18,7 @@ None
   - fonts-arphic-ukai
   - fonts-baekmuk
   - fonts-terminus
+  - fonts-terminus-otb
   - pulseaudio
   - xcompmgr
   - i3-wm

@@ -3,8 +3,8 @@
 # A script to turn squeezelite on and off
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
-# Last Modified:    01-Mar-2024
+# Version:          1.0.2
+# Last Modified:    03-Jun-2026
 
 if [ "$EUID" -ne 0 ]
 then
@@ -17,7 +17,7 @@ if [ -f "$ENV_FILE" ]
 then
     source "$ENV_FILE"
 else
-    notify-send 'Error' "Could not locate env file at '$ENV_FILE'"
+    dunstify 'Error' "Could not locate env file at '$ENV_FILE'"
     exit
 fi
 
