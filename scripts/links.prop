@@ -10,6 +10,7 @@ $DOTFILES/scripts/polysqueeze=$HOME/.local/bin/polysqueeze
 $DOTFILES/scripts/polyvpn=$HOME/.local/bin/polyvpn
 $DOTFILES/scripts/prism=$HOME/.local/bin/prism
 $DOTFILES/scripts/puppetmaster=$HOME/.local/bin/puppetmaster
+$DOTFILES/scripts/rimeglass=$HOME/.local/bin/rimeglass
 $DOTFILES/scripts/sirenbar=$HOME/.local/bin/sirenbar
 $DOTFILES/scripts/soundspool=$HOME/.local/bin/soundspool
 $DOTFILES/scripts/tether=$HOME/.local/bin/tether

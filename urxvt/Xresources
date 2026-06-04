@@ -36,6 +36,10 @@
 *.color7:	#fbc1a4
 *.color15:	#fbc1a4
 
+! True Transparency
+URxvt*depth: 32
+URxvt*background: [75]#242121
+
 !! URxvt Appearance
 URxvt*font: xft:Terminus:size=10
 
@@ -43,10 +47,6 @@ URxvt*font: xft:Terminus:size=10
 !URxvt*transparent: true
 !URxvt*shading: 30
 !URxvt*depth: 24
-
-! True Transparency
-URxvt*depth: 32
-URxvt*background: [75]#242121
 
 URxvt.highlightColor: white
 URxvt.highlightTextColor: black
@@ -56,7 +56,7 @@ URxvt*dynamicColors: on
 
 URxvt.letterSpace: 1
 URxvt.lineSpace: 0
-URxvt.externalBorder: 16
+URxvt.internalBorder: 16
 URxvt.cursorBlink: true
 URxvt.cursorUnderline: false
 URxvt.saveline: 2048

@@ -35,3 +35,7 @@
 ! white
 *.color7:	#cfd8dc
 *.color15:	#cfd8dc
+
+! True Transparency
+URxvt*depth: 32
+URxvt*background: [75]#263238

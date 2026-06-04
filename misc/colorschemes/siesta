@@ -35,3 +35,7 @@
 ! white
 *.color7:	#f9b9a1
 *.color15:	#f9b9a1
+
+! True Transparency
+URxvt*depth: 32
+URxvt*background: [75]#1b0215
