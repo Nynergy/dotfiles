@@ -3,7 +3,7 @@
 # A script for previewing colorschemes in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
+# Version:          1.1.0
 # Last Modified:    05-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
@@ -17,6 +17,10 @@ WINDOW_MIN=0
 WINDOW_MAX=$((WINDOW_SIZE - 1))
 INDEX=0
 
+EXAMPLE_DIR="$HOME/.config/example_code"
+EXAMPLES=()
+EXAMPLE_INDEX=0
+
 NO_FORMAT='\e[m'
 BOLD='\e[1m'
 HIGHLIGHT='\e[7m'
@@ -26,6 +30,7 @@ main () {
 
     get_colors "$XRESOURCES"
     get_schemes
+    get_examples
 
     trap 'reset_terminal' EXIT
     trap 'get_term_size; redraw' WINCH
@@ -52,10 +57,23 @@ get_schemes() {
     NUM_SCHEMES=${#SCHEMES[@]}
     (( NUM_SCHEMES < 1 )) && {
         printf 'No schemes available to read\n'
-        exit 0
+        exit 1
     }
     for scheme in "${SCHEMES[@]}"; {
         (( ${#scheme} > MAX_SCHEME_LENGTH )) && MAX_SCHEME_LENGTH=${#scheme}
+    }
+}
+
+get_examples() {
+    [[ -d "$EXAMPLE_DIR" ]] || {
+        printf 'Could not read examples from %s\n' "'$EXAMPLE_DIR'"
+        exit 1
+    }
+    mapfile -t EXAMPLES < <(ls -1 "$EXAMPLE_DIR")
+    NUM_EXAMPLES=${#EXAMPLES[@]}
+    (( NUM_EXAMPLES < 1 )) && {
+        printf 'No examples available to read\n'
+        exit 1
     }
 }
 
@@ -149,11 +167,6 @@ redraw () {
     draw_schemes
 
     draw_palette
-
-    EXAMPLE_CODE_X=$((PALETTE_X + PALETTE_WIDTH + 1)) # Plus gap
-    width=$((COLUMNS - EXAMPLE_CODE_X + 1)) # Account for gap
-
-    draw_box $EXAMPLE_CODE_X 1 $width $HEIGHT 'EXAMPLE CODE' 2
     draw_example_code
 }
 
@@ -283,52 +296,44 @@ draw_palette_line() {
 }
 
 draw_example_code() {
-    # TODO: Instead of hard coding it here, put the example code in separate
-    # files, parse them at runtime to determine the colors and modifiers.
+    # TODO: Make more examples for Python, HTML, Javascript, etc.
+    local x=$((PALETTE_X + PALETTE_WIDTH + 1)) # Plus gap
+    local width=$((COLUMNS - x + 1)) # Account for gap
 
-    local x=$((EXAMPLE_CODE_X + 2)) # Box border and gap
+    draw_box $x 1 $width $HEIGHT 'EXAMPLE CODE' 2
 
-    move 3 $x
-    print_color 5 '#include '
-    print_color 6 '<stdio.h>'
-    move 5 $x
-    print_color 8 '// '
-    set_modifiers "$HIGHLIGHT"
-    print_color 3 'TODO'
-    reset_modifiers
-    print_color 8 ': Write all of the code'
-    move 7 $x
+    local example=${EXAMPLES[$EXAMPLE_INDEX]}
+    local lines
+    mapfile -t lines < "$EXAMPLE_DIR/$example"
+
+    x=$((x + 2)) # Box border and gap
+    local y=3
+
+    for line in "${lines[@]}"; {
+        while [[ $line =~ ^.*%([0-9]+)%.*$ ]];
+        do
+            line="${line//%${BASH_REMATCH[1]}%/\\e[38;5;${BASH_REMATCH[1]}m}"
+        done
+
+        while [[ $line =~ ^.*@([0-9]+)@.*$ ]];
+        do
+            line="${line//@${BASH_REMATCH[1]}@/${BASH_REMATCH[1]}}"
+        done
+
+        line="${line//%HIGHLIGHT%/$HIGHLIGHT}"
+        line="${line//%BOLD%/$BOLD}"
+        line="${line//%RESET%/$NO_FORMAT}"
+
+        move $y $x
+        printf '%b' "$line"
+        y=$((y + 1))
+    }
+
+    move $HEIGHT $x
+    printf 'File: '
     set_modifiers "$BOLD"
-    print_color 2 'int '
+    print_color 5 '%s' "$example"
     reset_modifiers
-    printf 'main('
-    set_modifiers "$BOLD"
-    print_color 2 'int '
-    reset_modifiers
-    printf 'argc, '
-    set_modifiers "$BOLD"
-    print_color 2 'char '
-    reset_modifiers
-    printf '** argv) {'
-    x=$((x + 4)) # Indent
-    move 8 $x
-    print_color 8 '// Print hello world message'
-    reset_modifiers
-    move 9 $x
-    printf 'printf('
-    print_color 6 '"Hello, world!\\n"'
-    reset_modifiers
-    printf ');'
-    move 11 $x
-    set_modifiers "$BOLD"
-    print_color 1 'return '
-    reset_modifiers
-    print_color 6 '0'
-    reset_modifiers
-    printf ';'
-    x=$((x - 4)) # De-indent (outdent?)
-    move 12 $x
-    printf '}'
 }
 
 save_cursor_position () {
@@ -410,8 +415,6 @@ key () {
 
     # TODO: Enable a custom palette mode, where the user can cycle through the
     # different colors and input arbitrary hexadecimal values for them.
-    # TODO: Allow the user to cycle through different example code snippets.
-    # This should include C, Python, HTML, Javascript, etc.
     case ${special_key:-$1} in
         # '\e'              :: Escape
         q|$'\e')
@@ -450,6 +453,11 @@ key () {
         G)
             INDEX=$((NUM_SCHEMES - 1))
             draw_schemes
+            ;;
+        e)
+            EXAMPLE_INDEX=$((EXAMPLE_INDEX + 1))
+            (( EXAMPLE_INDEX >= NUM_EXAMPLES )) && EXAMPLE_INDEX=0
+            draw_example_code
             ;;
     esac
 
