@@ -3,8 +3,8 @@
 # A script for previewing colorschemes in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.0
-# Last Modified:    04-Jun-2026
+# Version:          1.0.1
+# Last Modified:    05-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
@@ -14,7 +14,7 @@ MAX_SCHEME_LENGTH=12
 BASE_WINDOW_SIZE=20
 WINDOW_SIZE=$BASE_WINDOW_SIZE
 WINDOW_MIN=0
-WINDOW_MAX=$WINDOW_SIZE
+WINDOW_MAX=$((WINDOW_SIZE - 1))
 INDEX=0
 
 NO_FORMAT='\e[m'
@@ -22,21 +22,16 @@ BOLD='\e[1m'
 HIGHLIGHT='\e[7m'
 
 main () {
-    (( BASH_VERSINFO[0] > 3 )) &&
-        read_flags=(-t 0.05)
+    (( BASH_VERSINFO[0] > 3 )) && read_flags=(-t 0.05)
 
     get_colors "$XRESOURCES"
     get_schemes
 
     trap 'reset_terminal' EXIT
-    trap 'get_term_size; clear_screen; redraw' WINCH
+    trap 'get_term_size; redraw' WINCH
 
     get_term_size
     setup_terminal
-    # TODO: We should have a draw_all here, then draw things individually
-    # when a certain event happens. For example, when the user moves the
-    # schemes window bounds, we clear the schemes box. When the user changes
-    # the example code, we clear the example code box, etc.
     redraw
 
     # Vintage infinite loop
@@ -60,9 +55,7 @@ get_schemes() {
         exit 0
     }
     for scheme in "${SCHEMES[@]}"; {
-        (( ${#scheme} > MAX_SCHEME_LENGTH )) && {
-            MAX_SCHEME_LENGTH=${#scheme}
-        }
+        (( ${#scheme} > MAX_SCHEME_LENGTH )) && MAX_SCHEME_LENGTH=${#scheme}
     }
 }
 
@@ -148,17 +141,25 @@ get_term_size () {
 
 redraw () {
     clamp_scheme_window
+    clear_screen
 
+    local width=$((MAX_SCHEME_LENGTH + 4)) # Box borders plus gap
+    HEIGHT=$((WINDOW_SIZE + 2)) # Box borders
+    draw_box 1 1 $width $HEIGHT 'COLORSCHEMES' 3
     draw_schemes
-    draw_palette
-    draw_example_code
 
-    set_colors
+    draw_palette
+
+    EXAMPLE_CODE_X=$((PALETTE_X + PALETTE_WIDTH + 1)) # Plus gap
+    width=$((COLUMNS - EXAMPLE_CODE_X + 1)) # Account for gap
+
+    draw_box $EXAMPLE_CODE_X 1 $width $HEIGHT 'EXAMPLE CODE' 2
+    draw_example_code
 }
 
 clear_box() {
     local x=$1 y=$2
-    local width=$(($3 + 2)) height=$(($4 + 3))
+    local width=$3 height=$4
 
     for (( i=0; i < width; i++ )); {
         for (( j=0; j < height; j++ )); {
@@ -170,11 +171,12 @@ clear_box() {
 
 draw_box() {
     local x=$1 y=$2
-    local width=$(($3 + 2)) height=$(($4 + 3))
+    local width=$3 height=$4
     local title=$5 title_color=$6
 
+    local h_width=$((width - 2)) # Minus corners
     local bar
-    bar=$(printf '%*s' $width)
+    bar=$(printf '%*s' $h_width)
     bar=${bar// /─}
 
     move "$y" "$x"
@@ -188,17 +190,16 @@ draw_box() {
         move $((y + i)) "$x"
         printf '│'
 
-        move $((y + i)) $((x + width + 1))
+        move $((y + i)) $((x + width - 1))
         printf '│'
     }
 
-    move $height "$x"
+    move "$height" "$x"
     printf '└%s┘' "$bar"
 }
 
 draw_schemes() {
-    # TODO: We only need to draw the box when its dimensions change
-    draw_box 1 1 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE 'COLORSCHEMES' 3
+    clamp_scheme_window
 
     local y=2
     for (( i=WINDOW_MIN; i <= WINDOW_MAX; i++ )); {
@@ -209,17 +210,17 @@ draw_schemes() {
             set_modifiers "$HIGHLIGHT"; set_modifiers "$BOLD"
         }
         printf '%s' "$scheme"
-        [[ $INDEX -eq $i ]] && {
-            reset_modifiers
-        }
+        [[ $INDEX -eq $i ]] && reset_modifiers
         y=$((y + 1))
     }
+
+    set_colors
 
     local digits=${#NUM_SCHEMES}
     local pad="%Xd"
     pad="${pad//X/$digits}"
 
-    move $y 3
+    move $HEIGHT 3
     set_modifiers "$BOLD"
     print_color 1 "$pad" $((INDEX + 1))
     print_color 7 '/'
@@ -228,19 +229,26 @@ draw_schemes() {
 }
 
 draw_palette() {
-    # TODO: Magic numbers
-    move 1 $((MAX_SCHEME_LENGTH + 15))
+    PALETTE_WIDTH=25
+    PALETTE_MAX=22
+    PALETTE_HEIGHT=$((HEIGHT < PALETTE_MAX ? HEIGHT : PALETTE_MAX))
+    # Scheme borders, scheme gaps, outer gap, plus 1 = 6
+    PALETTE_X=$((MAX_SCHEME_LENGTH + 6))
+    local title='PALETTE'
+
+    move 1 $((PALETTE_X + PALETTE_WIDTH / 2 - ${#title} / 2))
     set_modifiers "$BOLD"
-    print_color 6 'PALETTE'
+    print_color 6 "$title"
     reset_modifiers
 
-    move 3 $((MAX_SCHEME_LENGTH + 6))
+    move 3 $PALETTE_X
     printf 'Foreground  '
     set_modifiers "$HIGHLIGHT"
     printf '   %s   ' "$FOREGROUND"
     reset_modifiers
 
-    move 5 $((MAX_SCHEME_LENGTH + 6))
+    local bg_y=$((PALETTE_HEIGHT < PALETTE_MAX ? 4 : 5))
+    move $bg_y $PALETTE_X
     printf 'Background     %s   ' "$BACKGROUND"
 
     draw_palette_line 0 "$COLOR0" "$COLOR8"
@@ -254,10 +262,11 @@ draw_palette() {
 }
 
 draw_palette_line() {
-    # TODO: Magic numbers
-    local mult=$((LINES < BASE_WINDOW_SIZE + 2 ? 1 : 2))
-    local y=$(($1 * mult + 7))
-    move $y $((MAX_SCHEME_LENGTH + 6))
+    local mult=$((PALETTE_HEIGHT < PALETTE_MAX ? 1 : 2))
+    # Header, foreground/background lines, gaps
+    local y_offset=$((PALETTE_HEIGHT < PALETTE_MAX ? 6 : 7))
+    local y=$(($1 * mult + y_offset))
+    move $y $PALETTE_X
     printf ' %d ' "$1"
     if [ "$1" -eq 0 ];
     then
@@ -277,20 +286,17 @@ draw_example_code() {
     # TODO: Instead of hard coding it here, put the example code in separate
     # files, parse them at runtime to determine the colors and modifiers.
 
-    # TODO: Magic numbers
-    local x=$((MAX_SCHEME_LENGTH + 32))
-    local width=$((COLUMNS - x))
+    local x=$((EXAMPLE_CODE_X + 2)) # Box border and gap
 
-    draw_box $x 1 $width $WINDOW_SIZE 'EXAMPLE CODE' 2
-
-    x=$((x + 2))
     move 3 $x
     print_color 5 '#include '
     print_color 6 '<stdio.h>'
     move 5 $x
-    print_color 5 '#define '
-    print_color 3 'HELLO_WORLD '
-    print_color 6 '"Hello, world!"'
+    print_color 8 '// '
+    set_modifiers "$HIGHLIGHT"
+    print_color 3 'TODO'
+    reset_modifiers
+    print_color 8 ': Write all of the code'
     move 7 $x
     set_modifiers "$BOLD"
     print_color 2 'int '
@@ -304,19 +310,23 @@ draw_example_code() {
     print_color 2 'char '
     reset_modifiers
     printf '** argv) {'
-    x=$((x + 4))
+    x=$((x + 4)) # Indent
     move 8 $x
     print_color 8 '// Print hello world message'
     reset_modifiers
     move 9 $x
-    printf 'printf(HELLO_WORLD);'
+    printf 'printf('
+    print_color 6 '"Hello, world!\\n"'
+    reset_modifiers
+    printf ');'
     move 11 $x
     set_modifiers "$BOLD"
     print_color 1 'return '
     reset_modifiers
     print_color 6 '0'
     reset_modifiers
-    x=$((x - 4))
+    printf ';'
+    x=$((x - 4)) # De-indent (outdent?)
     move 12 $x
     printf '}'
 }
@@ -393,12 +403,15 @@ key () {
         read "${read_flags[@]}" -rsn 2
 
         # Handle a normal escape key press
-        [[ ${1}${REPLY} == $'\e\e['* ]] &&
-            read "${read_flags[@]}" -rsn 1 _
+        [[ ${1}${REPLY} == $'\e\e['* ]] && read "${read_flags[@]}" -rsn 1 _
 
         local special_key=${1}${REPLY}
     }
 
+    # TODO: Enable a custom palette mode, where the user can cycle through the
+    # different colors and input arbitrary hexadecimal values for them.
+    # TODO: Allow the user to cycle through different example code snippets.
+    # This should include C, Python, HTML, Javascript, etc.
     case ${special_key:-$1} in
         # '\e'              :: Escape
         q|$'\e')
@@ -407,67 +420,64 @@ key () {
         j)
             (( INDEX < NUM_SCHEMES - 1 )) && {
                 INDEX=$((INDEX + 1))
-                redraw
+                draw_schemes
             }
             ;;
         J)
             (( INDEX < NUM_SCHEMES - 1)) && {
                 INDEX=$((INDEX + 5))
-                (( INDEX >= NUM_SCHEMES )) && {
-                    INDEX=$((NUM_SCHEMES - 1))
-                }
-                redraw
+                (( INDEX >= NUM_SCHEMES )) && INDEX=$((NUM_SCHEMES - 1))
+                draw_schemes
             }
             ;;
         k)
             (( INDEX > 0 )) && {
                 INDEX=$((INDEX - 1))
-                redraw
+                draw_schemes
             }
             ;;
         K)
             (( INDEX > 0 )) && {
                 INDEX=$((INDEX - 5))
-                (( INDEX < 0 )) && {
-                    INDEX=0
-                }
-                redraw
+                (( INDEX < 0 )) && INDEX=0
+                draw_schemes
             }
             ;;
         g)
             INDEX=0
-            redraw
+            draw_schemes
             ;;
         G)
             INDEX=$((NUM_SCHEMES - 1))
-            redraw
+            draw_schemes
             ;;
     esac
 
 }
 
 clamp_scheme_window() {
-    # TODO: Magic numbers
-    WINDOW_SIZE=$((LINES - 3 < BASE_WINDOW_SIZE ? LINES - 3 : BASE_WINDOW_SIZE))
+    local normal_height=$((BASE_WINDOW_SIZE + 2)) # Borders
+    # Account for box borders
+    WINDOW_SIZE=$((LINES < normal_height ? LINES - 2 : BASE_WINDOW_SIZE))
 
     local gap=$((WINDOW_MAX - WINDOW_MIN))
     (( gap > WINDOW_SIZE )) && {
         WINDOW_MIN=0
-        WINDOW_MAX=$WINDOW_SIZE
+        WINDOW_MAX=$((WINDOW_SIZE - 1))
         INDEX=0
-        clear_box 1 1 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
+        redraw
     }
 
     (( INDEX > WINDOW_MAX )) && {
         WINDOW_MAX=$INDEX
-        WINDOW_MIN=$((WINDOW_MAX - WINDOW_SIZE))
-        clear_box 1 1 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
+        WINDOW_MIN=$((WINDOW_MAX - gap))
+        clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
     }
 
     (( INDEX < WINDOW_MIN )) && {
         WINDOW_MIN=$INDEX
-        WINDOW_MAX=$((WINDOW_MIN + WINDOW_SIZE))
-        clear_box 1 1 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
+        WINDOW_MAX=$((WINDOW_MIN + gap))
+        clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
     }
 }
 
