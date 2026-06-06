@@ -1,41 +1,19 @@
-!!Colors
-! special
-*.foreground:	#fbefd7
-*.background:	#130007
-*.cursorColor:	#fbefd7
-
-! black
-*.color0:	#130007
-*.color8:	#a688ad
-
-! red
-*.color1:	#ed214f
-*.color9:	#ed214f
-
-! green
-*.color2:	#ed554f
-*.color10:	#ed554f
-
-! yellow
-*.color3:	#edb04f
-*.color11:	#edb04f
-
-! blue
-*.color4:	#8098de
-*.color12:	#8098de
-
-! magenta
-*.color5:	#8012de
-*.color13:	#8012de
-
-! cyan
-*.color6:	#a2e8e1
-*.color14:	#a2e8e1
-
-! white
-*.color7:	#fbefd7
-*.color15:	#fbefd7
-
-! True Transparency
-URxvt*depth: 32
-URxvt*background: [75]#130007
+foreground: #fbefd7
+background: #130007
+opacity: [75]#130007
+color0: #130007
+color1: #ed214f
+color2: #ed554f
+color3: #edb04f
+color4: #8098de
+color5: #8012de
+color6: #a2e8e1
+color7: #fbefd7
+color8: #a688ad
+color9: #ed214f
+color10: #ed554f
+color11: #edb04f
+color12: #8098de
+color13: #8012de
+color14: #a2e8e1
+color15: #fbefd7

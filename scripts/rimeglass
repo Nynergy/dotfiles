@@ -3,8 +3,8 @@
 # A script for previewing colorschemes in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    05-Jun-2026
+# Version:          1.2.0
+# Last Modified:    06-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
@@ -17,9 +17,14 @@ WINDOW_MIN=0
 WINDOW_MAX=$((WINDOW_SIZE - 1))
 INDEX=0
 
+PALETTE_INDEX=0
+SPECIAL_SELECT=
+
 EXAMPLE_DIR="$HOME/.config/example_code"
 EXAMPLES=()
 EXAMPLE_INDEX=0
+
+MODE=SCHEME
 
 NO_FORMAT='\e[m'
 BOLD='\e[1m'
@@ -37,6 +42,7 @@ main () {
     trap 'get_term_size; redraw' WINCH
 
     get_term_size
+    MAX_BUFFER_SIZE=$((COLUMNS / 2))
     setup_terminal
     redraw
 
@@ -85,8 +91,16 @@ get_examples() {
 
 get_colors() {
     FOREGROUND=$(awk '/foreground:/ {print $2}' "$1")
-    BACKGROUND=$(awk '/background:/ {print $2}' "$1" | head -n 1)
-    OPACITY=$(awk '/background:/ {print $2}' "$1" | tail -n 1)
+    case $1 in
+        "$XRESOURCES")
+            BACKGROUND=$(awk '/background:/ {print $2}' "$1" | head -n 1)
+            OPACITY=$(awk '/background:/ {print $2}' "$1" | tail -n 1)
+            ;;
+        *)
+            BACKGROUND=$(awk '/background:/ {print $2}' "$1")
+            OPACITY=$(awk '/opacity:/ {print $2}' "$1")
+            ;;
+    esac
 
     declare -aG COLORS
     local i
@@ -145,11 +159,14 @@ redraw () {
 
     local width=$((MAX_SCHEME_LENGTH + 4)) # Box borders plus gap
     HEIGHT=$((WINDOW_SIZE + 2)) # Box borders
-    draw_box 1 1 $width $HEIGHT 'COLORSCHEMES' 3
+    draw_box 1 1 $width $HEIGHT 'COLORSCHEMES' 2
     draw_schemes
 
     draw_palette
     draw_example_code
+
+    draw_statusbar
+    draw_keybindings
 }
 
 clear_box() {
@@ -206,7 +223,10 @@ draw_schemes() {
         move $y 3
         [[ $INDEX -eq $i ]] && {
             get_colors "$SCHEME_DIR/$scheme"
-            set_modifiers "$HIGHLIGHT"; set_modifiers "$BOLD"
+            [[ $MODE == SCHEME ]] && {
+                set_modifiers "$HIGHLIGHT"
+                set_modifiers "$BOLD"
+            }
         }
         printf '%s' "$scheme"
         [[ $INDEX -eq $i ]] && reset_modifiers
@@ -249,14 +269,19 @@ draw_palette() {
     reset_modifiers
 
     move 3 $PALETTE_X
+    [[ $SPECIAL_SELECT == FG ]] && print_color 1
     printf 'Foreground  '
+    reset_modifiers
     set_modifiers "$HIGHLIGHT"
     printf '   %s   ' "$FOREGROUND"
     reset_modifiers
 
     local bg_y=$((PALETTE_HEIGHT < PALETTE_MAX ? 4 : 5))
     move $bg_y $PALETTE_X
-    printf 'Background     %s   ' "$BACKGROUND"
+    [[ $SPECIAL_SELECT == BG ]] && print_color 1
+    printf 'Background  '
+    reset_modifiers
+    printf '   %s   ' "$BACKGROUND"
 
     local i
     for i in {0..7}; {
@@ -270,16 +295,19 @@ draw_palette_line() {
     local y_offset=$((PALETTE_HEIGHT < PALETTE_MAX ? 6 : 7))
     local y=$(($1 * mult + y_offset))
     move $y $PALETTE_X
+    [[ -z $SPECIAL_SELECT && $MODE == PALETTE && $PALETTE_INDEX == "$1" ]] && print_color 1
     printf ' %d ' "$1"
     if [ "$1" -eq 0 ];
     then
-        printf '\33[37;40m %s ' "$2"
+        reset_modifiers
+        printf '\33[40m %s ' "$2"
     else
         set_modifiers "$HIGHLIGHT"
         print_color "$1"
         printf ' %s ' "$2"
     fi
     reset_modifiers
+    [[ -z $SPECIAL_SELECT && $MODE == PALETTE && $PALETTE_INDEX == $(($1 + 8)) ]] && print_color 1
     printf ' %2d ' $(($1 + 8))
     set_modifiers "$HIGHLIGHT"
     print_color $(($1 + 8))
@@ -294,7 +322,7 @@ draw_example_code() {
 
     # Minus borders and gap, then border
     clear_box $((x + 2)) 3 $((width - 3)) $((WINDOW_SIZE - 1))
-    draw_box $x 1 $width $HEIGHT 'EXAMPLE CODE' 2
+    draw_box $x 1 $width $HEIGHT 'EXAMPLE CODE' 3
 
     local example=${EXAMPLES[$EXAMPLE_INDEX]}
     local lines
@@ -330,6 +358,64 @@ draw_example_code() {
     print_color 5
     printf '%s' "$example"
     reset_modifiers
+}
+
+draw_statusbar() {
+    local bar
+    printf -v bar '%*s' $COLUMNS
+
+    local mode_color
+    [[ $MODE == SCHEME ]] && mode_color=2
+    [[ $MODE == PALETTE ]] && mode_color=6
+    [[ $MODE == EDIT ]] && mode_color=3
+
+    local y=$((HEIGHT + 1))
+    move $y 1
+    clear_line
+    set_modifiers "$HIGHLIGHT"
+    set_modifiers "$BOLD"
+    print_color $mode_color
+    printf '%s' "$bar"
+    move $y 2
+    printf '%8s MODE │' "$MODE"
+    [[ -n $PROMPT ]] && {
+        printf ' %s: %s' "$PROMPT" "$EDIT_BUFFER"
+    }
+    reset_modifiers
+}
+
+draw_keybindings() {
+    local y=$((HEIGHT + 2)) # Statusbar sits above
+    move $y 1
+    clear_line
+
+    # TODO: Double check existing ones, add EDIT MODE
+    case $MODE in
+        SCHEME)
+            draw_keybinding 'j/k/J/K' 'Scroll'
+            draw_keybinding 'g/G' 'Top/Bottom'
+            draw_keybinding 'e' 'Cycle Example'
+            draw_keybinding 'p' 'Palette Mode'
+            draw_keybinding 'q/<ESC>' 'Quit'
+            ;;
+        PALETTE)
+            draw_keybinding 'h/j/k/l' 'Color'
+            draw_keybinding 'f/b' 'FG/BG'
+            draw_keybinding '<SPACE>' 'Edit'
+            draw_keybinding 'm' 'Magnitude'
+            draw_keybinding 'e' 'Cycle Example'
+            draw_keybinding 's' 'Scheme Mode'
+            draw_keybinding 'q/<ESC>' 'Quit'
+            ;;
+    esac
+}
+
+draw_keybinding() {
+    set_modifiers "$BOLD"
+    print_color 5
+    printf '%s' "$1"
+    reset_modifiers
+    printf ': %s ' "$2"
 }
 
 save_cursor_position () {
@@ -376,6 +462,10 @@ erase_all () {
     printf '\e[2J'
 }
 
+clear_line () {
+    printf '\e[0K'
+}
+
 clear_screen () {
     move "$LINES" "$COLUMNS"
     erase_up
@@ -406,10 +496,22 @@ key () {
         local special_key=${1}${REPLY}
     }
 
-    # TODO: Enable a custom palette mode, where the user can cycle through the
-    # different colors and input arbitrary hexadecimal values for them.
-    case ${special_key:-$1} in
-        # '\e'              :: Escape
+    case $MODE in
+        SCHEME)
+            handle_scheme_mode_events "${special_key:-$1}"
+            ;;
+        PALETTE)
+            handle_palette_mode_events "${special_key:-$1}"
+            ;;
+        EDIT)
+            handle_edit_mode_events "${special_key:-$1}"
+            ;;
+    esac
+}
+
+handle_scheme_mode_events() {
+    case $1 in
+        # '\e' :: Escape
         q|$'\e')
             exit
             ;;
@@ -437,10 +539,13 @@ key () {
             EXAMPLE_INDEX=$((EXAMPLE_INDEX + 1))
             (( EXAMPLE_INDEX >= NUM_EXAMPLES )) && EXAMPLE_INDEX=0
             ;;
+        p)
+            MODE=PALETTE
+            ;;
     esac
 
     # Bulk handle different redraw events
-    case ${special_key:-$1} in
+    case $1 in
         j|J|k|K|g|G)
             draw_schemes
             draw_palette
@@ -448,13 +553,263 @@ key () {
         e)
             draw_example_code
             ;;
+        p)
+            draw_schemes
+            draw_palette
+            draw_statusbar
+            draw_keybindings
+            ;;
+    esac
+}
+
+handle_palette_mode_events() {
+    case $1 in
+        # '\e' :: Escape
+        q|$'\e')
+            exit
+            ;;
+        j)
+            PALETTE_INDEX=$(((PALETTE_INDEX + 1) % 16))
+            ;;
+        k)
+            PALETTE_INDEX=$(((PALETTE_INDEX + 15) % 16))
+            ;;
+        h|l)
+            PALETTE_INDEX=$(((PALETTE_INDEX + 8) % 16))
+            ;;
+        f)
+            if [ "$SPECIAL_SELECT" == FG ];
+            then
+                SPECIAL_SELECT=
+            else
+                SPECIAL_SELECT=FG
+            fi
+            ;;
+        b)
+            if [ "$SPECIAL_SELECT" == BG ];
+            then
+                SPECIAL_SELECT=
+            else
+                SPECIAL_SELECT=BG
+            fi
+            ;;
+        m)
+            if [ "$PALETTE_MAGNITUDE" == SMALL ];
+            then
+                PALETTE_MAGNITUDE=LARGE
+            else
+                PALETTE_MAGNITUDE=SMALL
+            fi
+            ;;
+        e)
+            EXAMPLE_INDEX=$((EXAMPLE_INDEX + 1))
+            (( EXAMPLE_INDEX >= NUM_EXAMPLES )) && EXAMPLE_INDEX=0
+            ;;
+        s)
+            MODE=SCHEME
+            ;;
+        S)
+            MODE=EDIT
+            EDIT_TYPE=SAVE
+            PROMPT="Filename"
+            EDIT_BUFFER="new-scheme"
+            show_cursor
+            ;;
+        # '' :: Enter
+        '')
+            MODE=EDIT
+            EDIT_TYPE=MODIFY
+            case $SPECIAL_SELECT in
+                FG)
+                    PROMPT="Edit Foreground"
+                    EDIT_BUFFER=$FOREGROUND
+                    ;;
+                BG)
+                    PROMPT="Edit Background"
+                    EDIT_BUFFER=$BACKGROUND
+                    ;;
+                *)
+                    PROMPT="Edit Color $PALETTE_INDEX"
+                    EDIT_BUFFER=${COLORS[$PALETTE_INDEX]}
+                    ;;
+            esac
+            show_cursor
+            ;;
+    esac
+
+    # Bulk handle different redraw events
+    case $1 in
+        h|j|k|l|m|f|b)
+            draw_palette
+            ;;
+        e)
+            draw_example_code
+            ;;
+        s)
+            draw_schemes
+            draw_palette
+            draw_statusbar
+            draw_keybindings
+            ;;
+        ''|S)
+            # NOTE: The order here is important for cursor placement
+            draw_keybindings
+            draw_statusbar
+            ;;
+    esac
+}
+
+handle_edit_mode_events() {
+    case $EDIT_TYPE in
+        SAVE)
+            handle_save_events "$1"
+            ;;
+        MODIFY)
+            handle_modify_events "$1"
+            ;;
+    esac
+}
+
+handle_save_events() {
+    case $1 in
+        # '\e' :: Escape
+        $'\e')
+            MODE=PALETTE
+            PROMPT=
+            EDIT_BUFFER=
+            hide_cursor
+            ;;
+        # '\177', '\b' :: Backspace
+        [0-9a-zA-Z._]|' '|-|$'\177'|$'\b')
+            edit_buffer_value "$1"
+            ;;
+        # '' :: Enter
+        '')
+            (( ${#EDIT_BUFFER} < 1 )) && return
+            save_colorscheme
+            get_schemes
+            PROMPT=
+            EDIT_BUFFER=
+            MODE=PALETTE
+            hide_cursor
+            ;;
+    esac
+
+    # Bulk handle different redraw events
+    case $1 in
+        # '\e' :: Escape
+        $'\e')
+            draw_statusbar
+            draw_keybindings
+            ;;
+        # '\177', '\b' :: Backspace
+        [0-9a-zA-Z._]|' '|-|$'\177'|$'\b')
+            draw_statusbar
+            ;;
+        # '' :: Enter
+        '')
+            set_colors
+            clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
+            draw_schemes
+            draw_palette
+            draw_statusbar
+            draw_keybindings
+            ;;
+    esac
+}
+
+handle_modify_events() {
+    case $1 in
+        q)
+            exit
+            ;;
+        # '\e' :: Escape
+        $'\e')
+            MODE=PALETTE
+            PROMPT=
+            EDIT_BUFFER=
+            hide_cursor
+            ;;
+        # '\177', '\b' :: Backspace
+        [0-9a-f]|$'\177'|$'\b')
+            edit_hex_value "$1"
+            ;;
+        # '' :: Enter
+        '')
+            (( ${#EDIT_BUFFER} != 7 )) && return
+            case $SPECIAL_SELECT in
+                FG)
+                    FOREGROUND=$EDIT_BUFFER
+                    ;;
+                BG)
+                    BACKGROUND=$EDIT_BUFFER
+                    [[ $OPACITY =~ ^(\[[0-9]+\]).*$ ]]
+                    OPACITY="${BASH_REMATCH[1]}$EDIT_BUFFER"
+                    ;;
+                *)
+                    COLORS[PALETTE_INDEX]=$EDIT_BUFFER
+                    ;;
+            esac
+            PROMPT=
+            EDIT_BUFFER=
+            MODE=PALETTE
+            hide_cursor
+            ;;
+    esac
+
+    # Bulk handle different redraw events
+    case $1 in
+        # '\e' :: Escape
+        $'\e')
+            draw_statusbar
+            draw_keybindings
+            ;;
+        # '\177', '\b' :: Backspace
+        [0-9a-f]|$'\177'|$'\b')
+            draw_statusbar
+            ;;
+        # '' :: Enter
+        '')
+            set_colors
+            draw_palette
+            draw_statusbar
+            draw_keybindings
+            ;;
+    esac
+}
+
+edit_buffer_value() {
+    case $1 in
+        [0-9a-zA-Z._]|' '|-)
+            (( ${#EDIT_BUFFER} > MAX_BUFFER_SIZE )) && return
+            EDIT_BUFFER="$EDIT_BUFFER$1"
+            ;;
+        # '\177', '\b' :: Backspace
+        $'\177'|$'\b')
+            (( ${#EDIT_BUFFER} <= 0 )) && return
+            EDIT_BUFFER="${EDIT_BUFFER::-1}"
+            ;;
+    esac
+}
+
+edit_hex_value() {
+    case $1 in
+        [0-9a-f])
+            (( ${#EDIT_BUFFER} > 6 )) && return
+            EDIT_BUFFER="$EDIT_BUFFER$1"
+            ;;
+        # '\177', '\b' :: Backspace
+        $'\177'|$'\b')
+            (( ${#EDIT_BUFFER} <= 1 )) && return
+            EDIT_BUFFER="${EDIT_BUFFER::-1}"
+            ;;
     esac
 }
 
 clamp_scheme_window() {
-    local normal_height=$((BASE_WINDOW_SIZE + 2)) # Borders
-    # Account for box borders
-    WINDOW_SIZE=$((LINES < normal_height ? LINES - 2 : BASE_WINDOW_SIZE))
+    local normal_height=$((BASE_WINDOW_SIZE + 4)) # Borders, statusbar, keybindings
+    # Account for box borders, statusbar, keybindings, and slack
+    WINDOW_SIZE=$((LINES < normal_height ? LINES - 5 : BASE_WINDOW_SIZE))
 
     local gap=$((WINDOW_MAX - WINDOW_MIN))
     (( gap > WINDOW_SIZE )) && {
@@ -475,6 +830,39 @@ clamp_scheme_window() {
         WINDOW_MAX=$((WINDOW_MIN + gap))
         clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
     }
+}
+
+save_colorscheme() {
+    local base_filename="$SCHEME_DIR/$EDIT_BUFFER"
+    local filename="$base_filename"
+    local i=1
+    while [ -f "$filename" ];
+    do
+        filename="$base_filename.$i"
+        i=$((i + 1))
+    done
+
+    cat > "$filename" << EOF
+foreground: $FOREGROUND
+background: $BACKGROUND
+opacity: $OPACITY
+color0: ${COLORS[0]}
+color1: ${COLORS[1]}
+color2: ${COLORS[2]}
+color3: ${COLORS[3]}
+color4: ${COLORS[4]}
+color5: ${COLORS[5]}
+color6: ${COLORS[6]}
+color7: ${COLORS[7]}
+color8: ${COLORS[8]}
+color9: ${COLORS[9]}
+color10: ${COLORS[10]}
+color11: ${COLORS[11]}
+color12: ${COLORS[12]}
+color13: ${COLORS[13]}
+color14: ${COLORS[14]}
+color15: ${COLORS[15]}
+EOF
 }
 
 main

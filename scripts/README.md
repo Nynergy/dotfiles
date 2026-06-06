@@ -8,7 +8,6 @@ They do a bunch of things,
 
 - [Color Scripts](#color-scripts)
   - [chameleon](#chameleon)
-  - [palette](#palette)
   - [prism](#prism)
   - [rimeglass](#rimeglass)
 - [Display Scripts](#display-scripts)
@@ -36,20 +35,6 @@ They do a bunch of things,
 ### chameleon
 
 It applies colors to Xresources.
-
-#### Dependencies
-
-- Apt
-  - suckless-tools
-
-#### Suggested Installs
-
-- Apt
-  - fonts-terminus
-
-### palette
-
-It saves colors from Xresources.
 
 #### Dependencies
 

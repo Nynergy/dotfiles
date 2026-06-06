@@ -3,8 +3,8 @@
 # A master script for recoloring applications
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.1
-# Last Modified:    01-Mar-2024
+# Version:          1.0.2
+# Last Modified:    06-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 DUNST_CONFIG=$HOME/.config/dunst/dunstrc
@@ -18,8 +18,8 @@ xrdb load "$XRESOURCES"
 pkill dunst
 
 get_colors () {
-    BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
-    FOREGROUND=$(awk '/color7:/ {print $2}' "$XRESOURCES")
+    BACKGROUND=$(awk '/background:/ {print $2}' "$XRESOURCES" | head -n 1)
+    FOREGROUND=$(awk '/foreground:/ {print $2}' "$XRESOURCES")
 
     BACKGROUND_NO_HASH=${BACKGROUND//#/}
 
@@ -29,14 +29,19 @@ get_colors () {
 }
 
 gen_dunst () {
-    sed -i --follow-symlinks -E "s/background = \"#[0-9a-z]+\"/background = \"$BACKGROUND\"/" "$DUNST_CONFIG"
-    sed -i --follow-symlinks -E "s/foreground = \"#[0-9a-z]+\"/foreground = \"$FOREGROUND\"/" "$DUNST_CONFIG"
-    sed -i --follow-symlinks -E "s/frame_color = \"#[0-9a-z]+\"/frame_color = \"$GREEN\"/" "$DUNST_CONFIG"
+    sed -i --follow-symlinks -E \
+        "s/background = \"#[0-9a-z]+\"/background = \"$BACKGROUND\"/" "$DUNST_CONFIG"
+    sed -i --follow-symlinks -E \
+        "s/foreground = \"#[0-9a-z]+\"/foreground = \"$FOREGROUND\"/" "$DUNST_CONFIG"
+    sed -i --follow-symlinks -E \
+        "s/frame_color = \"#[0-9a-z]+\"/frame_color = \"$GREEN\"/" "$DUNST_CONFIG"
 }
 
 gen_polybar () {
-    sed -i --follow-symlinks -E "s/black = #c0[0-9a-z]+/black = #c0$BACKGROUND_NO_HASH/" "$POLYBAR_CONFIG"
-    sed -i --follow-symlinks -E "s/invisible = #00[0-9a-z]+/invisible = #00$BACKGROUND_NO_HASH/" "$POLYBAR_CONFIG"
+    sed -i --follow-symlinks -E \
+        "s/black = #c0[0-9a-z]+/black = #c0$BACKGROUND_NO_HASH/" "$POLYBAR_CONFIG"
+    sed -i --follow-symlinks -E \
+        "s/invisible = #00[0-9a-z]+/invisible = #00$BACKGROUND_NO_HASH/" "$POLYBAR_CONFIG"
 }
 
 gen_zathura () {
@@ -73,6 +78,7 @@ EOF
 }
 
 get_colors
+
 gen_dunst
 gen_polybar
 gen_zathura
