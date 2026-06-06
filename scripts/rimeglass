@@ -23,6 +23,7 @@ EXAMPLE_INDEX=0
 
 NO_FORMAT='\e[m'
 BOLD='\e[1m'
+UNDERLINE='\e[4m'
 HIGHLIGHT='\e[7m'
 
 main () {
@@ -196,7 +197,8 @@ draw_box() {
     printf '┌%s┐' "$bar"
     move "$y" $((x + 2))
     set_modifiers "$BOLD"
-    print_color "$title_color" '%s' "$title"
+    print_color "$title_color"
+    printf '%s' "$title"
     reset_modifiers
 
     for (( i=1; i < height; i++ )); {
@@ -229,15 +231,22 @@ draw_schemes() {
 
     set_colors
 
-    local digits=${#NUM_SCHEMES}
-    local pad="%Xd"
-    pad="${pad//X/$digits}"
+    local adjusted_index=$((INDEX + 1))
+    local max_digits=${#NUM_SCHEMES}
+    local curr_digits=${#adjusted_index}
+    local digit_diff=$((max_digits - curr_digits))
 
     move $HEIGHT 3
     set_modifiers "$BOLD"
-    print_color 1 "$pad" $((INDEX + 1))
-    print_color 7 '/'
-    print_color 4 '%d' "$NUM_SCHEMES"
+    print_color 1
+    for (( i=0; i < digit_diff; i++)); {
+        printf ' '
+    }
+    printf '%d' $adjusted_index
+    print_color 7
+    printf '/'
+    print_color 4
+    printf '%d' "$NUM_SCHEMES"
     reset_modifiers
 }
 
@@ -251,7 +260,8 @@ draw_palette() {
 
     move 1 $((PALETTE_X + PALETTE_WIDTH / 2 - ${#title} / 2))
     set_modifiers "$BOLD"
-    print_color 6 "$title"
+    print_color 6
+    printf '%s' "$title"
     reset_modifiers
 
     move 3 $PALETTE_X
@@ -286,20 +296,24 @@ draw_palette_line() {
         printf '\33[37;40m %s ' "$2"
     else
         set_modifiers "$HIGHLIGHT"
-        print_color "$1" ' %s ' "$2"
+        print_color "$1"
+        printf ' %s ' "$2"
     fi
     reset_modifiers
     printf ' %2d ' $(($1 + 8))
     set_modifiers "$HIGHLIGHT"
-    print_color $(($1 + 8)) ' %s ' "$3"
+    print_color $(($1 + 8))
+    printf ' %s ' "$3"
     reset_modifiers
 }
 
 draw_example_code() {
-    # TODO: Make more examples for Python, HTML, Javascript, etc.
+    # TODO: Make more examples for other languages
     local x=$((PALETTE_X + PALETTE_WIDTH + 1)) # Plus gap
     local width=$((COLUMNS - x + 1)) # Account for gap
 
+    # Minus borders and gap, then border
+    clear_box $((x + 2)) 3 $((width - 3)) $((WINDOW_SIZE - 1))
     draw_box $x 1 $width $HEIGHT 'EXAMPLE CODE' 2
 
     local example=${EXAMPLES[$EXAMPLE_INDEX]}
@@ -322,6 +336,7 @@ draw_example_code() {
 
         line="${line//%HIGHLIGHT%/$HIGHLIGHT}"
         line="${line//%BOLD%/$BOLD}"
+        line="${line//%UNDERLINE%/$UNDERLINE}"
         line="${line//%RESET%/$NO_FORMAT}"
 
         move $y $x
@@ -332,7 +347,8 @@ draw_example_code() {
     move $HEIGHT $x
     printf 'File: '
     set_modifiers "$BOLD"
-    print_color 5 '%s' "$example"
+    print_color 5
+    printf '%s' "$example"
     reset_modifiers
 }
 
@@ -397,9 +413,6 @@ reset_modifiers () {
 
 print_color() {
     printf '\e[38;5;%dm' "$1"
-    # TODO: We don't want this in here
-    # shellcheck disable=SC2059
-    printf "$2" "$3"
 }
 
 key () {
@@ -421,46 +434,41 @@ key () {
             exit
             ;;
         j)
-            (( INDEX < NUM_SCHEMES - 1 )) && {
-                INDEX=$((INDEX + 1))
-                draw_schemes
-            }
+            (( INDEX < NUM_SCHEMES - 1 )) && INDEX=$((INDEX + 1))
             ;;
         J)
-            (( INDEX < NUM_SCHEMES - 1)) && {
-                INDEX=$((INDEX + 5))
-                (( INDEX >= NUM_SCHEMES )) && INDEX=$((NUM_SCHEMES - 1))
-                draw_schemes
-            }
+            (( INDEX < NUM_SCHEMES - 1)) && INDEX=$((INDEX + 5))
+            (( INDEX >= NUM_SCHEMES )) && INDEX=$((NUM_SCHEMES - 1))
             ;;
         k)
-            (( INDEX > 0 )) && {
-                INDEX=$((INDEX - 1))
-                draw_schemes
-            }
+            (( INDEX > 0 )) && INDEX=$((INDEX - 1))
             ;;
         K)
-            (( INDEX > 0 )) && {
-                INDEX=$((INDEX - 5))
-                (( INDEX < 0 )) && INDEX=0
-                draw_schemes
-            }
+            (( INDEX > 0 )) && INDEX=$((INDEX - 5))
+            (( INDEX < 0 )) && INDEX=0
             ;;
         g)
             INDEX=0
-            draw_schemes
             ;;
         G)
             INDEX=$((NUM_SCHEMES - 1))
-            draw_schemes
             ;;
         e)
             EXAMPLE_INDEX=$((EXAMPLE_INDEX + 1))
             (( EXAMPLE_INDEX >= NUM_EXAMPLES )) && EXAMPLE_INDEX=0
-            draw_example_code
             ;;
     esac
 
+    # Bulk handle different redraw events
+    case ${special_key:-$1} in
+        j|J|k|K|g|G)
+            draw_schemes
+            draw_palette
+            ;;
+        e)
+            draw_example_code
+            ;;
+    esac
 }
 
 clamp_scheme_window() {
