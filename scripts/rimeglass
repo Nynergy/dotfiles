@@ -3,7 +3,7 @@
 # A script for previewing colorschemes in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          1.2.0
+# Version:          1.2.1
 # Last Modified:    06-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
@@ -103,6 +103,7 @@ get_colors() {
     esac
 
     declare -aG COLORS
+
     local i
     for i in {0..15}; {
         COLORS[i]=$(awk -v num="color$i:" '$0 ~ num {print $2}' "$1")
@@ -173,7 +174,7 @@ clear_box() {
     local x=$1 y=$2
     local width=$3 height=$4
 
-    local i
+    local i j
     for (( i=0; i < width; i++ )); {
         for (( j=0; j < height; j++ )); {
             move $((y + j)) $((x + i))
@@ -189,7 +190,7 @@ draw_box() {
 
     local h_width=$((width - 2)) # Minus corners
     local bar
-    bar=$(printf '%*s' $h_width)
+    printf -v bar '%*s' "$h_width" " "
     bar=${bar// /─}
 
     move "$y" "$x"
@@ -389,7 +390,6 @@ draw_keybindings() {
     move $y 1
     clear_line
 
-    # TODO: Double check existing ones, add EDIT MODE
     case $MODE in
         SCHEME)
             draw_keybinding 'j/k/J/K' 'Scroll'
@@ -401,12 +401,15 @@ draw_keybindings() {
         PALETTE)
             draw_keybinding 'h/j/k/l' 'Color'
             draw_keybinding 'f/b' 'FG/BG'
-            draw_keybinding '<SPACE>' 'Edit'
-            draw_keybinding 'm' 'Magnitude'
+            draw_keybinding '<ENTER>' 'Edit'
+            draw_keybinding 'S' 'Save Scheme'
             draw_keybinding 'e' 'Cycle Example'
             draw_keybinding 's' 'Scheme Mode'
             draw_keybinding 'q/<ESC>' 'Quit'
             ;;
+        EDIT)
+            draw_keybinding '<ESC>' 'Palette Mode'
+            draw_keybinding '<ENTER>' 'Confirm'
     esac
 }
 
@@ -593,14 +596,6 @@ handle_palette_mode_events() {
                 SPECIAL_SELECT=BG
             fi
             ;;
-        m)
-            if [ "$PALETTE_MAGNITUDE" == SMALL ];
-            then
-                PALETTE_MAGNITUDE=LARGE
-            else
-                PALETTE_MAGNITUDE=SMALL
-            fi
-            ;;
         e)
             EXAMPLE_INDEX=$((EXAMPLE_INDEX + 1))
             (( EXAMPLE_INDEX >= NUM_EXAMPLES )) && EXAMPLE_INDEX=0
@@ -639,7 +634,7 @@ handle_palette_mode_events() {
 
     # Bulk handle different redraw events
     case $1 in
-        h|j|k|l|m|f|b)
+        h|j|k|l|f|b)
             draw_palette
             ;;
         e)
@@ -720,9 +715,6 @@ handle_save_events() {
 
 handle_modify_events() {
     case $1 in
-        q)
-            exit
-            ;;
         # '\e' :: Escape
         $'\e')
             MODE=PALETTE
