@@ -6,6 +6,9 @@
 # Version:          1.1.0
 # Last Modified:    03-Jun-2026
 
+# TODO: Move the layouts from 'misc' to 'scripts'
+#       The location of the symlink can stay the same
+
 XRESOURCES=$HOME/.Xresources
 
 FONT="Terminus-10"
