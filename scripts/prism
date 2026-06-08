@@ -46,6 +46,8 @@ gen_polybar () {
 
 gen_zathura () {
     # Rather than modify the config in-place, we just regenerate it from scratch
+    # TODO: Why don't we just modify this in-place?
+    #       Doing so would allow us to add version info at the top.
     cat > "$ZATHURA_CONFIG" << EOF
 set default-fg \\$BACKGROUND
 set default-bg \\$BACKGROUND
