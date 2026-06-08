@@ -26,6 +26,7 @@ They do a bunch of things,
 - [System Scripts](#system-scripts)
   - [puppetmaster](#puppetmaster)
 - [Misc Scripts](#misc-scripts)
+  - [isli](#isli)
   - [lintel](#lintel)
   - [juniper](#juniper)
   - [soundspool](#soundspool)
@@ -245,6 +246,18 @@ It pulls the strings.
   - i3-wm
 
 ## Misc Scripts
+
+### isli
+
+It tracks the issues.
+
+#### Dependencies
+
+None
+
+#### Suggested Installs
+
+None
 
 ### lintel
 
