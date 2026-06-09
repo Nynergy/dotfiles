@@ -1,0 +1,3 @@
+$DOTFILES/rimeglass/rimeglass=$HOME/.local/bin/rimeglass
+$DOTFILES/rimeglass/colorschemes=$HOME/.config/rimeglass/colorschemes
+$DOTFILES/rimeglass/example_code=$HOME/.config/rimeglass/example_code

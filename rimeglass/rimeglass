@@ -3,12 +3,17 @@
 # A script for previewing colorschemes in the terminal
 
 # Maintainer:       Ben Buchanan
-# Version:          1.2.1
-# Last Modified:    06-Jun-2026
+# Version:          1.3.1
+# Last Modified:    08-Jun-2026
+
+# TODO: Make more code example files for other languages
+# TODO: Move rimeglass into its own directory (like slip)
+#       We should also move the colorschemes and example files with it
+#       We will need to modify rimeglass and all our other color scripts with the new location
 
 XRESOURCES=$HOME/.Xresources
 
-SCHEME_DIR=$HOME/.config/colorschemes
+SCHEME_DIR=$HOME/.config/rimeglass/colorschemes
 SCHEMES=()
 MAX_SCHEME_LENGTH=16
 BASE_WINDOW_SIZE=20
@@ -20,7 +25,7 @@ INDEX=0
 PALETTE_INDEX=0
 SPECIAL_SELECT=
 
-EXAMPLE_DIR=$HOME/.config/example_code
+EXAMPLE_DIR=$HOME/.config/rimeglass/example_code
 EXAMPLES=()
 EXAMPLE_INDEX=0
 
@@ -30,18 +35,6 @@ NO_FORMAT='\e[m'
 BOLD='\e[1m'
 UNDERLINE='\e[4m'
 HIGHLIGHT='\e[7m'
-
-# TODO: Make more code example files for other languages
-# TODO: Reorder functions to make things more organized
-# TODO: Move rimeglass into its own directory (like slip)
-#       We should also move the colorschemes and example files with it
-#       We will need to modify rimeglass and all our other color scripts with the new location
-
-die () {
-    local message=$1
-    printf '%s\n' "$message"
-    exit 1
-}
 
 main () {
     (( BASH_VERSINFO[0] > 3 )) && read_flags=(-t 0.05)
@@ -65,6 +58,14 @@ main () {
         # Exit if there is no longer a terminal attached
         [[ -t 1 ]] || exit 1
     }
+}
+
+# MISC
+
+die () {
+    local message=$1
+    printf '%s\n' "$message"
+    exit 1
 }
 
 read_files_from_dir() {
@@ -122,6 +123,79 @@ set_colors() {
     }
 }
 
+clamp_scheme_window() {
+    local normal_height=$((BASE_WINDOW_SIZE + 4)) # Borders, statusbar, keybindings
+    # Account for box borders, statusbar, keybindings, and slack
+    WINDOW_SIZE=$((LINES < normal_height ? LINES - 5 : BASE_WINDOW_SIZE))
+
+    local gap=$((WINDOW_MAX - WINDOW_MIN))
+    (( gap > WINDOW_SIZE )) && {
+        WINDOW_MIN=0
+        WINDOW_MAX=$((WINDOW_SIZE - 1))
+        INDEX=0
+        redraw
+    }
+
+    (( INDEX > WINDOW_MAX )) && {
+        WINDOW_MAX=$INDEX
+        WINDOW_MIN=$((WINDOW_MAX - gap))
+        clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
+    }
+
+    (( INDEX < WINDOW_MIN )) && {
+        WINDOW_MIN=$INDEX
+        WINDOW_MAX=$((WINDOW_MIN + gap))
+        clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
+    }
+}
+
+save_colorscheme() {
+    local base_filename="$SCHEME_DIR/$EDIT_BUFFER"
+    local filename="$base_filename"
+    local i=1
+    while [ -f "$filename" ];
+    do
+        filename="$base_filename.$i"
+        ((i++))
+    done
+
+    cat > "$filename" << EOF
+foreground: $FOREGROUND
+background: $BACKGROUND
+opacity: $OPACITY
+color0: ${COLORS[0]}
+color1: ${COLORS[1]}
+color2: ${COLORS[2]}
+color3: ${COLORS[3]}
+color4: ${COLORS[4]}
+color5: ${COLORS[5]}
+color6: ${COLORS[6]}
+color7: ${COLORS[7]}
+color8: ${COLORS[8]}
+color9: ${COLORS[9]}
+color10: ${COLORS[10]}
+color11: ${COLORS[11]}
+color12: ${COLORS[12]}
+color13: ${COLORS[13]}
+color14: ${COLORS[14]}
+color15: ${COLORS[15]}
+EOF
+}
+
+enter_edit_mode() {
+    MODE=EDIT; EDIT_TYPE=$1
+    PROMPT="$2"; EDIT_BUFFER="$3"
+    show_cursor
+}
+
+exit_edit_mode() {
+    MODE=$1; EDIT_TYPE=
+    PROMPT= ; EDIT_BUFFER=
+    hide_cursor
+}
+
+# TERMINAL
+
 setup_terminal () {
     save_cursor_position
     use_alt_screen_buffer
@@ -151,6 +225,88 @@ get_term_size () {
     shopt -s checkwinsize; (:;:)
 }
 
+save_cursor_position () {
+    printf '\e[s'
+}
+
+restore_cursor_position () {
+    printf '\e[u'
+}
+
+use_alt_screen_buffer () {
+    printf '\e[?1049h'
+}
+
+use_main_screen_buffer () {
+    printf '\e[?1049l'
+}
+
+disable_line_wrapping () {
+    printf '\e[?7l'
+}
+
+enable_line_wrapping () {
+    printf '\e[?7h'
+}
+
+hide_cursor () {
+    printf '\e[?25l'
+}
+
+show_cursor () {
+    printf '\e[?25h'
+}
+
+move () {
+    printf '\e[%d;%dH' "$1" "$2"
+}
+
+erase_up () {
+    printf '\e[1J'
+}
+
+erase_all () {
+    printf '\e[2J'
+}
+
+clear_line () {
+    printf '\e[0K'
+}
+
+clear_screen () {
+    move "$LINES" "$COLUMNS"
+    erase_up
+    [[ -v "$TMUX" ]] && erase_all # Fix for tmux
+    move 0 0
+}
+
+clear_box() {
+    local x=$1 y=$2
+    local width=$3 height=$4
+
+    local i j
+    for (( i=0; i < width; i++ )); {
+        for (( j=0; j < height; j++ )); {
+            move $((y + j)) $((x + i))
+            printf ' '
+        }
+    }
+}
+
+set_modifiers () {
+    printf '%b' "$1"
+}
+
+reset_modifiers () {
+    printf '%b' "$NO_FORMAT"
+}
+
+print_color() {
+    printf '\e[38;5;%dm' "$1"
+}
+
+# DRAWING
+
 redraw () {
     clamp_scheme_window
     clear_screen
@@ -165,19 +321,6 @@ redraw () {
 
     draw_statusbar
     draw_keybindings
-}
-
-clear_box() {
-    local x=$1 y=$2
-    local width=$3 height=$4
-
-    local i j
-    for (( i=0; i < width; i++ )); {
-        for (( j=0; j < height; j++ )); {
-            move $((y + j)) $((x + i))
-            printf ' '
-        }
-    }
 }
 
 draw_box() {
@@ -433,72 +576,7 @@ draw_keybinding() {
     printf ': %s ' "$2"
 }
 
-save_cursor_position () {
-    printf '\e[s'
-}
-
-restore_cursor_position () {
-    printf '\e[u'
-}
-
-use_alt_screen_buffer () {
-    printf '\e[?1049h'
-}
-
-use_main_screen_buffer () {
-    printf '\e[?1049l'
-}
-
-disable_line_wrapping () {
-    printf '\e[?7l'
-}
-
-enable_line_wrapping () {
-    printf '\e[?7h'
-}
-
-hide_cursor () {
-    printf '\e[?25l'
-}
-
-show_cursor () {
-    printf '\e[?25h'
-}
-
-move () {
-    printf '\e[%d;%dH' "$1" "$2"
-}
-
-erase_up () {
-    printf '\e[1J'
-}
-
-erase_all () {
-    printf '\e[2J'
-}
-
-clear_line () {
-    printf '\e[0K'
-}
-
-clear_screen () {
-    move "$LINES" "$COLUMNS"
-    erase_up
-    [[ -v "$TMUX" ]] && erase_all # Fix for tmux
-    move 0 0
-}
-
-set_modifiers () {
-    printf '%b' "$1"
-}
-
-reset_modifiers () {
-    printf '%b' "$NO_FORMAT"
-}
-
-print_color() {
-    printf '\e[38;5;%dm' "$1"
-}
+# EVENTS
 
 key () {
     # Handle special key presses
@@ -563,18 +641,6 @@ handle_scheme_mode_events() {
             draw_keybindings
             ;;
     esac
-}
-
-enter_edit_mode() {
-    MODE=EDIT; EDIT_TYPE=$1
-    PROMPT="$2"; EDIT_BUFFER="$3"
-    show_cursor
-}
-
-exit_edit_mode() {
-    MODE=$1; EDIT_TYPE=
-    PROMPT= ; EDIT_BUFFER=
-    hide_cursor
 }
 
 handle_palette_mode_events() {
@@ -730,65 +796,6 @@ edit_buffer_value() {
         $'\177'|$'\b')
             (( ${#EDIT_BUFFER} <= min )) || EDIT_BUFFER="${EDIT_BUFFER::-1}" ;;
     esac
-}
-
-clamp_scheme_window() {
-    local normal_height=$((BASE_WINDOW_SIZE + 4)) # Borders, statusbar, keybindings
-    # Account for box borders, statusbar, keybindings, and slack
-    WINDOW_SIZE=$((LINES < normal_height ? LINES - 5 : BASE_WINDOW_SIZE))
-
-    local gap=$((WINDOW_MAX - WINDOW_MIN))
-    (( gap > WINDOW_SIZE )) && {
-        WINDOW_MIN=0
-        WINDOW_MAX=$((WINDOW_SIZE - 1))
-        INDEX=0
-        redraw
-    }
-
-    (( INDEX > WINDOW_MAX )) && {
-        WINDOW_MAX=$INDEX
-        WINDOW_MIN=$((WINDOW_MAX - gap))
-        clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
-    }
-
-    (( INDEX < WINDOW_MIN )) && {
-        WINDOW_MIN=$INDEX
-        WINDOW_MAX=$((WINDOW_MIN + gap))
-        clear_box 3 2 "$MAX_SCHEME_LENGTH" $WINDOW_SIZE
-    }
-}
-
-save_colorscheme() {
-    local base_filename="$SCHEME_DIR/$EDIT_BUFFER"
-    local filename="$base_filename"
-    local i=1
-    while [ -f "$filename" ];
-    do
-        filename="$base_filename.$i"
-        ((i++))
-    done
-
-    cat > "$filename" << EOF
-foreground: $FOREGROUND
-background: $BACKGROUND
-opacity: $OPACITY
-color0: ${COLORS[0]}
-color1: ${COLORS[1]}
-color2: ${COLORS[2]}
-color3: ${COLORS[3]}
-color4: ${COLORS[4]}
-color5: ${COLORS[5]}
-color6: ${COLORS[6]}
-color7: ${COLORS[7]}
-color8: ${COLORS[8]}
-color9: ${COLORS[9]}
-color10: ${COLORS[10]}
-color11: ${COLORS[11]}
-color12: ${COLORS[12]}
-color13: ${COLORS[13]}
-color14: ${COLORS[14]}
-color15: ${COLORS[15]}
-EOF
 }
 
 main

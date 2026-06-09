@@ -9,7 +9,6 @@ They do a bunch of things,
 - [Color Scripts](#color-scripts)
   - [chameleon](#chameleon)
   - [prism](#prism)
-  - [rimeglass](#rimeglass)
 - [Display Scripts](#display-scripts)
   - [mosaic](#mosaic)
   - [torch](#torch)
@@ -62,18 +61,6 @@ None
   - fonts-terminus
   - dunst
   - polybar
-
-### rimeglass
-
-It previews the colors.
-
-#### Dependencies
-
-None
-
-#### Suggested Installs
-
-None
 
 ## Display Scripts
 
