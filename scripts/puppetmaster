@@ -6,6 +6,9 @@
 # Version:          1.3.0
 # Last Modified:    06-Jun-2026
 
+# TODO: If the gaps-toggle file doesn't exist, create it with a default value
+#       Then we can remove it from the dotfiles repo
+
 XRESOURCES=$HOME/.Xresources
 WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
 SET_WALLPAPER_DIR=$HOME/Pictures/Wallpaper
