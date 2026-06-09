@@ -6,8 +6,6 @@
 # Version:          1.3.1
 # Last Modified:    08-Jun-2026
 
-# TODO: Make more code example files for other languages
-
 XRESOURCES=$HOME/.Xresources
 
 SCHEME_DIR=$HOME/.config/rimeglass/colorschemes

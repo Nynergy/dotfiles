@@ -17,10 +17,6 @@
 ##   -n <DESC>, --new <DESC>    Create a new issue with description <DESC>
 ##   -a, --all                  List all tasks, regardless of status
 
-# TODO: Print the tasks with indices, and add an option to open a task with a
-#       specific index. This should use the $EDITOR environment variable, or
-#       complain if it is unset.
-
 SCRIPT="${BASH_SOURCE[0]##*/}"
 
 print_usage () {

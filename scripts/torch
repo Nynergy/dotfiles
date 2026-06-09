@@ -7,9 +7,6 @@
 # Version:          1.1.0
 # Last Modified:    03-Jun-2026
 
-# TODO: If the torch-brightness file doesn't exist, create it with a default
-#       value. Then we can remove it from the dotfiles repo
-
 OUTPUT_DEVICES=$(xrandr -q | awk '/ connected/ {print $1}')
 BRIGHTNESS_FILE=$HOME/.config/torch-brightness
 
