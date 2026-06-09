@@ -7,9 +7,6 @@
 # Last Modified:    08-Jun-2026
 
 # TODO: Make more code example files for other languages
-# TODO: Move rimeglass into its own directory (like slip)
-#       We should also move the colorschemes and example files with it
-#       We will need to modify rimeglass and all our other color scripts with the new location
 
 XRESOURCES=$HOME/.Xresources
 
