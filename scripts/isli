@@ -4,7 +4,7 @@
 # A script for tracking issues
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.1
+# Version:          1.2.0
 # Last Modified:    10-Jun-2026
 
 ## Track issues in the terminal
@@ -49,7 +49,7 @@ main () {
     get_tasks
 
     [[ -n $OPEN ]] && {
-        open_task $OPEN
+        open_task "$OPEN"
         exit 0
     }
 
@@ -139,14 +139,19 @@ get_tasks() {
     local task task_status
     while read -r task; do
         task_status=$(awk '/Status:/ {print $3}' "$TASKS_DIR/$task")
-        [[ $task_status == OPEN || -n $ALL_TASKS ]] && TASKS+=($task)
+        [[ $task_status == OPEN || -n $ALL_TASKS ]] && TASKS+=("$task")
     done <<< "$(ls -1r "$TASKS_DIR")"
 }
 
 list_tasks() {
-    local task task_status task_desc task_color
+    local task task_status task_desc task_color task_digits
+
+    local num_tasks=${#TASKS[@]}
+    local max_digits=${#num_tasks}
+
     local i=1
-    for task in ${TASKS[@]}; {
+    local j
+    for task in "${TASKS[@]}"; {
         task_desc="$(head -n 1 "$TASKS_DIR/$task")"
         task_desc="${task_desc:2}"
 
@@ -155,6 +160,11 @@ list_tasks() {
             OPEN) task_color=2 ;;
             *)    task_color=5 ;;
         esac
+
+        task_digits=${#i}
+        for (( j=task_digits; j < max_digits; j++ )); {
+            printf ' '
+        }
 
         print_color 6; printf ' %d ' "$i"
         print_color $task_color; printf '%s' "$task"
@@ -168,10 +178,10 @@ open_task() {
     local task
     local index=$1
     local i=1
-    for task in ${TASKS[@]}; {
+    for task in "${TASKS[@]}"; {
         (( index == i )) && {
             [[ -n $EDITOR ]] || {
-                printf 'No $EDITOR variable is set.\n'
+                printf "No \$EDITOR variable is set.\n"
                 exit 1
             }
             printf '%s/%s' "$TASKS_DIR" "$task" | xargs -o "$EDITOR"

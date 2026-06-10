@@ -24,7 +24,7 @@ if type "xrandr"
 then
 	for m in $(xrandr --query | awk '/ connected/ {print $1}')
     do
-        orientation=$(xrandr -q --verbose | awk -v pattern=$m '$0 ~ pattern {sub("primary ", "", $0); print $5}')
+        orientation=$(xrandr -q --verbose | awk -v pattern="$m" '$0 ~ pattern {sub("primary ", "", $0); print $5}')
         case $orientation in
             left|right)
                 MONITOR=$m polybar --reload "$BAR-tiny" &
