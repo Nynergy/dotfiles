@@ -1,3 +1,9 @@
+# Configuration file for zathura
+
+# Maintainer:       Ben Buchanan
+# Version:          1.0.0
+# Last Modified:    09-Jun-2026
+
 set default-fg \#242121
 set default-bg \#242121
 

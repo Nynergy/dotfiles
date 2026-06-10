@@ -34,14 +34,3 @@ this dotfiles repo:
 ```
 $ grep -r Version: ./**/* | grep -v '$line' | cut -d ':' -f 1,3 | column -t
 ```
-
-Due to how some scripts function, there are some files that do not contain
-version information or other metadata at the top of the file. Here are all those
-files without version information:
-
-- All color palette files for use with `rimeglass`
-- All layout files for use with `mosaic`
-- [polybar/gaps-toggle](polybar/gaps-toggle)
-- [scripts/torch-brightness](scripts/torch-brightness)
-- [urxvt/Xresources](urxvt/Xresources)
-- [zathura/zathurarc](zathura/zathurarc)

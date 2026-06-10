@@ -3,8 +3,8 @@
 # A general system utility script that uses dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.3.0
-# Last Modified:    06-Jun-2026
+# Version:          1.4.0
+# Last Modified:    09-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 WALLPAPERS_DIR=$HOME/Pictures/Wallpapers
@@ -30,6 +30,8 @@ WEBCAM_DEVICE=/dev/video0
 
 GAPS_TOGGLE_FILE=$HOME/.config/polybar/gaps-toggle
 GAPS_SIZE=12
+
+[[ -f "$GAPS_TOGGLE" ]] || printf 'On' > "$GAPS_TOGGLE"
 
 Confirm() {
 	CONFIRM="$(echo -e 'No\nYes' | dmenu -l 2 "${CONFIRM_SETTINGS[@]}" -i -p 'Are you sure?')";

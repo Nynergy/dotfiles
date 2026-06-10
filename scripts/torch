@@ -4,11 +4,13 @@
 # Basically, we just cop out and use xrandr instead
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    03-Jun-2026
+# Version:          1.2.0
+# Last Modified:    09-Jun-2026
 
 OUTPUT_DEVICES=$(xrandr -q | awk '/ connected/ {print $1}')
 BRIGHTNESS_FILE=$HOME/.config/torch-brightness
+
+[[ -f "$BRIGHTNESS_FILE" ]] || printf '1.0' > "$BRIGHTNESS_FILE"
 
 if [ $# -ne 2 ]
 then
@@ -45,7 +47,7 @@ fi
 
 if [ "$NEW_BRIGHTNESS" -lt 5 ]
 then
-    echo "Cannot decrese brightness further"
+    echo "Cannot decrease brightness further"
     exit
 fi
 

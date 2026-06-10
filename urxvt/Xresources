@@ -1,3 +1,9 @@
+! Configuration file for urxvt
+
+! Maintainer:       Ben Buchanan
+! Version:          1.0.0
+! Last Modified:    09-Jun-2026
+
 !!Colors
 ! special
 *.foreground:	#fbc1a4

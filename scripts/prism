@@ -3,15 +3,13 @@
 # A master script for recoloring applications
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.2
-# Last Modified:    06-Jun-2026
+# Version:          1.1.0
+# Last Modified:    09-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 DUNST_CONFIG=$HOME/.config/dunst/dunstrc
 POLYBAR_CONFIG=$HOME/.config/polybar/config
 ZATHURA_CONFIG=$HOME/.config/zathura/zathurarc
-
-FONT="Terminus 10"
 
 xrdb load "$XRESOURCES"
 
@@ -45,36 +43,49 @@ gen_polybar () {
 }
 
 gen_zathura () {
-    # Rather than modify the config in-place, we just regenerate it from scratch
-    cat > "$ZATHURA_CONFIG" << EOF
-set default-fg \\$BACKGROUND
-set default-bg \\$BACKGROUND
+    local pattern replace
 
-set statusbar-fg \\$BACKGROUND
-set statusbar-bg \\$GREEN
+    pattern='default-fg .*'; replace="default-fg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='default-bg .*'; replace="default-bg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 
-set inputbar-fg \\$GREEN
-set inputbar-bg \\$BACKGROUND
+    pattern='statusbar-fg .*'; replace="statusbar-fg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='statusbar-bg .*'; replace="statusbar-bg \\\\$GREEN"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 
-set completion-fg \\$FOREGROUND
-set completion-bg \\$BACKGROUND
-set completion-group-fg \\$BACKGROUND
-set completion-group-bg \\$RED
-set completion-highlight-fg \\$BACKGROUND
-set completion-highlight-bg \\$FOREGROUND
+    pattern='inputbar-fg .*'; replace="inputbar-fg \\\\$GREEN"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='inputbar-bg .*'; replace="inputbar-bg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 
-set index-fg \\$FOREGROUND
-set index-bg \\$BACKGROUND
-set index-active-fg \\$BACKGROUND
-set index-active-bg \\$YELLOW
+    pattern='completion-fg .*'; replace="completion-fg \\\\$FOREGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='completion-bg .*'; replace="completion-bg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='completion-group-fg .*'; replace="completion-group-fg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='completion-group-bg .*'; replace="completion-group-bg \\\\$RED"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='completion-highlight-fg .*'; replace="completion-highlight-fg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='completion-highlight-bg .*'; replace="completion-highlight-bg \\\\$FOREGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 
-set recolor-darkcolor \\$FOREGROUND
-set recolor-lightcolor \\$BACKGROUND
+    pattern='index-fg .*'; replace="index-fg \\\\$FOREGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='index-bg .*'; replace="index-bg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='index-active-fg .*'; replace="index-active-fg \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='index-active-bg .*'; replace="index-active-bg \\\\$YELLOW"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 
-set font "$FONT"
-
-set scroll-step 300
-EOF
+    pattern='recolor-darkcolor .*'; replace="recolor-darkcolor \\\\$FOREGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
+    pattern='recolor-lightcolor .*'; replace="recolor-lightcolor \\\\$BACKGROUND"
+    sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 }
 
 get_colors
