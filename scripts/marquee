@@ -3,16 +3,29 @@
 # A script to start polybar with a specified configuration
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.1
-# Last Modified:    03-Jun-2026
+# Version:          1.1.2
+# Last Modified:    10-Jun-2026
 
-if [ $# -lt 1 ]
-then
-    dunstify 'Error' 'Please provide the name of the bar configuration'
-    exit
-fi
+die() {
+    dunstify 'ERROR' "$1"
+    exit 1
+}
+
+(( $# < 1 )) && die 'Please provide the name of the bar configuration'
 
 BAR="$1"
+
+reload_all_monitors() {
+    local m orientation
+	for m in $(xrandr --query | awk '/ connected/ {print $1}'); {
+        orientation=$(xrandr -q --verbose | awk -v pattern="$m" \
+            '$0 ~ pattern {sub("primary ", "", $0); print $5}')
+        case $orientation in
+            left|right) MONITOR=$m polybar --reload "$BAR-tiny" & ;;
+            *)          MONITOR=$m polybar --reload "$BAR" & ;;
+        esac
+    }
+}
 
 # Kill all instances of polybar
 killall -q polybar
@@ -22,18 +35,7 @@ while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
 if type "xrandr"
 then
-	for m in $(xrandr --query | awk '/ connected/ {print $1}')
-    do
-        orientation=$(xrandr -q --verbose | awk -v pattern="$m" '$0 ~ pattern {sub("primary ", "", $0); print $5}')
-        case $orientation in
-            left|right)
-                MONITOR=$m polybar --reload "$BAR-tiny" &
-                ;;
-            *)
-                MONITOR=$m polybar --reload "$BAR" &
-                ;;
-        esac
-	done
+    reload_all_monitors
 else
 	polybar --reload "$BAR" &
 fi

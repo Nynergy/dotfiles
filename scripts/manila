@@ -3,31 +3,22 @@
 # Script for mounting the BU reports drive over the network
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.2
-# Last Modified:    03-Jun-2026
+# Version:          1.0.3
+# Last Modified:    10-Jun-2026
 
-if [ "$EUID" -ne 0 ]
-then
-    ENV_FILE="$HOME/.env.sh"
-else
-    ENV_FILE="/.env.sh"
-fi
+die() {
+    dunstify 'ERROR' "$1"
+    exit 1
+}
 
-if [ -f "$ENV_FILE" ]
-then
-    # shellcheck disable=SC1090
-    source "$ENV_FILE"
-else
-    dunstify 'Error when mounting' "Could not locate env file at '$ENV_FILE'"
-    exit
-fi
+ENV_FILE="$HOME/.env.sh"
+(( EUID == 0 )) && ENV_FILE="/.env.sh"
+
+[[ -f "$ENV_FILE" ]] || die "Could not locate env file at '$ENV_FILE'"
+# shellcheck disable=SC1090
+source "$ENV_FILE"
 
 REPORTS_MOUNT_DIR=/mnt/reports/
+[[ -d $REPORTS_MOUNT_DIR ]] || die "Mountpoint '$REPORTS_MOUNT_DIR' does not exist"
 
-if [ -d $REPORTS_MOUNT_DIR ]
-then
-    mount "$BU_REPORTS_PATH" "$REPORTS_MOUNT_DIR" -o user="$BU_REPORTS_USER"
-else
-    dunstify 'Error when mounting' "'$REPORTS_MOUNT_DIR' does not exist"
-    exit
-fi
+mount "$BU_REPORTS_PATH" "$REPORTS_MOUNT_DIR" -o user="$BU_REPORTS_USER"
