@@ -4,8 +4,8 @@
 # A script for tracking issues
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    09-Jun-2026
+# Version:          1.1.1
+# Last Modified:    10-Jun-2026
 
 ## Track issues in the terminal
 ##
@@ -45,6 +45,8 @@ main () {
         create_issue
         exit 0
     }
+
+    get_tasks
 
     [[ -n $OPEN ]] && {
         open_task $OPEN
@@ -131,48 +133,53 @@ EOF
     printf 'Created issue %s\n' "'$timestamp.md'"
 }
 
-list_tasks() {
-    local task task_status task_desc task_color
-    local i=1
+get_tasks() {
+    declare -aG TASKS
+
+    local task task_status
     while read -r task; do
         task_status=$(awk '/Status:/ {print $3}' "$TASKS_DIR/$task")
-        [[ $task_status == OPEN || -n $ALL_TASKS ]] && {
-            task_desc="$(head -n 1 "$TASKS_DIR/$task")"
-            task_desc="${task_desc:2}"
-            case $task_status in
-                OPEN) task_color=2 ;;
-                *)    task_color=5 ;;
-            esac
-            print_color 6
-            printf ' %d ' "$i"
-            print_color $task_color
-            printf '%s' "$task"
-            print_reset
-            printf ': %s\n' "$task_desc"
-
-            ((i++))
-        }
+        [[ $task_status == OPEN || -n $ALL_TASKS ]] && TASKS+=($task)
     done <<< "$(ls -1r "$TASKS_DIR")"
 }
 
+list_tasks() {
+    local task task_status task_desc task_color
+    local i=1
+    for task in ${TASKS[@]}; {
+        task_desc="$(head -n 1 "$TASKS_DIR/$task")"
+        task_desc="${task_desc:2}"
+
+        task_status=$(awk '/Status:/ {print $3}' "$TASKS_DIR/$task")
+        case $task_status in
+            OPEN) task_color=2 ;;
+            *)    task_color=5 ;;
+        esac
+
+        print_color 6; printf ' %d ' "$i"
+        print_color $task_color; printf '%s' "$task"
+        print_reset; printf ': %s\n' "$task_desc"
+
+        ((i++))
+    }
+}
+
 open_task() {
+    local task
     local index=$1
     local i=1
-    while read -r task; do
-        task_status=$(awk '/Status:/ {print $3}' "$TASKS_DIR/$task")
-        [[ $task_status == OPEN || -n $ALL_TASKS ]] && {
-            (( index == i )) && {
-                [[ -n $EDITOR ]] || {
-                    printf 'No $EDITOR variable is set.\n'
-                    exit 1
-                }
-                printf '%s/%s' "$TASKS_DIR" "$task" | xargs -o "$EDITOR"
-                break
+    for task in ${TASKS[@]}; {
+        (( index == i )) && {
+            [[ -n $EDITOR ]] || {
+                printf 'No $EDITOR variable is set.\n'
+                exit 1
             }
-
-            ((i++))
+            printf '%s/%s' "$TASKS_DIR" "$task" | xargs -o "$EDITOR"
+            break
         }
-    done <<< "$(ls -1r "$TASKS_DIR")"
+
+        ((i++))
+    }
 }
 
 print_color() {
