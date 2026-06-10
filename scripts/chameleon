@@ -3,13 +3,13 @@
 # A script for choosing and applying colorschemes to .Xresources
 
 # Maintainer:       Ben Buchanan
-# Version:          3.0.0
-# Last Modified:    08-Jun-2026
+# Version:          3.1.0
+# Last Modified:    10-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
 FONT="Terminus-10"
-BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+BACKGROUND=$(awk '/background:/ {print $2}' "$XRESOURCES" | head -n 1)
 FOREGROUND=$(awk '/color8:/ {print $2}' "$XRESOURCES")
 
 DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
@@ -18,20 +18,19 @@ DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
 
 SCHEME_DIR="$HOME/.config/rimeglass/colorschemes"
 
+die() {
+    dunstify 'ERROR' "$1"
+    exit 1
+}
+
 getSchemes() {
     SCHEMES="$(ls -1 "$SCHEME_DIR")"
-    if [ -z "$SCHEMES" ]; then
-        dunstify "ERROR WHEN CHOOSING SCHEME" "Could not read schemes from $SCHEME_DIR!"
-        exit
-    fi
+    [[ -z "$SCHEMES" ]] && die "Could not read schemes from '$SCHEME_DIR'"
 }
 
 getChoice() {
     CHOICE="$(echo -e "\n$SCHEMES" | dmenu -l 30 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Scheme:')"
-    if [ -z "$CHOICE" ]; then
-        dunstify "ERROR WHEN CHOOSING SCHEME" "User did not pick a valid scheme!"
-        exit
-    fi
+    [[ -z "$CHOICE" ]] && exit 0
 }
 
 getColors() {
@@ -58,11 +57,10 @@ setColors() {
     pattern='background: \[.*\]#[0-9a-z]*'; replace="background: $OPACITY"
     sed -i --follow-symlinks "s/$pattern/$replace/g" "$XRESOURCES"
 
-    local i
+    local i color
     for i in {0..15}; {
-        local color=${COLORS[$i]}
+        color=${COLORS[$i]}
         pattern="color$i:\t#[0-9a-z]*"; replace="color$i:\t$color"
-        printf 's/%s/%s/g\n' "$pattern" "$replace"
         sed -i --follow-symlinks "s/$pattern/$replace/g" "$XRESOURCES"
     }
 }

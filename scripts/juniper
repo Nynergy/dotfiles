@@ -3,8 +3,8 @@
 # A script for connecting to the BU network via openconnect
 
 # Maintainer:       Ben Buchanan
-# Version:          2.0.1
-# Last Modified:    03-Jun-2026
+# Version:          2.0.2
+# Last Modified:    10-Jun-2026
 
 ## Connect to the BU network via openconnect
 ##
@@ -26,21 +26,23 @@ SERVER=buvpn.binghamton.edu
 
 OPENCONNECT_OPTS=(--protocol="$PROTOCOL" -u "$USERNAME" --passwd-on-stdin "$SERVER")
 
-function printUsage() {
+print_usage() {
+    local line
     while read -r line; do
         [[ $line =~ ^##\ ?(.*)$ ]] &&
             printf '%s\n' "${BASH_REMATCH[1]/\$0/$SCRIPT}"
     done < "${BASH_SOURCE[0]}"
 }
 
-printVersion () {
+print_version () {
+    local line
     while read -r line; do
         [[ $line =~ ^#\ Version:\ *(.*)$ ]] &&
             printf '%s %s\n' "$SCRIPT" "${BASH_REMATCH[1]}"
     done < "${BASH_SOURCE[0]}"
 }
 
-function killVPN() {
+kill_vpn() {
     if pkill openconnect > /dev/null 2>&1
     then
         dunstify "VPN ($SCRIPT)" "Disconnected from '$SERVER'"
@@ -48,19 +50,19 @@ function killVPN() {
     sleep 1
 }
 
-[ $# -ne 1 ] && { printUsage; exit; }
+[ $# -ne 1 ] && { print_usage; exit; }
 
 case $1 in
     -h|--help)
-        printUsage;
+        print_usage;
         exit 0
         ;;
     -v|--version)
-        printVersion;
+        print_version;
         exit 0
         ;;
     -k|--kill)
-        killVPN;
+        kill_vpn;
         exit 0
         ;;
 esac
