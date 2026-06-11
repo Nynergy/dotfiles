@@ -3,35 +3,32 @@
 # A script for mounting/unmounting devices using dmenu
 
 # Maintainer:       Ben Buchanan
-# Version:          1.0.2
-# Last Modified:    03-Jun-2026
+# Version:          1.0.3
+# Last Modified:    11-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 
 FONT="Terminus-10"
-BACKGROUND=$(awk '/color0:/ {print $2}' "$XRESOURCES")
+BACKGROUND=$(awk '/background:/ {print $2}' "$XRESOURCES" | head -n 1)
 FOREGROUND=$(awk '/color4:/ {print $2}' "$XRESOURCES")
 
 DMENU_SETTINGS=(-nb "$BACKGROUND" -nf "$FOREGROUND" \
                 -sb "$FOREGROUND" -sf "$BACKGROUND" \
                 -fn "$FONT")
 
+die() {
+    dunstify 'ERROR' "$1"
+    exit 1
+}
+
 get_devices_by_label() {
     DEVICES="$(ls -1 /dev/disk/by-label/)"
-    if [ -z "$DEVICES" ]
-    then
-        dunstify "Error when reading devices" "No labeled devices could be found. Exiting..."
-        exit
-    fi
+    [[ -z "$DEVICES" ]] && die 'No labeled devices could be found.'
 }
 
 get_choice() {
     CHOICE="$(echo -e "\n$DEVICES" | dmenu -l 20 "${DMENU_SETTINGS[@]}" -i -p 'Choose a Device:')"
-    if [ -z "$CHOICE" ]
-    then
-        dunstify "No device chosen" "Exiting..."
-        exit
-    fi
+    [[ -z "$CHOICE" ]] && exit 0
 }
 
 get_devices_by_label
@@ -42,7 +39,7 @@ if ! mount LABEL="$CHOICE"
 then
     if ! umount LABEL="$CHOICE"
     then
-        dunstify "ERROR" "Something went wrong when mounting/unmounting device '$CHOICE'"
+        die "Something went wrong when mounting/unmounting device '$CHOICE'"
     else
         dunstify "Device $CHOICE unmounted"
     fi
