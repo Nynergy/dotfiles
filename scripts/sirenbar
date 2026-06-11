@@ -3,28 +3,19 @@
 # A script that prints song info to polybar
 
 # Maintainer:       Ben Buchanan
-# Version:          1.2.0
-# Last Modified:    03-Jun-2026
+# Version:          1.2.1
+# Last Modified:    10-Jun-2026
 
-if [ "$EUID" -ne 0 ]
-then
-    ENV_FILE="$HOME/.env.sh"
-else
-    ENV_FILE="/.env.sh"
-fi
+ENV_FILE="$HOME/.env.sh"
+(( EUID == 0 )) && ENV_FILE="/.env.sh"
 
-if [ -f "$ENV_FILE" ]
-then
-    # shellcheck disable=SC1090
-    source "$ENV_FILE"
-else
-    printf 'Could not locate env file at %s\n' "'$ENV_FILE'"
-    exit
-fi
+[[ -f "$ENV_FILE" ]] || die "Could not locate env file at '$ENV_FILE'"
+# shellcheck disable=SC1090
+source "$ENV_FILE"
 
 XRESOURCES=$HOME/.Xresources
 
-NORMAL=$(awk '/color7:/ {print $2}' "$XRESOURCES")
+NORMAL=$(awk '/foreground:/ {print $2}' "$XRESOURCES")
 FILLED=$(awk '/color5:/ {print $2}' "$XRESOURCES")
 
 RPC_ENDPOINT="http://$LMS_IP_ADDRESS:9000/jsonrpc.js"
@@ -39,70 +30,61 @@ payload () {
 }
 
 query () {
-    local payload=
-    payload=$(payload "$1" "$2")
+    local p
+    p=$(payload "$1" "$2")
 
     curl -s --header 'Content-Type: application/json' \
          --request POST \
-         --data "$payload" \
+         --data "$p" \
          "$RPC_ENDPOINT" | jq '.result'
 }
 
 get_players () {
-    local server_status=
+    local server_status
     server_status=$(query '"-"' '"serverstatus", 0')
     echo "$server_status" | jq '[ .players_loop[] | { (.name): .playerid } ]'
 }
 
 get_id_from_player () {
-    local player_id=
+    local player player_id
 
     for player in "$@"; {
         player_id=$(echo "$PLAYERS" | jq ".[] | select(has(\"$player\")) | .$player")
-        [ -n "$player_id" ] && break
+        [[ -n "$player_id" ]] && break
     }
 
     # If none of the provided players exist, then exit
-    [ -z "$player_id" ] && player_id='EXIT'
+    [[ -z "$player_id" ]] && player_id='EXIT'
 
     printf '%s' "$player_id"
 }
 
 get_player_status () {
-    local player_status=
-    local total_tracks=
-    local playlist_index=
-    local playlist_mode=
-    local time_info=
-    local elapsed=
+    local player_status total_tracks playlist_index playlist_mode time_info elapsed
 
     player_status=$(query "$PLAYER_ID" '"status", 0, 9999')
     total_tracks=$(echo "$player_status" | jq '.playlist_tracks')
 
     # If the playlist is empty, then return early
-    [ "$total_tracks" -eq 0 ] && {
+    (( total_tracks == 0 )) && {
         printf 'EXIT'
         exit
     }
 
     playlist_index=$(echo "$player_status" | jq '.playlist_cur_index')
-
     playlist_mode=$(echo "$player_status" | jq '.mode')
     time_info=$(query "$PLAYER_ID" '"time", "?"')
 
     case "$playlist_mode" in
-        'stop')
-            elapsed=0.0 ;;
-        *)
-            elapsed=$(echo "$time_info" | jq '._time') ;;
+        'stop') elapsed=0.0 ;;
+        *) elapsed=$(echo "$time_info" | jq '._time') ;;
     esac
 
     printf '{ "playlist_index": %s, "elapsed": %s }' "$playlist_index" "$elapsed"
 }
 
 get_player_playlist () {
-    local player_status=
-    local playlist_loop=
+    local player_status playlist_loop
 
     player_status=$(query "$PLAYER_ID" '"status", 0, 9999, "tags:adl"')
     playlist_loop=$(echo "$player_status" | jq '.playlist_loop')
@@ -111,15 +93,12 @@ get_player_playlist () {
 }
 
 construct_song_string () {
-    local raw_title_string=
-    local title_string=
-    local fraction_played=
-    local playbar=
+    local raw_title_string title_string fraction_played playbar
 
     raw_title_string="$ARTIST - $TITLE"
     title_string="${raw_title_string:0:MAX_TITLE_LENGTH}"
 
-    [ "${#raw_title_string}" -gt "$MAX_TITLE_LENGTH" ] && title_string="$title_string..."
+    (( ${#raw_title_string} > MAX_TITLE_LENGTH )) && title_string="$title_string..."
 
     fraction_played=$(echo "$ELAPSED / $DURATION * 100" | bc -l)
     playbar=$(construct_playbar "$fraction_played" "$PLAYBAR_LENGTH")
@@ -128,16 +107,16 @@ construct_song_string () {
 }
 
 construct_playbar () {
-    local elapsed=
-    local remaining=
+    local elapsed remaining
 
     elapsed=$(printf '%.*f' 0 "$(echo "$1 * $2 / 100" | bc -l)")
     remaining=$(echo "$2 - $elapsed" | bc -l)
 
-    [ "$elapsed" -eq "$PLAYBAR_LENGTH" ] && elapsed=$((elapsed - 1))
-    [ "$elapsed" -lt "$PLAYBAR_LENGTH" ] && remaining=$((remaining - 1))
-    [ "$remaining" -lt 0 ] && remaining=0
+    (( elapsed == PLAYBAR_LENGTH )) && ((elapsed--))
+    (( elapsed < PLAYBAR_LENGTH )) && ((remaining--))
+    (( remaining < 0 )) && remaining=0
 
+    local prog total
     printf -v prog "%${elapsed}s"
     printf -v total "%${remaining}s"
 

@@ -3,17 +3,13 @@
 # A master script for recoloring applications
 
 # Maintainer:       Ben Buchanan
-# Version:          1.1.0
-# Last Modified:    09-Jun-2026
+# Version:          1.1.1
+# Last Modified:    10-Jun-2026
 
 XRESOURCES=$HOME/.Xresources
 DUNST_CONFIG=$HOME/.config/dunst/dunstrc
 POLYBAR_CONFIG=$HOME/.config/polybar/config
 ZATHURA_CONFIG=$HOME/.config/zathura/zathurarc
-
-xrdb load "$XRESOURCES"
-
-pkill dunst
 
 get_colors () {
     BACKGROUND=$(awk '/background:/ {print $2}' "$XRESOURCES" | head -n 1)
@@ -87,6 +83,10 @@ gen_zathura () {
     pattern='recolor-lightcolor .*'; replace="recolor-lightcolor \\\\$BACKGROUND"
     sed -i --follow-symlinks "s/$pattern/$replace/" "$ZATHURA_CONFIG"
 }
+
+xrdb load "$XRESOURCES"
+
+pkill dunst
 
 get_colors
 
