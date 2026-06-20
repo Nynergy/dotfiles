@@ -18,7 +18,7 @@ If you want to see all the documented dependencies/suggested installs, run the
 following command from within the base directory of this dotfiles repo:
 
 ```
-$ grep -r "\- " ./**/README.md | grep -Ev "Apt|Repos|Other|#|\`" | cut -d '-' -f 2- | sed 's/ //' | sort | uniq
+$ grep -r "\- " ./**/README.md | grep -Ev "Apt|Repos|#|\`" | cut -d '-' -f 2- | sort | uniq | sed 's/ //'
 ```
 
 Some of those will be Debian packages that can be installed using `apt`, others
